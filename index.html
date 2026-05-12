@@ -211,7 +211,7 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.2 · Document Capsule Upload Build</div>
+        <div class="eyebrow">Navigator Twin v2.2.1 · Document Capsule Save UI</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
         <div class="subtitle">This build preserves the successful Twin memory system and adds controlled Document Capsule uploads: small text-based artifacts can be summarized into approved memory without storing raw files.</div>
       </div>
@@ -313,7 +313,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.2 Document Capsules.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.2.1 Document Capsule Save UI.</div>
           </div>
         </div>
       </aside>
@@ -328,7 +328,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.2 Document Capsules';
+  const APP_VERSION = 'Navigator Twin v2.2.1 Document Capsule Save UI';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1156,7 +1156,7 @@ Return only valid JSON with this exact shape:
       }
       capsule = normalizeImportedCapsule(Object.assign(capsule, { fileName:name, fileSize:file.size, mode, createdAt:new Date().toISOString() }));
       renderCapsuleDraft(capsule);
-      setDocumentStatus('Capsule draft ready. Review it before saving anything to Twin memory.');
+      setDocumentStatus('Capsule draft ready. It is NOT saved yet. Review it below, then choose one of the Save buttons.');
     } catch(e) {
       alert(e.message || 'Could not process this file.');
       showDebug('DOCUMENT UPLOAD ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -1242,7 +1242,8 @@ Return only valid JSON with this shape:
     const box = document.getElementById('capsule-draft');
     if(!box) return;
     box.classList.add('visible');
-    box.innerHTML = '<div class="capsule-title">Draft Capsule: ' + escapeHtml(capsule.title) + '</div>'
+    box.innerHTML = '<div class="status-line" style="color:var(--gold);font-weight:800;">Draft only — not saved yet. Choose a save option below to keep this capsule.</div>'
+      + '<div class="capsule-title">Draft Capsule: ' + escapeHtml(capsule.title) + '</div>'
       + '<div class="capsule-summary">' + escapeHtml(capsule.summary) + '</div>'
       + '<div class="capsule-tags">' + (capsule.themes || []).map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
       + (capsule.styleNotes && capsule.styleNotes.length ? '<div class="status-line"><strong>Style:</strong> ' + escapeHtml(capsule.styleNotes.join('; ')) + '</div>' : '')
@@ -1250,11 +1251,12 @@ Return only valid JSON with this shape:
       + '<div class="status-line"><strong>Suggested journal entry:</strong> “' + escapeHtml(capsule.suggestedJournalEntry) + '.”</div>'
       + '<div class="status-line"><strong>Suggested follow-up:</strong> ' + escapeHtml(capsule.followUpQuestion) + '</div>'
       + '<div class="toolbar">'
-      + '<button class="btn small primary" type="button" onclick="savePendingCapsule(true)">Remember Capsule + Journal Entry</button>'
-      + '<button class="btn small ghost" type="button" onclick="savePendingCapsule(false)">Remember Capsule Only</button>'
+      + '<button class="btn small primary" type="button" onclick="savePendingCapsule(false)">Save Capsule to Twin Memory</button>'
+      + '<button class="btn small ghost" type="button" onclick="savePendingCapsule(true)">Save Capsule + Add Journal Entry</button>'
       + '<button class="btn small ghost" type="button" onclick="editPendingCapsule()">Edit Draft</button>'
-      + '<button class="btn small danger" type="button" onclick="discardPendingCapsule()">Discard</button>'
+      + '<button class="btn small danger" type="button" onclick="discardPendingCapsule()">Discard Draft</button>'
       + '</div>';
+    try { box.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e) {}
   }
 
   function editPendingCapsule(){
@@ -1303,11 +1305,12 @@ Return only valid JSON with this shape:
     }
     list.innerHTML = capsules.slice().reverse().map(c => {
       return '<div class="capsule-card">'
+        + '<div class="status-line" style="color:var(--teal);font-weight:800;">Saved Capsule</div>'
         + '<div class="capsule-title">' + escapeHtml(c.title || 'Document Capsule') + '</div>'
         + '<div class="capsule-summary">' + escapeHtml(c.summary || '') + '</div>'
         + '<div class="capsule-tags">' + (c.themes || []).map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
         + '<div class="journal-entry-meta">' + escapeHtml(c.mode || 'quick_context') + ' · ' + escapeHtml(c.fileName || '') + '</div>'
-        + '<div class="entry-actions"><button class="btn small danger" type="button" onclick="deleteCapsule(\'' + c.id + '\')">Delete</button></div>'
+        + '<div class="entry-actions"><button class="btn small danger" type="button" onclick="deleteCapsule(\'' + c.id + '\')">Delete Saved Capsule</button></div>'
         + '</div>';
     }).join('');
   }
