@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2 Core</title>
-  <meta name="description" content="Navigator Twin v2 Core Web App — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.1 Memory Safety</title>
+  <meta name="description" content="Navigator Twin v2.1 Restore and Memory Safety Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -172,13 +172,14 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2 Core · No PWA Development Build</div>
+        <div class="eyebrow">Navigator Twin v2.1 · Restore + Memory Safety Build</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build focuses on the first milestone: a Digital Twin that remembers, assembles a private journal, reflects patterns back tentatively, avoids repeated questions, and asks from what it still needs to understand.</div>
+        <div class="subtitle">This build preserves the successful Core Twin experience and adds memory safety: import/restore JSON, save status, backup reminders, and safer versioned exports.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
         <button class="btn small ghost" type="button" onclick="testBackendConnection()">Test connection</button>
+        <span class="pill"><span class="dot ok"></span><span id="save-label">Saved locally</span></span>
       </div>
     </div>
 
@@ -216,7 +217,8 @@
               <div id="stage-text" class="stage-text">Your Twin is waiting to learn its first pattern.</div>
             </div>
             <div class="coverage-list" id="coverage-list"></div>
-            <div class="privacy-note">Memory is stored in this browser using localStorage. Use Export or Clear Memory before changing devices or sharing a computer.</div>
+            <div class="privacy-note">Memory is stored in this browser using localStorage. Use Export, Import/Restore, or Clear Memory before changing devices or sharing a computer.</div>
+            <div id="backup-reminder" class="privacy-note" style="display:none; border-left-color: rgba(96,163,111,.55);"></div>
           </div>
         </div>
 
@@ -230,6 +232,8 @@
             <div class="toolbar">
               <button class="btn small ghost" type="button" onclick="exportTwinJournal('txt')">Export TXT</button>
               <button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export JSON</button>
+              <button class="btn small primary" type="button" onclick="triggerImportTwinMemory()">Import / Restore JSON</button>
+              <input id="import-json-file" type="file" accept="application/json,.json" style="display:none" onchange="handleImportTwinMemoryFile(event)" />
               <button class="btn small danger" type="button" onclick="clearTwinMemory()">Clear Twin Memory</button>
             </div>
           </div>
@@ -245,7 +249,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.1 Memory Safety.</div>
           </div>
         </div>
       </aside>
@@ -260,6 +264,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
+  const APP_VERSION = 'Navigator Twin v2.1 Memory Safety';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -267,7 +272,8 @@
     coverage: 'navigator_twin_v2_coverage',
     questions: 'navigator_twin_v2_questions',
     settings: 'navigator_twin_v2_settings',
-    mode: 'navigator_twin_v2_mode'
+    mode: 'navigator_twin_v2_mode',
+    lastSaved: 'navigator_twin_v2_last_saved'
   };
 
   const DIMENSIONS = [
@@ -355,7 +361,24 @@
   }
 
   function setStored(key, value){
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) { showDebug('Storage error: ' + e.message); }
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      if(key !== KEYS.lastSaved){
+        localStorage.setItem(KEYS.lastSaved, new Date().toISOString());
+        updateSaveStatus();
+      }
+    } catch(e) { showDebug('Storage error: ' + e.message); }
+  }
+
+  function updateSaveStatus(){
+    const label = document.getElementById('save-label');
+    if(!label) return;
+    let raw = '';
+    try { raw = localStorage.getItem(KEYS.lastSaved) || ''; } catch(e) {}
+    if(!raw){ label.textContent = 'Saved locally'; return; }
+    const d = new Date(raw);
+    if(isNaN(d.getTime())){ label.textContent = 'Saved locally'; return; }
+    label.textContent = 'Saved locally ' + d.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
   }
 
   function getSettings(){
@@ -388,7 +411,11 @@
   }
 
   function setTwinMode(mode){
-    try { localStorage.setItem(KEYS.mode, mode); } catch(e) {}
+    try {
+      localStorage.setItem(KEYS.mode, mode);
+      localStorage.setItem(KEYS.lastSaved, new Date().toISOString());
+      updateSaveStatus();
+    } catch(e) {}
     document.getElementById('mode-twin').classList.toggle('active', mode === 'twin_asks');
     document.getElementById('mode-human').classList.toggle('active', mode === 'human_starts');
     const input = document.getElementById('chat-input');
@@ -457,6 +484,20 @@
     if(sn) sn.textContent = stage.name;
     if(st) st.textContent = stage.text;
 
+    const reminder = document.getElementById('backup-reminder');
+    if(reminder){
+      if(count >= 14){
+        reminder.style.display = 'block';
+        reminder.textContent = 'Your Twin is substantially coherent. Export a JSON backup before major edits, browser cleanup, or switching devices.';
+      } else if(count >= 10){
+        reminder.style.display = 'block';
+        reminder.textContent = 'Your Twin is becoming coherent. Consider exporting a JSON backup soon so this conversation can be restored later.';
+      } else {
+        reminder.style.display = 'none';
+        reminder.textContent = '';
+      }
+    }
+
     const cov = getCoverage();
     const list = document.getElementById('coverage-list');
     if(list){
@@ -495,6 +536,7 @@
     renderChat();
     renderCoherence();
     renderJournal();
+    updateSaveStatus();
   }
 
   function setBackendStatus(kind, label){
@@ -871,7 +913,16 @@ Return only valid JSON with this exact shape:
     const coverage = getCoverage();
     let content, type, filename;
     if(kind === 'json'){
-      content = JSON.stringify({ exportedAt: new Date().toISOString(), journal, coverage, chat }, null, 2);
+      content = JSON.stringify({
+        appVersion: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        chat,
+        journal,
+        coverage,
+        questions: getQuestions(),
+        mode: getMode(),
+        settings: getSettings()
+      }, null, 2);
       type = 'application/json'; filename = 'navigator-twin-journal.json';
     } else {
       content = 'Navigator Twin Journal\nExported: ' + new Date().toLocaleString() + '\n\n'
@@ -888,9 +939,99 @@ Return only valid JSON with this exact shape:
   }
   window.exportTwinJournal = exportTwinJournal;
 
-  function clearTwinMemory(){
+  
+  function triggerImportTwinMemory(){
+    const input = document.getElementById('import-json-file');
+    if(input) input.click();
+  }
+  window.triggerImportTwinMemory = triggerImportTwinMemory;
+
+  function normalizeImportedMessage(m){
+    const role = ['user','assistant','system'].includes(m && m.role) ? m.role : 'system';
+    return {
+      id: (m && m.id) || uid('turn'),
+      role,
+      content: String((m && m.content) || '').slice(0, 12000),
+      timestamp: (m && m.timestamp) || new Date().toISOString()
+    };
+  }
+
+  function normalizeImportedJournalEntry(e){
+    const cat = DIMENSIONS.some(d => d.key === (e && e.category)) ? e.category : 'meaning';
+    return {
+      id: (e && e.id) || uid('journal'),
+      text: sanitizeJournalText((e && e.text) || (e && e.journalEntry) || ''),
+      category: cat,
+      confidence: Math.max(0, Math.min(1, Number(e && e.confidence) || .65)),
+      sourceTurnIds: Array.isArray(e && e.sourceTurnIds) ? e.sourceTurnIds : [],
+      timestamp: (e && e.timestamp) || new Date().toISOString()
+    };
+  }
+
+  function extractQuestionsFromChat(chat){
+    const qs = [];
+    chat.forEach(m => {
+      if(m.role === 'assistant'){
+        const q = extractLastQuestion(m.content);
+        if(q && !qs.some(existing => normalizeQuestion(existing) === normalizeQuestion(q))) qs.push(q);
+      }
+    });
+    return qs.slice(-60);
+  }
+
+  function validateImportPayload(data){
+    if(!data || typeof data !== 'object') throw new Error('The selected file is not a valid Navigator Twin JSON object.');
+    const chat = Array.isArray(data.chat) ? data.chat.map(normalizeImportedMessage).filter(m => m.content.trim()) : [];
+    const journal = Array.isArray(data.journal) ? data.journal.map(normalizeImportedJournalEntry).filter(e => e.text.trim().length >= 8) : [];
+    if(chat.length === 0 && journal.length === 0) throw new Error('The selected JSON does not contain a usable Twin conversation or Twin Journal.');
+    let coverage = data.coverage && typeof data.coverage === 'object' ? data.coverage : null;
+    if(!coverage){
+      coverage = {};
+      DIMENSIONS.forEach(d => { coverage[d.key] = 0; });
+      journal.forEach(e => { coverage[e.category] = Math.min(5, (coverage[e.category] || 0) + 1); });
+    } else {
+      const safe = {};
+      DIMENSIONS.forEach(d => { safe[d.key] = Math.max(0, Math.min(5, Number(coverage[d.key]) || 0)); });
+      coverage = safe;
+    }
+    const questions = Array.isArray(data.questions) ? data.questions.map(q => String(q || '').trim()).filter(Boolean).slice(-60) : extractQuestionsFromChat(chat);
+    const mode = data.mode === 'human_starts' ? 'human_starts' : 'twin_asks';
+    return { chat, journal, coverage, questions, mode };
+  }
+
+  async function handleImportTwinMemoryFile(event){
+    const input = event && event.target;
+    const file = input && input.files && input.files[0];
+    if(!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const restored = validateImportPayload(data);
+      const currentCount = getChat().length + getJournal().length;
+      const msg = currentCount
+        ? 'This will replace the current Twin memory in this browser with the imported file. Continue?'
+        : 'Restore this Twin memory into this browser?';
+      if(!confirm(msg)) return;
+      setChat(restored.chat);
+      setJournal(restored.journal);
+      setCoverage(restored.coverage);
+      setQuestions(restored.questions);
+      try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
+      try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
+      renderAll();
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '.');
+    } catch(e) {
+      alert('Could not import this JSON file: ' + e.message);
+      showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
+    } finally {
+      if(input) input.value = '';
+    }
+  }
+  window.handleImportTwinMemoryFile = handleImportTwinMemoryFile;
+
+function clearTwinMemory(){
     if(!confirm('Clear the Twin conversation, journal, coverage, and asked questions from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
