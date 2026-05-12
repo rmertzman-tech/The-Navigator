@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.1 Memory Safety</title>
-  <meta name="description" content="Navigator Twin v2.1 Restore and Memory Safety Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.2 Document Capsules</title>
+  <meta name="description" content="Navigator Twin v2.2 Document Capsule Upload Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -157,6 +157,45 @@
     .field label { display: block; font: 700 .72rem/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 7px; }
     input[type="text"] { width: 100%; border: 1px solid var(--line); background: rgba(6,11,24,.62); color: var(--text); border-radius: 12px; padding: 10px 12px; outline: none; }
     input[type="text"]:focus { border-color: rgba(201,168,76,.45); }
+
+    .capsule-draft {
+      margin-top: 12px;
+      border: 1px solid rgba(201,168,76,.35);
+      background: rgba(201,168,76,.055);
+      border-radius: 14px;
+      padding: 12px;
+      display: none;
+    }
+    .capsule-draft.visible { display: block; }
+    .capsule-list { display: grid; gap: 10px; margin-top: 12px; }
+    .capsule-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px;
+    }
+    .capsule-title { color: var(--text); font-weight: 750; margin-bottom: 6px; }
+    .capsule-summary { color: var(--muted); font-size: .9rem; }
+    .capsule-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+    .tag {
+      border: 1px solid rgba(255,255,255,.11);
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 4px 7px;
+      font-size: .72rem;
+    }
+    .status-line { color: var(--muted); font-size: .84rem; margin-top: 9px; }
+    .select-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(6,11,24,.62);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+    }
     .debug { display: none; margin-top: 16px; border: 1px solid rgba(204,107,95,.45); background: rgba(204,107,95,.08); color: #ffd3cd; border-radius: 14px; padding: 12px; white-space: pre-wrap; font-family: var(--mono); font-size: .78rem; }
     .privacy-note { color: var(--muted); font-size: .84rem; border-left: 3px solid rgba(201,168,76,.45); padding-left: 11px; margin-top: 12px; }
     @media (max-width: 900px) {
@@ -172,9 +211,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.1 · Restore + Memory Safety Build</div>
+        <div class="eyebrow">Navigator Twin v2.2 · Document Capsule Upload Build</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build preserves the successful Core Twin experience and adds memory safety: import/restore JSON, save status, backup reminders, and safer versioned exports.</div>
+        <div class="subtitle">This build preserves the successful Twin memory system and adds controlled Document Capsule uploads: small text-based artifacts can be summarized into approved memory without storing raw files.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -241,6 +280,31 @@
 
         <div class="card" style="margin-top:18px;">
           <div class="card-header">
+            <div class="card-title">Document Capsules</div>
+            <div class="card-desc">Upload a small text-based artifact so the Twin can learn from what you have made. The app stores only an approved capsule, not the raw file.</div>
+          </div>
+          <div class="card-body">
+            <div class="select-row">
+              <label for="capsule-mode" style="font:700 .72rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--dim);">Capsule mode</label>
+              <select id="capsule-mode">
+                <option value="quick_context">Quick Context — understand this one artifact</option>
+                <option value="research_style">Research Style — understand my thinking and writing</option>
+                <option value="project_memory">Project Memory — understand a project I am building</option>
+              </select>
+            </div>
+            <div class="toolbar">
+              <button class="btn small primary" type="button" onclick="triggerDocumentUpload()">Upload TXT / MD / HTML</button>
+              <input id="document-upload-file" type="file" accept=".txt,.md,.markdown,.html,.htm,text/plain,text/markdown,text/html" style="display:none" onchange="handleDocumentUploadFile(event)" />
+            </div>
+            <div id="document-upload-status" class="status-line">Maximum file size: 500 KB. Raw text is processed temporarily and is not saved.</div>
+            <div id="capsule-draft" class="capsule-draft"></div>
+            <div id="capsule-list" class="capsule-list"></div>
+            <div class="privacy-note">Use uploads for artifacts you are comfortable sharing with the backend. The saved Twin memory contains only the capsule you approve.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-header">
             <div class="card-title">Settings</div>
             <div class="card-desc">Backend configuration for the Claude proxy.</div>
           </div>
@@ -249,7 +313,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.1 Memory Safety.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.2 Document Capsules.</div>
           </div>
         </div>
       </aside>
@@ -264,7 +328,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.1 Memory Safety';
+  const APP_VERSION = 'Navigator Twin v2.2 Document Capsules';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -273,7 +337,8 @@
     questions: 'navigator_twin_v2_questions',
     settings: 'navigator_twin_v2_settings',
     mode: 'navigator_twin_v2_mode',
-    lastSaved: 'navigator_twin_v2_last_saved'
+    lastSaved: 'navigator_twin_v2_last_saved',
+    capsules: 'navigator_twin_v2_document_capsules'
   };
 
   const DIMENSIONS = [
@@ -399,6 +464,8 @@
   function setJournal(journal){ setStored(KEYS.journal, journal); }
   function getQuestions(){ return getStored(KEYS.questions, []); }
   function setQuestions(qs){ setStored(KEYS.questions, qs.slice(-60)); }
+  function getCapsules(){ return getStored(KEYS.capsules, []); }
+  function setCapsules(capsules){ setStored(KEYS.capsules, capsules.slice(-30)); }
   function getCoverage(){
     const base = {};
     DIMENSIONS.forEach(d => { base[d.key] = 0; });
@@ -536,6 +603,7 @@
     renderChat();
     renderCoherence();
     renderJournal();
+    renderCapsules();
     updateSaveStatus();
   }
 
@@ -618,6 +686,7 @@ Essential design principle: The Twin is not asking the student to confess a self
     const journal = getJournal();
     const coverage = getCoverage();
     const questions = getQuestions().slice(-18);
+    const capsules = getCapsules().slice(-8).map(c => ({ title:c.title, mode:c.mode, summary:c.summary, themes:c.themes, styleNotes:c.styleNotes, projectPurpose:c.projectPurpose, suggestedJournalEntry:c.suggestedJournalEntry }));
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -631,6 +700,7 @@ Essential design principle: The Twin is not asking the student to confess a self
       coverage: coverage,
       leastExplored: least,
       questionsAlreadyAsked: questions,
+      documentCapsules: capsules,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -920,6 +990,7 @@ Return only valid JSON with this exact shape:
         journal,
         coverage,
         questions: getQuestions(),
+        documentCapsules: getCapsules(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -996,7 +1067,8 @@ Return only valid JSON with this exact shape:
     }
     const questions = Array.isArray(data.questions) ? data.questions.map(q => String(q || '').trim()).filter(Boolean).slice(-60) : extractQuestionsFromChat(chat);
     const mode = data.mode === 'human_starts' ? 'human_starts' : 'twin_asks';
-    return { chat, journal, coverage, questions, mode };
+    const documentCapsules = Array.isArray(data.documentCapsules) ? data.documentCapsules.map(normalizeImportedCapsule).filter(c => c.title || c.summary) : [];
+    return { chat, journal, coverage, questions, mode, documentCapsules };
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -1016,10 +1088,11 @@ Return only valid JSON with this exact shape:
       setJournal(restored.journal);
       setCoverage(restored.coverage);
       setQuestions(restored.questions);
+      setCapsules(restored.documentCapsules || []);
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -1029,9 +1102,226 @@ Return only valid JSON with this exact shape:
   }
   window.handleImportTwinMemoryFile = handleImportTwinMemoryFile;
 
+
+
+  function normalizeImportedCapsule(c){
+    return {
+      id: (c && c.id) || uid('doc'),
+      title: String((c && c.title) || 'Imported document capsule').slice(0, 120),
+      mode: ['quick_context','research_style','project_memory'].includes(c && c.mode) ? c.mode : 'quick_context',
+      fileName: String((c && c.fileName) || '').slice(0, 180),
+      fileSize: Number(c && c.fileSize) || 0,
+      summary: String((c && c.summary) || '').slice(0, 1800),
+      themes: Array.isArray(c && c.themes) ? c.themes.map(x => String(x).slice(0, 60)).slice(0, 8) : [],
+      styleNotes: Array.isArray(c && c.styleNotes) ? c.styleNotes.map(x => String(x).slice(0, 90)).slice(0, 8) : [],
+      projectPurpose: String((c && c.projectPurpose) || '').slice(0, 900),
+      suggestedJournalEntry: sanitizeJournalText((c && c.suggestedJournalEntry) || 'seems to use artifacts to reveal patterns of thought and commitment'),
+      followUpQuestion: String((c && c.followUpQuestion) || '').slice(0, 260),
+      createdAt: (c && c.createdAt) || new Date().toISOString()
+    };
+  }
+
+  function triggerDocumentUpload(){
+    const input = document.getElementById('document-upload-file');
+    if(input) input.click();
+  }
+  window.triggerDocumentUpload = triggerDocumentUpload;
+
+  function setDocumentStatus(text){
+    const el = document.getElementById('document-upload-status');
+    if(el) el.textContent = text;
+  }
+
+  async function handleDocumentUploadFile(event){
+    const input = event && event.target;
+    const file = input && input.files && input.files[0];
+    if(!file) return;
+    try {
+      if(file.size > 500 * 1024) throw new Error('This file is larger than 500 KB. Please upload a smaller text excerpt for this development build.');
+      const name = file.name || 'uploaded document';
+      if(!/\.(txt|md|markdown|html|htm)$/i.test(name)) throw new Error('This build accepts .txt, .md, .markdown, .html, or .htm files only.');
+      setDocumentStatus('Reading ' + name + ' temporarily…');
+      let raw = await file.text();
+      raw = cleanUploadedText(raw, name);
+      if(raw.trim().length < 120) throw new Error('This file does not contain enough readable text to create a useful capsule.');
+      const modeEl = document.getElementById('capsule-mode');
+      const mode = modeEl ? modeEl.value : 'quick_context';
+      setDocumentStatus('Creating a Document Capsule. Raw text will not be saved…');
+      let capsule;
+      try {
+        capsule = await createCapsuleWithBackend(raw, { fileName:name, fileSize:file.size, mode });
+      } catch(e) {
+        capsule = createLocalCapsule(raw, { fileName:name, fileSize:file.size, mode });
+        setBackendStatus('bad', 'Backend unavailable');
+      }
+      capsule = normalizeImportedCapsule(Object.assign(capsule, { fileName:name, fileSize:file.size, mode, createdAt:new Date().toISOString() }));
+      renderCapsuleDraft(capsule);
+      setDocumentStatus('Capsule draft ready. Review it before saving anything to Twin memory.');
+    } catch(e) {
+      alert(e.message || 'Could not process this file.');
+      showDebug('DOCUMENT UPLOAD ERROR: ' + (e && e.stack ? e.stack : e.message));
+      setDocumentStatus('Upload failed. No document text was saved.');
+    } finally {
+      if(input) input.value = '';
+    }
+  }
+  window.handleDocumentUploadFile = handleDocumentUploadFile;
+
+  function cleanUploadedText(raw, name){
+    let text = String(raw || '');
+    if(/\.(html|htm)$/i.test(name)){
+      const doc = new DOMParser().parseFromString(text, 'text/html');
+      doc.querySelectorAll('script,style,noscript,svg').forEach(n => n.remove());
+      text = doc.body ? doc.body.textContent || '' : text.replace(/<[^>]+>/g, ' ');
+    }
+    text = text.replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+    return text.slice(0, 18000);
+  }
+
+  function buildCapsuleSystemPrompt(){
+    return `You are helping a Digital Twin understand the human through a document they chose to share.
+
+Create a concise Document Capsule. Do not repeat the full document. Do not store raw text. Infer only from the artifact provided. Use cautious language and avoid private facts beyond the text.
+
+Return only valid JSON with this shape:
+{
+  "title": "short capsule title",
+  "summary": "4-6 sentence summary of what this artifact suggests about the person's work, thought, values, questions, or project",
+  "themes": ["3-6 short recurring themes"],
+  "styleNotes": ["2-5 notes about thinking or writing style"],
+  "projectPurpose": "one concise sentence if this is a project artifact, otherwise empty string",
+  "suggestedJournalEntry": "one cautious third-person Twin Journal entry under 22 words",
+  "followUpQuestion": "one warm concrete question the Twin should ask next"
+}`;
+  }
+
+  async function createCapsuleWithBackend(text, meta){
+    const content = JSON.stringify({
+      mode: meta.mode,
+      fileName: meta.fileName,
+      fileSize: meta.fileSize,
+      documentText: text.slice(0, 14000),
+      existingJournal: getJournal().slice(-12),
+      existingCapsules: getCapsules().slice(-6),
+      instruction: 'Create a Document Capsule for review. The user must approve it before it is saved.'
+    }, null, 2);
+    const raw = await callBackend(buildCapsuleSystemPrompt(), content, 850);
+    return parseCapsule(raw);
+  }
+
+  function parseCapsule(raw){
+    let s = String(raw || '').trim();
+    s = s.replace(/^```json/i, '').replace(/^```/i, '').replace(/```$/i, '').trim();
+    const first = s.indexOf('{');
+    const last = s.lastIndexOf('}');
+    if(first >= 0 && last > first) s = s.slice(first, last + 1);
+    return JSON.parse(s);
+  }
+
+  function createLocalCapsule(text, meta){
+    const words = text.toLowerCase().match(/[a-z][a-z-]{3,}/g) || [];
+    const stop = new Set('that this with from have were they their about which would could should there these those into only also more such been when what your will than then them some most much many very just like through across because between within without while where who whom whose into onto over under after before'.split(' '));
+    const counts = {};
+    words.forEach(w => { if(!stop.has(w)) counts[w] = (counts[w] || 0) + 1; });
+    const themes = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 6);
+    const firstSentences = text.split(/(?<=[.!?])\s+/).filter(Boolean).slice(0, 4).join(' ');
+    const modeLabel = meta.mode === 'research_style' ? 'Research Style Capsule' : meta.mode === 'project_memory' ? 'Project Memory Capsule' : 'Document Capsule';
+    return {
+      title: modeLabel + ': ' + (meta.fileName || 'uploaded artifact'),
+      summary: firstSentences.slice(0, 900) || 'This artifact appears to contain a meaningful pattern the Twin can use for future reflection.',
+      themes,
+      styleNotes: meta.mode === 'research_style' ? ['synthetic', 'framework-building', 'reflective'] : ['artifact-based reflection'],
+      projectPurpose: meta.mode === 'project_memory' ? 'This artifact appears connected to an ongoing project the person wants the Twin to understand.' : '',
+      suggestedJournalEntry: 'seems to use written artifacts to clarify patterns of meaning, work, and commitment',
+      followUpQuestion: 'What part of this artifact feels most important for me to remember about how you think or work?'
+    };
+  }
+
+  function renderCapsuleDraft(capsule){
+    window.__pendingCapsule = capsule;
+    const box = document.getElementById('capsule-draft');
+    if(!box) return;
+    box.classList.add('visible');
+    box.innerHTML = '<div class="capsule-title">Draft Capsule: ' + escapeHtml(capsule.title) + '</div>'
+      + '<div class="capsule-summary">' + escapeHtml(capsule.summary) + '</div>'
+      + '<div class="capsule-tags">' + (capsule.themes || []).map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+      + (capsule.styleNotes && capsule.styleNotes.length ? '<div class="status-line"><strong>Style:</strong> ' + escapeHtml(capsule.styleNotes.join('; ')) + '</div>' : '')
+      + (capsule.projectPurpose ? '<div class="status-line"><strong>Project:</strong> ' + escapeHtml(capsule.projectPurpose) + '</div>' : '')
+      + '<div class="status-line"><strong>Suggested journal entry:</strong> “' + escapeHtml(capsule.suggestedJournalEntry) + '.”</div>'
+      + '<div class="status-line"><strong>Suggested follow-up:</strong> ' + escapeHtml(capsule.followUpQuestion) + '</div>'
+      + '<div class="toolbar">'
+      + '<button class="btn small primary" type="button" onclick="savePendingCapsule(true)">Remember Capsule + Journal Entry</button>'
+      + '<button class="btn small ghost" type="button" onclick="savePendingCapsule(false)">Remember Capsule Only</button>'
+      + '<button class="btn small ghost" type="button" onclick="editPendingCapsule()">Edit Draft</button>'
+      + '<button class="btn small danger" type="button" onclick="discardPendingCapsule()">Discard</button>'
+      + '</div>';
+  }
+
+  function editPendingCapsule(){
+    const c = window.__pendingCapsule;
+    if(!c) return;
+    const summary = prompt('Edit capsule summary:', c.summary);
+    if(summary === null) return;
+    c.summary = summary.trim().slice(0, 1800);
+    const journalEntry = prompt('Edit suggested Twin Journal entry:', c.suggestedJournalEntry || '');
+    if(journalEntry !== null) c.suggestedJournalEntry = sanitizeJournalText(journalEntry);
+    renderCapsuleDraft(c);
+  }
+  window.editPendingCapsule = editPendingCapsule;
+
+  function savePendingCapsule(addJournal){
+    const c = window.__pendingCapsule;
+    if(!c) return;
+    const capsules = getCapsules();
+    capsules.push(c);
+    setCapsules(capsules);
+    if(addJournal && c.suggestedJournalEntry){
+      addJournalLearning({ journalEntry:c.suggestedJournalEntry, category:'meaning', confidence:.74 }, ['document:' + (c.fileName || c.id)]);
+    } else {
+      addMessage('system', 'Document Capsule remembered: “' + c.title + '.”');
+    }
+    discardPendingCapsule(false);
+    renderAll();
+  }
+  window.savePendingCapsule = savePendingCapsule;
+
+  function discardPendingCapsule(updateStatus){
+    window.__pendingCapsule = null;
+    const box = document.getElementById('capsule-draft');
+    if(box){ box.classList.remove('visible'); box.innerHTML = ''; }
+    if(updateStatus !== false) setDocumentStatus('Capsule draft discarded. No document text was saved.');
+  }
+  window.discardPendingCapsule = discardPendingCapsule;
+
+  function renderCapsules(){
+    const list = document.getElementById('capsule-list');
+    if(!list) return;
+    const capsules = getCapsules();
+    if(capsules.length === 0){
+      list.innerHTML = '<div class="empty">No document capsules saved yet.</div>';
+      return;
+    }
+    list.innerHTML = capsules.slice().reverse().map(c => {
+      return '<div class="capsule-card">'
+        + '<div class="capsule-title">' + escapeHtml(c.title || 'Document Capsule') + '</div>'
+        + '<div class="capsule-summary">' + escapeHtml(c.summary || '') + '</div>'
+        + '<div class="capsule-tags">' + (c.themes || []).map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+        + '<div class="journal-entry-meta">' + escapeHtml(c.mode || 'quick_context') + ' · ' + escapeHtml(c.fileName || '') + '</div>'
+        + '<div class="entry-actions"><button class="btn small danger" type="button" onclick="deleteCapsule(\'' + c.id + '\')">Delete</button></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function deleteCapsule(id){
+    if(!confirm('Delete this Document Capsule from Twin memory?')) return;
+    setCapsules(getCapsules().filter(c => c.id !== id));
+    renderCapsules();
+  }
+  window.deleteCapsule = deleteCapsule;
+
 function clearTwinMemory(){
     if(!confirm('Clear the Twin conversation, journal, coverage, and asked questions from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
