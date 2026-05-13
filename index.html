@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.3.2 Global Memory Controls</title>
-  <meta name="description" content="Navigator Twin v2.3.2 Global Memory Controls Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.4 Onboarding and Help</title>
+  <meta name="description" content="Navigator Twin v2.4 Onboarding and Help Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -234,6 +234,60 @@
     .field-risk.moderate { border-color: rgba(201,168,76,.55); color: #ead79a; background: rgba(201,168,76,.09); }
     .field-risk.high { border-color: rgba(204,107,95,.55); color: #ffc2ba; background: rgba(204,107,95,.09); }
 
+
+    .welcome-card {
+      margin-bottom: 18px;
+      border-color: rgba(201,168,76,.30);
+      background:
+        radial-gradient(420px 220px at 12% 10%, rgba(201,168,76,.12), transparent 65%),
+        rgba(17,28,51,.88);
+    }
+    .welcome-card.hidden { display: none; }
+    .welcome-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .welcome-choice {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.035);
+      border-radius: 14px;
+      padding: 12px;
+      min-height: 112px;
+    }
+    .welcome-choice strong { display: block; color: var(--gold); margin-bottom: 6px; }
+    .welcome-choice span { color: var(--muted); font-size: .9rem; }
+    .welcome-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
+    .help-note {
+      margin-top: 11px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.026);
+      border-radius: 12px;
+      padding: 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+    .help-note summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 9px 11px;
+      color: var(--gold);
+      font-weight: 800;
+      font-size: .78rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .help-note summary::-webkit-details-marker { display: none; }
+    .help-note summary:before { content: '▸ '; color: var(--gold); }
+    .help-note[open] summary:before { content: '▾ '; }
+    .help-note-body { padding: 0 11px 11px; }
+    .help-note-body p { margin: 0 0 8px; }
+    .help-note-body ul, .help-note-body ol { margin: 8px 0 0 18px; padding: 0; }
+    .help-section { border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.032); padding: 12px; margin-top: 12px; }
+    .help-section h3 { margin: 0 0 8px; font-family: var(--serif); font-size: 1.05rem; }
+    .help-section p { color: var(--muted); margin: 0 0 8px; }
+    .help-section ol, .help-section ul { margin: 8px 0 0 20px; color: var(--muted); padding: 0; }
+    .glossary-grid { display: grid; gap: 8px; }
+    .glossary-item { display: grid; grid-template-columns: 130px 1fr; gap: 10px; border-top: 1px solid rgba(255,255,255,.06); padding-top: 8px; color: var(--muted); font-size: .9rem; }
+    .glossary-item:first-child { border-top: 0; padding-top: 0; }
+    .glossary-item strong { color: var(--text); }
+
     .debug { display: none; margin-top: 16px; border: 1px solid rgba(204,107,95,.45); background: rgba(204,107,95,.08); color: #ffd3cd; border-radius: 14px; padding: 12px; white-space: pre-wrap; font-family: var(--mono); font-size: .78rem; }
     .privacy-note { color: var(--muted); font-size: .84rem; border-left: 3px solid rgba(201,168,76,.45); padding-left: 11px; margin-top: 12px; }
     @media (max-width: 900px) {
@@ -242,6 +296,8 @@
       .grid { grid-template-columns: 1fr; }
       .msg { max-width: 96%; }
       .two-col { grid-template-columns: 1fr; }
+      .welcome-grid { grid-template-columns: 1fr; }
+      .glossary-item { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -249,22 +305,51 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.3.2 · Global Memory Controls</div>
+        <div class="eyebrow">Navigator Twin v2.4 · Onboarding and Help</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build keeps backup and restore controls visible at the top while preserving the tested Twin, Document Capsule, Field Scan, and collapsible memory panel systems.</div>
+        <div class="subtitle">This build adds first-time onboarding, feature explanations, a quick-start guide, use cases, and a plain-language glossary while preserving the tested Twin, Document Capsule, Field Scan, and memory systems.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
         <button class="btn small ghost" type="button" onclick="testBackendConnection()">Test connection</button>
+        <button class="btn small ghost" type="button" onclick="openHelpPanel()">Help / Quick Start</button>
         <span class="pill"><span class="dot ok"></span><span id="save-label">Saved locally</span></span>
       </div>
     </div>
 
+
+    <div id="welcome-card" class="card welcome-card hidden">
+      <div class="card-header">
+        <div class="card-title-row">
+          <div>
+            <div class="eyebrow">First-time orientation</div>
+            <div class="card-title">Welcome to Navigator.</div>
+            <div class="card-desc">Navigator helps you build a Digital Twin that learns from what you tell it. The Twin does not judge, grade, or diagnose you. It becomes more coherent through conversation, document capsules, and field scans that map the environments shaping your agency.</div>
+          </div>
+          <button class="btn small ghost" type="button" onclick="dismissWelcome()">Do not show again</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="welcome-grid">
+          <div class="welcome-choice"><strong>Talk with your Twin</strong><span>Let the Twin ask one question at a time and begin building a cautious Twin Journal.</span></div>
+          <div class="welcome-choice"><strong>Upload a document</strong><span>Create a Document Capsule from something you wrote, built, or care about. The app stores only the capsule you approve.</span></div>
+          <div class="welcome-choice"><strong>Run a Field Scan</strong><span>Map a school, work, family, research, financial, or social environment to see how agency routes or gets suppressed.</span></div>
+        </div>
+        <div class="welcome-actions">
+          <button class="btn small primary" type="button" onclick="welcomeStartTwin()">Start with Twin</button>
+          <button class="btn small ghost" type="button" onclick="welcomeOpenCapsules()">Upload a Document</button>
+          <button class="btn small ghost" type="button" onclick="welcomeOpenFieldScan()">Run a Field Scan</button>
+          <button class="btn small purple" type="button" onclick="openHelpPanel()">Show me how this works</button>
+        </div>
+      </div>
+    </div>
+
     <section class="grid">
-      <div class="card">
+      <div id="twin-conversation-card" class="card">
         <div class="card-header">
           <div class="card-title">Twin Conversation</div>
           <div class="card-desc">Choose who starts. The Twin knows only what you tell it. Its goal is not to examine you, but to become coherent through your help.</div>
+          <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>The Twin begins incomplete. It remembers only what you choose to share and uses that material to build a cautious, revisable picture of patterns, values, pressures, and sources of meaning.</p></div></details>
           <div class="mode-row">
             <button id="mode-twin" class="btn small mode-btn active" type="button" onclick="setTwinMode('twin_asks')">Let my Twin ask me</button>
             <button id="mode-human" class="btn small mode-btn" type="button" onclick="setTwinMode('human_starts')">I want to begin</button>
@@ -283,6 +368,7 @@
           <div class="card-header">
             <div class="card-title">Twin Coherence</div>
             <div class="card-desc">This is not a grade. It is a picture of how much the Twin has learned about its own emerging pattern.</div>
+            <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>Coherence progress shows how much cautious memory the Twin has assembled. It is a learning map, not a score, diagnosis, or evaluation.</p></div></details>
           </div>
           <div class="card-body">
             <div class="progress-wrap">
@@ -303,6 +389,7 @@
           <div class="card-header">
             <div class="card-title">Memory & Backup</div>
             <div class="card-desc">Global controls for the whole app: conversation, Twin Journal, Document Capsules, Field Scans, coverage, questions, mode, and settings.</div>
+            <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>Use JSON export as the safest full backup. Use Import / Restore to continue the same Twin later or on another browser.</p></div></details>
           </div>
           <div class="card-body">
             <div class="toolbar">
@@ -316,12 +403,65 @@
           </div>
         </div>
 
+        <div class="card collapsible-card" style="margin-top:18px;" data-panel="help">
+          <div class="card-header">
+            <div class="card-title-row">
+              <div>
+                <div class="card-title">Help / Tutorial</div>
+                <div class="card-desc">A quick guide to using Navigator without needing the theory first.</div>
+              </div>
+              <button id="toggle-help" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('help')">Expand</button>
+            </div>
+            <div id="summary-help" class="panel-summary"></div>
+          </div>
+          <div id="panel-body-help" class="card-body collapsible-body">
+            <div class="help-section">
+              <h3>Quick Start</h3>
+              <ol>
+                <li>Click <strong>Start / Resume Twin</strong>.</li>
+                <li>Reply briefly and honestly. The Twin should ask one question at a time.</li>
+                <li>After a few replies, expand the <strong>Twin Journal</strong> to see what the Twin has cautiously learned.</li>
+                <li>Upload a document if you want the Twin to understand a project or research style.</li>
+                <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
+                <li>Export JSON before changing browsers, devices, or clearing memory.</li>
+              </ol>
+            </div>
+            <div class="help-section">
+              <h3>Three ways to use Navigator</h3>
+              <ul>
+                <li><strong>Self-understanding:</strong> talk with the Twin and review the Twin Journal.</li>
+                <li><strong>Research or creative work:</strong> upload documents and build capsules that show themes, style, and open questions.</li>
+                <li><strong>Life navigation:</strong> run Field Scans to understand which environments support or suppress agency.</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h3>Example use case</h3>
+              <p>A student feels stuck in a course. They talk with the Twin and notice they care about meaningful work, not just grades. They run a Field Scan and see that effort feels absorbed by compliance tasks. They identify one BioBond: a study partner who helps them think clearly. Their next move is not perfect, but it preserves agency.</p>
+            </div>
+            <div class="help-section">
+              <h3>Plain-language glossary</h3>
+              <div class="glossary-grid">
+                <div class="glossary-item"><strong>Twin Journal</strong><span>Brief, editable learnings the Twin gathers from conversation.</span></div>
+                <div class="glossary-item"><strong>Document Capsule</strong><span>A short approved memory made from a document, not the raw file itself.</span></div>
+                <div class="glossary-item"><strong>Field Scan</strong><span>A map of an environment and how it shapes what you can express or do.</span></div>
+                <div class="glossary-item"><strong>Suppression Gap</strong><span>The gap between what you could contribute under supportive conditions and what you feel able to express now.</span></div>
+                <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
+                <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
+              </div>
+            </div>
+            <div class="toolbar">
+              <button class="btn small ghost" type="button" onclick="showWelcomeAgain()">Show welcome card again</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card collapsible-card" style="margin-top:18px;" data-panel="journal">
           <div class="card-header">
             <div class="card-title-row">
               <div>
                 <div class="card-title">Twin Journal</div>
                 <div class="card-desc">After every second substantial human message, the Twin adds one cautious learning about itself.</div>
+                <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>The Twin Journal is a list of brief learnings the Twin has assembled. You can edit or delete entries. It is intended to help the Twin grow without forcing direct self-examination.</p></div></details>
               </div>
               <button id="toggle-journal" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('journal')">Expand</button>
             </div>
@@ -339,6 +479,7 @@
               <div>
                 <div class="card-title">Document Capsules</div>
                 <div class="card-desc">Upload a small text-based artifact so the Twin can learn from what you have made. The app stores only an approved capsule, not the raw file.</div>
+                <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>A Document Capsule is a small, approved summary of what an artifact suggests about your projects, style, questions, or commitments. Raw uploaded text is processed temporarily and is not stored by this app.</p></div></details>
               </div>
               <button id="toggle-capsules" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('capsules')">Expand</button>
             </div>
@@ -364,10 +505,11 @@
           </div>
         </div>
 
-        <div class="card" style="margin-top:18px;">
+        <div id="field-scan-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="card-title">Navigator Field Scan</div>
             <div class="card-desc">Map the system you are inside: what it rewards, what it punishes, where your effort routes, where agency is suppressed, and what the next agency-preserving move might be.</div>
+            <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>A Field Scan is a situational map. It helps the Twin understand the environments acting on you: school, work, family, research, finances, community, or any field where agency may route or get suppressed.</p></div></details>
           </div>
           <div class="card-body">
             <div class="field-scan-form">
@@ -446,7 +588,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.3.2 Global Memory Controls Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.4 Onboarding and Help Build.</div>
           </div>
         </div>
       </aside>
@@ -461,7 +603,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.3.2 Global Memory Controls';
+  const APP_VERSION = 'Navigator Twin v2.4 Onboarding and Help';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -474,7 +616,8 @@
     capsules: 'navigator_twin_v2_document_capsules',
     pendingCapsule: 'navigator_twin_v2_pending_capsule',
     fieldScans: 'navigator_twin_v2_field_scans',
-    uiPanels: 'navigator_twin_v2_ui_panels'
+    uiPanels: 'navigator_twin_v2_ui_panels',
+    welcomeDismissed: 'navigator_twin_v2_welcome_dismissed'
   };
 
   const DIMENSIONS = [
@@ -619,7 +762,7 @@
   }
 
   function getUiPanels(){
-    return Object.assign({ journal:false, capsules:false, fieldScans:false }, getStored(KEYS.uiPanels, {}));
+    return Object.assign({ help:false, journal:false, capsules:false, fieldScans:false }, getStored(KEYS.uiPanels, {}));
   }
 
   function setUiPanels(panels){
@@ -662,10 +805,12 @@
     const scans = getFieldScans();
     const pending = getPendingCapsule();
 
+    setPanelSummary('summary-help', 'Quick Start · feature explanations · use cases · plain-language glossary');
+
     const latestJournal = journal.length ? journal[journal.length - 1].text : '';
     setPanelSummary('summary-journal', journal.length
       ? journal.length + ' entr' + (journal.length === 1 ? 'y' : 'ies') + ' · Latest: “' + truncateText(latestJournal, 92) + '”'
-      : 'No journal entries yet. Expand to view export, import, and memory controls.');
+      : 'No journal entries yet. Expand to view or edit journal entries.');
 
     const latestCapsule = capsules.length ? (capsules[capsules.length - 1].title || capsules[capsules.length - 1].documentKind || 'Saved capsule') : '';
     const capsuleBase = capsules.length
@@ -683,7 +828,7 @@
 
   function applyPanelStates(){
     updatePanelSummaries();
-    ['journal','capsules','fieldScans'].forEach(name => {
+    ['help','journal','capsules','fieldScans'].forEach(name => {
       const open = isPanelOpen(name);
       const body = document.getElementById('panel-body-' + name);
       const toggle = document.getElementById('toggle-' + name);
@@ -750,6 +895,7 @@
     const chat = getChat();
     chat.push({ id: uid('turn'), role, content, timestamp: new Date().toISOString() });
     setChat(chat);
+    renderOnboarding();
     renderChat();
   }
 
@@ -810,6 +956,70 @@
         + '</div></div>';
     }).join('');
   }
+
+
+  function isWelcomeDismissed(){
+    try { return localStorage.getItem(KEYS.welcomeDismissed) === 'true'; } catch(e) { return false; }
+  }
+
+  function setWelcomeDismissed(value){
+    try { localStorage.setItem(KEYS.welcomeDismissed, value ? 'true' : 'false'); } catch(e) {}
+  }
+
+  function renderOnboarding(){
+    const card = document.getElementById('welcome-card');
+    if(!card) return;
+    card.classList.toggle('hidden', isWelcomeDismissed());
+  }
+
+  function dismissWelcome(){
+    setWelcomeDismissed(true);
+    renderOnboarding();
+  }
+  window.dismissWelcome = dismissWelcome;
+
+  function showWelcomeAgain(){
+    setWelcomeDismissed(false);
+    renderOnboarding();
+    const card = document.getElementById('welcome-card');
+    if(card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.showWelcomeAgain = showWelcomeAgain;
+
+  function openHelpPanel(){
+    setPanelOpen('help', true);
+    applyPanelStates();
+    dismissWelcome();
+    const body = document.getElementById('panel-body-help') || document.getElementById('toggle-help');
+    if(body) body.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.openHelpPanel = openHelpPanel;
+
+  function welcomeStartTwin(){
+    dismissWelcome();
+    const card = document.getElementById('twin-conversation-card');
+    if(card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+    startTwin();
+  }
+  window.welcomeStartTwin = welcomeStartTwin;
+
+  function welcomeOpenCapsules(){
+    dismissWelcome();
+    setPanelOpen('capsules', true);
+    applyPanelStates();
+    const el = document.getElementById('panel-body-capsules') || document.getElementById('toggle-capsules');
+    if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.welcomeOpenCapsules = welcomeOpenCapsules;
+
+  function welcomeOpenFieldScan(){
+    dismissWelcome();
+    const el = document.getElementById('field-scan-card') || document.getElementById('field-environment');
+    if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+    const env = document.getElementById('field-environment');
+    if(env) setTimeout(() => env.focus(), 350);
+  }
+  window.welcomeOpenFieldScan = welcomeOpenFieldScan;
 
   function renderAll(){
     setTwinMode(getMode());
