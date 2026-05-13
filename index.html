@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.4 Onboarding and Help</title>
-  <meta name="description" content="Navigator Twin v2.4 Onboarding and Help Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.5 Field Map Dashboard</title>
+  <meta name="description" content="Navigator Twin v2.5 Field Map Dashboard and Context Assembly Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -235,6 +235,70 @@
     .field-risk.high { border-color: rgba(204,107,95,.55); color: #ffc2ba; background: rgba(204,107,95,.09); }
 
 
+    .field-map-dashboard {
+      border: 1px solid rgba(201,168,76,.28);
+      background:
+        radial-gradient(480px 220px at 10% 0%, rgba(201,168,76,.10), transparent 70%),
+        rgba(255,255,255,.035);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .field-map-title { font-family: var(--serif); font-size: 1.15rem; margin-bottom: 6px; color: var(--text); }
+    .field-map-intro { color: var(--muted); font-size: .92rem; line-height: 1.65; margin: 0 0 12px; }
+    .field-map-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .map-stat-card {
+      border: 1px solid var(--line);
+      background: rgba(6,11,24,.38);
+      border-radius: 14px;
+      padding: 10px;
+      min-height: 82px;
+    }
+    .map-stat-label { font: 800 .63rem/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
+    .map-stat-value { color: var(--text); font-weight: 800; line-height: 1.35; }
+    .map-stat-note { color: var(--muted); font-size: .8rem; margin-top: 5px; line-height: 1.45; }
+    .field-map-suggestions {
+      margin-top: 12px;
+      border: 1px solid rgba(13,94,87,.35);
+      background: rgba(13,94,87,.06);
+      border-radius: 14px;
+      padding: 11px;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+    .suggestion-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .suggestion-chip {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.045);
+      border-radius: 999px;
+      color: var(--text);
+      padding: 6px 9px;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+    .suggestion-chip:hover { border-color: rgba(201,168,76,.55); color: var(--gold); }
+    .context-assembly {
+      margin-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 13px;
+    }
+    .context-assembly textarea { min-height: 96px; }
+    .field-type-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(201,168,76,.28);
+      background: rgba(201,168,76,.07);
+      color: var(--gold);
+      border-radius: 999px;
+      padding: 4px 7px;
+      font: 800 .62rem/1 var(--mono);
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+
     .welcome-card {
       margin-bottom: 18px;
       border-color: rgba(201,168,76,.30);
@@ -307,7 +371,7 @@
       <div>
         <div class="eyebrow">Navigator Twin v2.4 · Onboarding and Help</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build adds first-time onboarding, feature explanations, a quick-start guide, use cases, and a plain-language glossary while preserving the tested Twin, Document Capsule, Field Scan, and memory systems.</div>
+        <div class="subtitle">This build adds a Field Map Dashboard and Context Assembly layer so multiple Field Scans can be understood as one living situation-context before later next-move planning.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -512,7 +576,41 @@
             <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>A Field Scan is a situational map. It helps the Twin understand the environments acting on you: school, work, family, research, finances, community, or any field where agency may route or get suppressed.</p></div></details>
           </div>
           <div class="card-body">
+            <div id="field-map-dashboard" class="field-map-dashboard">
+              <div class="field-map-title">Your Field Map</div>
+              <p class="field-map-intro"><strong>Your Twin learns who you are from conversation, what you create from Document Capsules, and what is acting on you from Field Scans.</strong> Several scans help reveal the combined situation-context in which action becomes possible, costly, urgent, meaningful, or blocked.</p>
+              <div id="field-map-stats" class="field-map-stats"></div>
+              <div id="field-map-suggestions" class="field-map-suggestions"></div>
+              <div class="toolbar">
+                <button class="btn small purple" type="button" onclick="askTwinAboutFieldMap()">Ask Twin what my Field Map shows</button>
+              </div>
+              <div class="context-assembly">
+                <div class="field-map-title" style="font-size:1rem;">Context Assembly</div>
+                <p class="field-map-intro">Use this space to describe what your fields create together. This is the bridge from separate scans to meta-constructor agency: seeing the situation-context, then choosing a causal sequence that preserves or expands future agency.</p>
+                <textarea id="context-assembly-text" placeholder="Example: My research field gives me meaning and future pull, but the institutional field drains time and lowers perceived capacity. Financial pressure makes me want quick relief, while health/energy constraints mean I need a small move that protects future agency..." oninput="markContextAssemblyUnsaved()"></textarea>
+                <div class="toolbar">
+                  <button class="btn small primary" type="button" onclick="saveContextAssemblyFromInput()">Save Context Assembly</button>
+                  <button class="btn small ghost" type="button" onclick="askTwinAboutContextAssembly()">Ask Twin about Context Assembly</button>
+                </div>
+                <div id="context-assembly-status" class="status-line">Context Assembly is saved locally and included in JSON export/import.</div>
+              </div>
+            </div>
             <div class="field-scan-form">
+              <div class="field">
+                <label for="field-scan-type">Field type</label>
+                <select id="field-scan-type">
+                  <option value="general_life">General Life Field</option>
+                  <option value="school_learning">School / Learning Field</option>
+                  <option value="work_institution">Work / Institution Field</option>
+                  <option value="family_relationship">Family / Relationship Field</option>
+                  <option value="financial_survival">Financial / Survival Field</option>
+                  <option value="health_energy">Health / Energy Field</option>
+                  <option value="research_creative">Research / Creative Field</option>
+                  <option value="community_civic">Community / Civic Field</option>
+                  <option value="ai_tool_use">AI / Tool-Use Field</option>
+                  <option value="custom">Custom Field</option>
+                </select>
+              </div>
               <div class="field">
                 <label for="field-environment">1. System or environment</label>
                 <textarea id="field-environment" placeholder="Example: my course, workplace, family situation, research project, institution, online community…"></textarea>
@@ -588,7 +686,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.4 Onboarding and Help Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.5 Field Map Dashboard and Context Assembly Build.</div>
           </div>
         </div>
       </aside>
@@ -603,7 +701,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.4 Onboarding and Help';
+  const APP_VERSION = 'Navigator Twin v2.5 Field Map Dashboard and Context Assembly';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -616,6 +714,7 @@
     capsules: 'navigator_twin_v2_document_capsules',
     pendingCapsule: 'navigator_twin_v2_pending_capsule',
     fieldScans: 'navigator_twin_v2_field_scans',
+    contextAssembly: 'navigator_twin_v2_context_assembly',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed'
   };
@@ -630,6 +729,24 @@
     { key:'meaning', label:'Meaning', prompt:'purpose, work, vocation, story, future, legacy' },
     { key:'ethics', label:'Ethics', prompt:'integrity, obligation, fairness, harm, refusal, right action' }
   ];
+
+  const FIELD_TYPES = [
+    { key:'general_life', label:'General Life Field', priority:1 },
+    { key:'school_learning', label:'School / Learning Field', priority:2 },
+    { key:'work_institution', label:'Work / Institution Field', priority:2 },
+    { key:'family_relationship', label:'Family / Relationship Field', priority:2 },
+    { key:'financial_survival', label:'Financial / Survival Field', priority:1 },
+    { key:'health_energy', label:'Health / Energy Field', priority:1 },
+    { key:'research_creative', label:'Research / Creative Field', priority:2 },
+    { key:'community_civic', label:'Community / Civic Field', priority:2 },
+    { key:'ai_tool_use', label:'AI / Tool-Use Field', priority:3 },
+    { key:'custom', label:'Custom Field', priority:4 }
+  ];
+
+  function getFieldTypeLabel(key){
+    const found = FIELD_TYPES.find(t => t.key === key);
+    return found ? found.label : 'Custom Field';
+  }
 
   const FALLBACK_QUESTIONS = {
     agency: [
@@ -748,6 +865,8 @@
   function getPendingCapsule(){ return getStored(KEYS.pendingCapsule, null); }
   function getFieldScans(){ return getStored(KEYS.fieldScans, []); }
   function setFieldScans(scans){ setStored(KEYS.fieldScans, scans.slice(-40)); }
+  function getContextAssembly(){ return getStored(KEYS.contextAssembly, { text:'', updatedAt:'' }); }
+  function setContextAssembly(value){ setStored(KEYS.contextAssembly, Object.assign({ text:'', updatedAt:new Date().toISOString() }, value || {})); }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -1033,6 +1152,7 @@
     renderCapsules();
     updateFieldSliderLabels();
     renderFieldScans();
+    renderFieldMapDashboard();
     updateSaveStatus();
     applyPanelStates();
   }
@@ -1117,7 +1237,9 @@ Essential design principle: The Twin is not asking the student to confess a self
     const coverage = getCoverage();
     const questions = getQuestions().slice(-18);
     const capsules = getCapsules().slice(-8).map(c => ({ title:c.title, mode:c.mode, summary:c.summary, themes:c.themes, styleNotes:c.styleNotes, projectPurpose:c.projectPurpose, suggestedJournalEntry:c.suggestedJournalEntry }));
-    const fieldScans = getFieldScans().slice(-6).map(s => ({ title:s.title, environment:s.environment, suppressionGap:s.suppressionGap, riskLevel:s.riskLevel, summary:s.summary, nextMove:s.nextMove, bioBond:s.bioBond }));
+    const fieldScans = getFieldScans().slice(-8).map(s => ({ title:s.title, scanType:s.scanType, fieldType:getFieldTypeLabel(s.scanType), environment:s.environment, suppressionGap:s.suppressionGap, riskLevel:s.riskLevel, stressLoad:s.stressLoad, summary:s.summary, nextMove:s.nextMove, bioBond:s.bioBond }));
+    const fieldMapSummary = buildFieldMapSummary(getFieldScans());
+    const contextAssembly = getContextAssembly();
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -1133,6 +1255,8 @@ Essential design principle: The Twin is not asking the student to confess a self
       questionsAlreadyAsked: questions,
       documentCapsules: capsules,
       fieldScans: fieldScans,
+      fieldMapSummary: fieldMapSummary,
+      contextAssembly: contextAssembly,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -1425,6 +1549,7 @@ Return only valid JSON with this exact shape:
         documentCapsules: getCapsules(),
         pendingCapsule: getPendingCapsule(),
         fieldScans: getFieldScans(),
+        contextAssembly: getContextAssembly(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -1432,6 +1557,8 @@ Return only valid JSON with this exact shape:
     } else {
       content = 'Navigator Twin Journal\nExported: ' + new Date().toLocaleString() + '\n\n'
         + journal.map((e,i) => (i+1) + '. ' + e.text + ' [' + (e.category || 'uncategorized') + ']').join('\n')
+        + '\n\n--- Context Assembly ---\n'
+        + (getContextAssembly().text || '[no context assembly saved]')
         + '\n\n--- Field Scans ---\n'
         + getFieldScans().map((s,i) => (i+1) + '. ' + (s.title || s.environment || 'Field Scan') + ' | Gap: ' + (s.suppressionGap || 0) + ' | Risk: ' + (s.riskLevel || 'unknown') + '\n' + (s.summary || '')).join('\n\n')
         + '\n\n--- Conversation ---\n'
@@ -1505,7 +1632,10 @@ Return only valid JSON with this exact shape:
     const mode = data.mode === 'human_starts' ? 'human_starts' : 'twin_asks';
     const documentCapsules = Array.isArray(data.documentCapsules) ? data.documentCapsules.map(normalizeImportedCapsule).filter(c => c.title || c.summary) : [];
     const fieldScans = Array.isArray(data.fieldScans) ? data.fieldScans.map(normalizeImportedFieldScan).filter(s => s.environment || s.summary) : [];
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans }; 
+    const contextAssembly = data.contextAssembly && typeof data.contextAssembly === 'object'
+      ? { text:String(data.contextAssembly.text || '').slice(0, 6000), updatedAt:data.contextAssembly.updatedAt || new Date().toISOString() }
+      : { text:String(data.contextAssembly || '').slice(0, 6000), updatedAt:new Date().toISOString() };
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -1527,6 +1657,7 @@ Return only valid JSON with this exact shape:
       setQuestions(restored.questions);
       setCapsules(restored.documentCapsules || []);
       setFieldScans(restored.fieldScans || []);
+      setContextAssembly(restored.contextAssembly || { text:'', updatedAt:new Date().toISOString() });
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
@@ -1818,6 +1949,7 @@ Return only valid JSON with this shape:
     const stress = Number(fieldValue('stress-load')) || 0;
     const gap = Math.max(0, raw - perceived);
     const risk = classifyFieldRisk(gap, stress);
+    const scanType = fieldValue('field-scan-type') || 'general_life';
     const environment = fieldValue('field-environment');
     const rewards = fieldValue('field-rewards');
     const punishes = fieldValue('field-punishes');
@@ -1829,7 +1961,7 @@ Return only valid JSON with this shape:
       throw new Error('Please add a little more detail before creating a Field Scan. The Navigator needs enough context to map rewards, pressure, routing, suppression, support, and the next move.');
     }
     const title = environment ? environment.slice(0, 80) : 'Navigator Field Scan';
-    const summary = 'This field appears to reward ' + shortText(rewards, 170)
+    const summary = getFieldTypeLabel(scanType) + ': this field appears to reward ' + shortText(rewards, 170)
       + ' It appears to punish or make costly ' + shortText(punishes, 170)
       + ' Effort routes through ' + shortText(routes, 170)
       + ' while effort disappears into ' + shortText(lost, 170)
@@ -1837,6 +1969,8 @@ Return only valid JSON with this shape:
     return {
       id: uid('field'),
       title,
+      scanType,
+      fieldType: getFieldTypeLabel(scanType),
       environment,
       rewards,
       punishes,
@@ -1867,7 +2001,8 @@ Return only valid JSON with this shape:
     if(!scan){ box.classList.remove('visible'); box.innerHTML = ''; return; }
     window.__pendingFieldScan = scan;
     box.classList.add('visible');
-    box.innerHTML = '<div class="field-risk ' + escapeHtml(scan.riskLevel) + '">' + escapeHtml(scan.riskLabel) + '</div>'
+    box.innerHTML = '<div class="field-type-badge">' + escapeHtml(getFieldTypeLabel(scan.scanType)) + '</div>'
+      + '<div class="field-risk ' + escapeHtml(scan.riskLevel) + '">' + escapeHtml(scan.riskLabel) + '</div>'
       + '<div class="capsule-title">Pending Field Scan: ' + escapeHtml(scan.title) + '</div>'
       + '<div class="capsule-summary">' + escapeHtml(scan.summary) + '</div>'
       + '<div class="status-line"><strong>Raw capacity:</strong> ' + scan.rawCapacity + ' · <strong>Perceived capacity:</strong> ' + scan.perceivedCapacity + ' · <strong>Suppression gap:</strong> ' + scan.suppressionGap + ' · <strong>Stress:</strong> ' + scan.stressLoad + '</div>'
@@ -1900,6 +2035,7 @@ Return only valid JSON with this shape:
     window.__pendingFieldScan = null;
     renderFieldScanPreview(null);
     renderFieldScans();
+    renderFieldMapDashboard();
     applyPanelStates();
     addMessage('system', 'Navigator Field Scan saved: “' + saved.title + '.”');
     if(askTwin) askTwinAboutFieldScan(saved.id);
@@ -1917,6 +2053,8 @@ Return only valid JSON with this shape:
       const el = document.getElementById(id);
       if(el) el.value = '';
     });
+    const typeSelect = document.getElementById('field-scan-type');
+    if(typeSelect) typeSelect.value = 'general_life';
     const raw = document.getElementById('raw-capacity');
     const perceived = document.getElementById('perceived-capacity');
     const stress = document.getElementById('stress-load');
@@ -1928,6 +2066,138 @@ Return only valid JSON with this shape:
   }
   window.resetFieldScanForm = resetFieldScanForm;
 
+
+  function buildFieldMapSummary(scans){
+    scans = Array.isArray(scans) ? scans : [];
+    const highRisk = scans.filter(s => (s.riskLevel || '') === 'high').length;
+    const moderateRisk = scans.filter(s => (s.riskLevel || '') === 'moderate').length;
+    const largestGap = scans.reduce((best, s) => (Number(s.suppressionGap)||0) > (Number(best && best.suppressionGap)||-1) ? s : best, null);
+    const highestStress = scans.reduce((best, s) => (Number(s.stressLoad)||0) > (Number(best && best.stressLoad)||-1) ? s : best, null);
+    const strongestRouting = scans.reduce((best, s) => {
+      const score = (Number(s.perceivedCapacity)||0) - ((Number(s.suppressionGap)||0) * .35) - ((Number(s.stressLoad)||0) * .15);
+      const bestScore = best ? (Number(best.perceivedCapacity)||0) - ((Number(best.suppressionGap)||0) * .35) - ((Number(best.stressLoad)||0) * .15) : -999;
+      return score > bestScore ? s : best;
+    }, null);
+    const supportScan = scans.slice().reverse().find(s => String(s.bioBond || '').trim().length > 8) || null;
+    const mappedTypes = new Set(scans.map(s => s.scanType || 'custom'));
+    const missing = FIELD_TYPES.filter(t => t.key !== 'custom' && !mappedTypes.has(t.key)).slice(0, 5);
+    return { count:scans.length, highRisk, moderateRisk, largestGap, highestStress, strongestRouting, supportScan, missing };
+  }
+
+  function renderFieldMapDashboard(){
+    const stats = document.getElementById('field-map-stats');
+    const suggestions = document.getElementById('field-map-suggestions');
+    const scans = getFieldScans();
+    const summary = buildFieldMapSummary(scans);
+    if(stats){
+      if(!scans.length){
+        stats.innerHTML = [
+          ['Fields mapped','0','Start with one active environment, then add the fields that also shape the situation.'],
+          ['Purpose','Context assembly','Separate scans become useful when they show the combined situation-context.'],
+          ['Next step','Create first scan','Work, school, family, health, finances, research, community, or custom.']
+        ].map(([label,value,note]) => '<div class="map-stat-card"><div class="map-stat-label">'+escapeHtml(label)+'</div><div class="map-stat-value">'+escapeHtml(value)+'</div><div class="map-stat-note">'+escapeHtml(note)+'</div></div>').join('');
+      } else {
+        const largest = summary.largestGap;
+        const stress = summary.highestStress;
+        const routing = summary.strongestRouting;
+        const support = summary.supportScan;
+        const cards = [
+          ['Fields mapped', String(summary.count), summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk'],
+          ['Largest suppression gap', largest ? (largest.suppressionGap + ' · ' + (largest.title || largest.environment || 'Field')) : 'none', largest ? getFieldTypeLabel(largest.scanType) : ''],
+          ['Highest stress', stress ? (stress.stressLoad + ' · ' + (stress.title || stress.environment || 'Field')) : 'none', stress ? getFieldTypeLabel(stress.scanType) : ''],
+          ['Strongest routing', routing ? (routing.title || routing.environment || 'Field') : 'unknown', routing ? 'Perceived capacity ' + (routing.perceivedCapacity || 0) + ' · gap ' + (routing.suppressionGap || 0) : ''],
+          ['BioBond/support', support ? (support.title || support.environment || 'Field') : 'not mapped yet', support ? truncateText(support.bioBond || '', 82) : 'Add support sources in your scans.'],
+          ['Context task', 'Assemble fields', 'Ask: what situation do these fields create together?']
+        ];
+        stats.innerHTML = cards.map(([label,value,note]) => '<div class="map-stat-card"><div class="map-stat-label">'+escapeHtml(label)+'</div><div class="map-stat-value">'+escapeHtml(value)+'</div><div class="map-stat-note">'+escapeHtml(note)+'</div></div>').join('');
+      }
+    }
+    if(suggestions){
+      if(summary.missing && summary.missing.length){
+        suggestions.innerHTML = '<strong>Suggested next scans:</strong> A fuller Field Map helps the Twin compare pressure, support, urgency, reversibility, and future agency across your life.'
+          + '<div class="suggestion-chips">' + summary.missing.map(t => '<button type="button" class="suggestion-chip" onclick="startSuggestedFieldScan(\''+t.key+'\')">'+escapeHtml(t.label)+'</button>').join('') + '</div>';
+      } else {
+        suggestions.innerHTML = '<strong>Field Map coverage is broad.</strong> You can now use Context Assembly to describe how these fields combine into the situation you are actually navigating.';
+      }
+    }
+    const ta = document.getElementById('context-assembly-text');
+    const ctx = getContextAssembly();
+    if(ta && document.activeElement !== ta && ta.value !== (ctx.text || '')) ta.value = ctx.text || '';
+    const status = document.getElementById('context-assembly-status');
+    if(status){
+      status.textContent = ctx.text ? 'Context Assembly saved locally' + (ctx.updatedAt ? ' at ' + new Date(ctx.updatedAt).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : '') + '.' : 'Context Assembly is saved locally and included in JSON export/import.';
+    }
+  }
+
+  function startSuggestedFieldScan(type){
+    const select = document.getElementById('field-scan-type');
+    if(select) select.value = FIELD_TYPES.some(t => t.key === type) ? type : 'custom';
+    const env = document.getElementById('field-environment');
+    if(env){
+      const label = getFieldTypeLabel(type);
+      if(!env.value.trim()) env.value = label + ': ';
+      env.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => env.focus(), 250);
+    }
+  }
+  window.startSuggestedFieldScan = startSuggestedFieldScan;
+
+  function saveContextAssemblyFromInput(){
+    const ta = document.getElementById('context-assembly-text');
+    const text = ta ? ta.value.trim() : '';
+    setContextAssembly({ text, updatedAt:new Date().toISOString() });
+    renderFieldMapDashboard();
+  }
+  window.saveContextAssemblyFromInput = saveContextAssemblyFromInput;
+
+  function markContextAssemblyUnsaved(){
+    const status = document.getElementById('context-assembly-status');
+    if(status) status.textContent = 'Unsaved Context Assembly changes. Save before export or restore.';
+  }
+  window.markContextAssemblyUnsaved = markContextAssemblyUnsaved;
+
+  function fieldMapPromptBase(){
+    const scans = getFieldScans();
+    const summary = buildFieldMapSummary(scans);
+    const ctx = getContextAssembly();
+    return 'FIELD MAP SUMMARY:\n'
+      + 'Mapped fields: ' + summary.count + '\n'
+      + 'High-risk fields: ' + summary.highRisk + '\n'
+      + 'Moderate-risk fields: ' + summary.moderateRisk + '\n'
+      + 'Largest suppression gap: ' + (summary.largestGap ? (summary.largestGap.title + ' | gap ' + summary.largestGap.suppressionGap) : 'not available') + '\n'
+      + 'Highest stress: ' + (summary.highestStress ? (summary.highestStress.title + ' | stress ' + summary.highestStress.stressLoad) : 'not available') + '\n'
+      + 'Strongest routing: ' + (summary.strongestRouting ? (summary.strongestRouting.title + ' | perceived capacity ' + summary.strongestRouting.perceivedCapacity) : 'not available') + '\n'
+      + 'Saved Context Assembly: ' + (ctx.text || '[none yet]') + '\n\n'
+      + 'SCANS:\n' + scans.map((s, i) => (i+1) + '. ' + getFieldTypeLabel(s.scanType) + ' — ' + (s.title || s.environment || 'Field') + '\nRisk: ' + (s.riskLabel || s.riskLevel || 'unknown') + ' | gap: ' + (s.suppressionGap || 0) + ' | stress: ' + (s.stressLoad || 0) + '\nSummary: ' + (s.summary || '') + '\nBioBond/support: ' + (s.bioBond || '') + '\nPossible next move: ' + (s.nextMove || '')).join('\n\n');
+  }
+
+  function askTwinAboutFieldMap(){
+    const scans = getFieldScans();
+    if(!scans.length){ alert('Create at least one Field Scan before asking the Twin about your Field Map.'); return; }
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = 'I want you to help me understand my Field Map as a combined situation-context, not as separate fragments. Please identify what the fields create together, where my agency seems most supported, where it seems most suppressed, what may need another scan, and what question I should ask before choosing a next move. Do not decide for me. Help me see the map.\n\n' + fieldMapPromptBase();
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => sendToTwin(), 50);
+    }
+  }
+  window.askTwinAboutFieldMap = askTwinAboutFieldMap;
+
+  function askTwinAboutContextAssembly(){
+    saveContextAssemblyFromInput();
+    const ctx = getContextAssembly();
+    if(!ctx.text || ctx.text.trim().length < 20){ alert('Write and save a little Context Assembly first.'); return; }
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = 'I wrote a Context Assembly from my Field Map. Please help me think through it as a meta-constructor problem: what context is being created by my fields, what appears to be my internal priority structure, what causal sequence might preserve future agency, and what should I not sacrifice? Ask one follow-up question rather than deciding for me.\n\n' + fieldMapPromptBase();
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => sendToTwin(), 50);
+    }
+  }
+  window.askTwinAboutContextAssembly = askTwinAboutContextAssembly;
+
   function renderFieldScans(){
     const list = document.getElementById('field-scan-list');
     if(!list) return;
@@ -1938,6 +2208,7 @@ Return only valid JSON with this shape:
     }
     list.innerHTML = '<div class="status-line" style="color:var(--teal);font-weight:900;">SAVED FIELD SCANS</div>' + scans.slice().reverse().map(s => {
       return '<div class="field-scan-card">'
+        + '<div class="field-type-badge">' + escapeHtml(getFieldTypeLabel(s.scanType)) + '</div>'
         + '<div class="field-risk ' + escapeHtml(s.riskLevel || 'moderate') + '">' + escapeHtml(s.riskLabel || 'Field scan') + '</div>'
         + '<div class="capsule-title">' + escapeHtml(s.title || 'Navigator Field Scan') + '</div>'
         + '<div class="capsule-summary">' + escapeHtml(s.summary || '') + '</div>'
@@ -1953,12 +2224,14 @@ Return only valid JSON with this shape:
     if(!confirm('Delete this Navigator Field Scan?')) return;
     setFieldScans(getFieldScans().filter(s => s.id !== id));
     renderFieldScans();
+    renderFieldMapDashboard();
     applyPanelStates();
   }
   window.deleteFieldScan = deleteFieldScan;
 
   function buildFieldScanTwinPrompt(scan){
     return 'I created a Navigator Field Scan and want you, as my Twin, to help me interpret it without treating it as a diagnosis or a score. Please reflect what this field may be doing to my agency, where the suppression gap may be coming from, what BioBond support appears available, and what next agency-preserving move seems most coherent. Ask one follow-up question.\n\nFIELD SCAN:\n'
+      + 'Field type: ' + getFieldTypeLabel(scan.scanType) + '\n'
       + 'System/environment: ' + scan.environment + '\n'
       + 'Rewards: ' + scan.rewards + '\n'
       + 'Punishes/makes costly: ' + scan.punishes + '\n'
@@ -1994,6 +2267,8 @@ Return only valid JSON with this shape:
     return {
       id: (s && s.id) || uid('field'),
       title: String((s && s.title) || (s && s.environment) || 'Imported Field Scan').slice(0, 120),
+      scanType: FIELD_TYPES.some(t => t.key === (s && s.scanType)) ? s.scanType : 'custom',
+      fieldType: getFieldTypeLabel(FIELD_TYPES.some(t => t.key === (s && s.scanType)) ? s.scanType : 'custom'),
       environment: String((s && s.environment) || '').slice(0, 1000),
       rewards: String((s && s.rewards) || '').slice(0, 1200),
       punishes: String((s && s.punishes) || '').slice(0, 1200),
@@ -2015,7 +2290,7 @@ Return only valid JSON with this shape:
 
 function clearTwinMemory(){
     if(!confirm('Clear the Twin conversation, journal, coverage, and asked questions from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
