@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.3 Field Scan</title>
-  <meta name="description" content="Navigator Twin v2.3 Field Scan Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.3.1 Layout Compression</title>
+  <meta name="description" content="Navigator Twin v2.3.1 Layout Compression Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -98,6 +98,17 @@
     .card-title { font-family: var(--serif); font-size: 1.35rem; line-height: 1.1; margin: 0 0 6px; }
     .card-desc { color: var(--muted); font-size: .93rem; }
     .card-body { padding: 18px; }
+    .card-title-row { display: flex; gap: 10px; align-items: start; justify-content: space-between; }
+    .panel-summary { margin-top: 9px; color: var(--dim); font-size: .84rem; border-top: 1px solid rgba(255,255,255,.06); padding-top: 9px; }
+    .collapse-toggle { white-space: nowrap; min-width: 78px; }
+    .collapsible-body { display: block; }
+    .collapsible-body.closed { display: none; }
+    .subpanel-shell { margin-top: 14px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: rgba(255,255,255,.025); }
+    .subpanel-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.025); }
+    .subpanel-title { font-weight: 800; font-size: .88rem; }
+    .subpanel-summary { color: var(--dim); font-size: .8rem; margin-top: 3px; }
+    .subpanel-body { padding: 12px; }
+    .subpanel-body.closed { display: none; }
     .mode-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
     .mode-btn { opacity: .65; }
     .mode-btn.active { opacity: 1; border-color: rgba(201,168,76,.75); background: rgba(201,168,76,.16); }
@@ -238,9 +249,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.3 · Field Scan</div>
+        <div class="eyebrow">Navigator Twin v2.3.1 · Layout Compression</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build preserves the Twin memory and Document Capsule systems, then adds a Navigator Field Scan for mapping rewards, pressure, suppression, BioBond support, and the next agency-preserving move.</div>
+        <div class="subtitle">This build preserves the tested Twin, Document Capsule, and Field Scan systems, then compresses memory panels so the active workspace stays easier to navigate.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -288,12 +299,18 @@
           </div>
         </div>
 
-        <div class="card" style="margin-top:18px;">
+        <div class="card collapsible-card" style="margin-top:18px;" data-panel="journal">
           <div class="card-header">
-            <div class="card-title">Twin Journal</div>
-            <div class="card-desc">After every second substantial human message, the Twin adds one cautious learning about itself.</div>
+            <div class="card-title-row">
+              <div>
+                <div class="card-title">Twin Journal</div>
+                <div class="card-desc">After every second substantial human message, the Twin adds one cautious learning about itself.</div>
+              </div>
+              <button id="toggle-journal" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('journal')">Expand</button>
+            </div>
+            <div id="summary-journal" class="panel-summary"></div>
           </div>
-          <div class="card-body">
+          <div id="panel-body-journal" class="card-body collapsible-body">
             <div id="journal-list" class="journal-list"></div>
             <div class="toolbar">
               <button class="btn small ghost" type="button" onclick="exportTwinJournal('txt')">Export TXT</button>
@@ -305,12 +322,18 @@
           </div>
         </div>
 
-        <div class="card" style="margin-top:18px;">
+        <div class="card collapsible-card" style="margin-top:18px;" data-panel="capsules">
           <div class="card-header">
-            <div class="card-title">Document Capsules</div>
-            <div class="card-desc">Upload a small text-based artifact so the Twin can learn from what you have made. The app stores only an approved capsule, not the raw file.</div>
+            <div class="card-title-row">
+              <div>
+                <div class="card-title">Document Capsules</div>
+                <div class="card-desc">Upload a small text-based artifact so the Twin can learn from what you have made. The app stores only an approved capsule, not the raw file.</div>
+              </div>
+              <button id="toggle-capsules" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('capsules')">Expand</button>
+            </div>
+            <div id="summary-capsules" class="panel-summary"></div>
           </div>
-          <div class="card-body">
+          <div id="panel-body-capsules" class="card-body collapsible-body">
             <div class="select-row">
               <label for="capsule-mode" style="font:700 .72rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--dim);">Capsule mode</label>
               <select id="capsule-mode">
@@ -386,7 +409,18 @@
               <button class="btn small ghost" type="button" onclick="resetFieldScanForm()">Reset Form</button>
             </div>
             <div id="field-scan-preview" class="field-scan-result"></div>
-            <div id="field-scan-list" class="field-scan-list"></div>
+            <div class="subpanel-shell">
+              <div class="subpanel-header">
+                <div>
+                  <div class="subpanel-title">Saved Field Scans</div>
+                  <div id="summary-fieldScans" class="subpanel-summary"></div>
+                </div>
+                <button id="toggle-fieldScans" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('fieldScans')">Expand</button>
+              </div>
+              <div id="panel-body-fieldScans" class="subpanel-body collapsible-body">
+                <div id="field-scan-list" class="field-scan-list"></div>
+              </div>
+            </div>
             <div class="privacy-note">Field Scans are stored locally and included in JSON export/import. They are not sent to the backend unless you choose to ask the Twin about one.</div>
           </div>
         </div>
@@ -401,7 +435,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.3 Field Scan Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.3.1 Layout Compression Build.</div>
           </div>
         </div>
       </aside>
@@ -416,7 +450,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.3 Field Scan';
+  const APP_VERSION = 'Navigator Twin v2.3.1 Layout Compression';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -428,7 +462,8 @@
     lastSaved: 'navigator_twin_v2_last_saved',
     capsules: 'navigator_twin_v2_document_capsules',
     pendingCapsule: 'navigator_twin_v2_pending_capsule',
-    fieldScans: 'navigator_twin_v2_field_scans'
+    fieldScans: 'navigator_twin_v2_field_scans',
+    uiPanels: 'navigator_twin_v2_ui_panels'
   };
 
   const DIMENSIONS = [
@@ -572,6 +607,81 @@
     try { return localStorage.getItem(KEYS.mode) || 'twin_asks'; } catch(e) { return 'twin_asks'; }
   }
 
+  function getUiPanels(){
+    return Object.assign({ journal:false, capsules:false, fieldScans:false }, getStored(KEYS.uiPanels, {}));
+  }
+
+  function setUiPanels(panels){
+    setStored(KEYS.uiPanels, panels);
+  }
+
+  function isPanelOpen(name){
+    const panels = getUiPanels();
+    if(name === 'capsules' && getPendingCapsule()) return true;
+    return !!panels[name];
+  }
+
+  function setPanelOpen(name, open){
+    const panels = getUiPanels();
+    panels[name] = !!open;
+    setUiPanels(panels);
+  }
+
+  function togglePanel(name){
+    const next = !isPanelOpen(name);
+    setPanelOpen(name, next);
+    applyPanelStates();
+  }
+  window.togglePanel = togglePanel;
+
+  function truncateText(text, limit){
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    if(t.length <= limit) return t;
+    return t.slice(0, Math.max(0, limit - 1)).trim() + '…';
+  }
+
+  function setPanelSummary(id, text){
+    const el = document.getElementById(id);
+    if(el) el.textContent = text || '';
+  }
+
+  function updatePanelSummaries(){
+    const journal = getJournal();
+    const capsules = getCapsules();
+    const scans = getFieldScans();
+    const pending = getPendingCapsule();
+
+    const latestJournal = journal.length ? journal[journal.length - 1].text : '';
+    setPanelSummary('summary-journal', journal.length
+      ? journal.length + ' entr' + (journal.length === 1 ? 'y' : 'ies') + ' · Latest: “' + truncateText(latestJournal, 92) + '”'
+      : 'No journal entries yet. Expand to view export, import, and memory controls.');
+
+    const latestCapsule = capsules.length ? (capsules[capsules.length - 1].title || capsules[capsules.length - 1].documentKind || 'Saved capsule') : '';
+    const capsuleBase = capsules.length
+      ? capsules.length + ' saved capsule' + (capsules.length === 1 ? '' : 's') + ' · Latest: ' + truncateText(latestCapsule, 82)
+      : 'No saved capsules yet. Expand to upload a document.';
+    setPanelSummary('summary-capsules', pending
+      ? 'Pending capsule draft waiting for review. Expand to save, edit, or discard it.'
+      : capsuleBase);
+
+    const latestScan = scans.length ? scans[scans.length - 1] : null;
+    setPanelSummary('summary-fieldScans', latestScan
+      ? scans.length + ' saved scan' + (scans.length === 1 ? '' : 's') + ' · Latest: ' + truncateText(latestScan.title || latestScan.environment || 'Field Scan', 58) + ' · ' + (latestScan.riskLevel || 'risk unknown')
+      : 'No saved Field Scans yet. Create one above, then save it here.');
+  }
+
+  function applyPanelStates(){
+    updatePanelSummaries();
+    ['journal','capsules','fieldScans'].forEach(name => {
+      const open = isPanelOpen(name);
+      const body = document.getElementById('panel-body-' + name);
+      const toggle = document.getElementById('toggle-' + name);
+      if(body) body.classList.toggle('closed', !open);
+      if(toggle) toggle.textContent = open ? 'Collapse' : 'Expand';
+      if(toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
   function setTwinMode(mode){
     try {
       localStorage.setItem(KEYS.mode, mode);
@@ -703,6 +813,7 @@
     updateFieldSliderLabels();
     renderFieldScans();
     updateSaveStatus();
+    applyPanelStates();
   }
 
   function setBackendStatus(kind, label){
@@ -1450,6 +1561,7 @@ Return only valid JSON with this shape:
     if(!confirm('Delete this Document Capsule from Twin memory?')) return;
     setCapsules(getCapsules().filter(c => c.id !== id));
     renderCapsules();
+    applyPanelStates();
   }
   window.deleteCapsule = deleteCapsule;
 
@@ -1567,6 +1679,7 @@ Return only valid JSON with this shape:
     window.__pendingFieldScan = null;
     renderFieldScanPreview(null);
     renderFieldScans();
+    applyPanelStates();
     addMessage('system', 'Navigator Field Scan saved: “' + saved.title + '.”');
     if(askTwin) askTwinAboutFieldScan(saved.id);
   }
@@ -1619,6 +1732,7 @@ Return only valid JSON with this shape:
     if(!confirm('Delete this Navigator Field Scan?')) return;
     setFieldScans(getFieldScans().filter(s => s.id !== id));
     renderFieldScans();
+    applyPanelStates();
   }
   window.deleteFieldScan = deleteFieldScan;
 
