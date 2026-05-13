@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.5 Field Map Dashboard</title>
-  <meta name="description" content="Navigator Twin v2.5 Field Map Dashboard and Context Assembly Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.6 Move Cards</title>
+  <meta name="description" content="Navigator Twin v2.6 Field-Specific Move Cards Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -284,6 +284,47 @@
       padding-top: 13px;
     }
     .context-assembly textarea { min-height: 96px; }
+    .move-studio-intro {
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.6;
+      margin: 0 0 12px;
+    }
+    .move-card-list { display: grid; gap: 10px; margin-top: 12px; }
+    .move-card {
+      border: 1px solid rgba(201,168,76,.25);
+      background:
+        radial-gradient(420px 180px at 0% 0%, rgba(201,168,76,.075), transparent 70%),
+        rgba(255,255,255,.035);
+      border-radius: 14px;
+      padding: 11px;
+    }
+    .move-card.saved { border-color: rgba(13,94,87,.42); background: rgba(13,94,87,.055); }
+    .move-card.not-now { opacity: .72; border-style: dashed; }
+    .move-card-title { font-weight: 900; color: var(--text); margin: 4px 0 4px; }
+    .move-card-meta { color: var(--dim); font: 700 .68rem/1.35 var(--mono); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+    .move-card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+    .move-mini {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(6,11,24,.30);
+      padding: 8px;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.45;
+    }
+    .move-mini strong { display:block; color: var(--text); font-size: .75rem; margin-bottom: 3px; }
+    .move-score-row { display:flex; flex-wrap:wrap; gap:6px; margin-top: 10px; }
+    .move-score {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--muted);
+      font: 800 .66rem/1 var(--mono);
+      letter-spacing: .04em;
+    }
+    @media (max-width: 760px){ .move-card-grid { grid-template-columns: 1fr; } }
     .field-type-badge {
       display: inline-flex;
       align-items: center;
@@ -371,7 +412,7 @@
       <div>
         <div class="eyebrow">Navigator Twin v2.4 · Onboarding and Help</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build adds a Field Map Dashboard and Context Assembly layer so multiple Field Scans can be understood as one living situation-context before later next-move planning.</div>
+        <div class="subtitle">This build adds field-specific agency-preserving Move Cards so each saved Field Scan can generate concrete next-move options for Twin-guided deliberation.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -672,7 +713,30 @@
                 <div id="field-scan-list" class="field-scan-list"></div>
               </div>
             </div>
-            <div class="privacy-note">Field Scans are stored locally and included in JSON export/import. They are not sent to the backend unless you choose to ask the Twin about one.</div>
+            <div class="subpanel-shell" id="move-studio-shell">
+              <div class="subpanel-header">
+                <div>
+                  <div class="subpanel-title">Agency-Preserving Move Cards</div>
+                  <div id="summary-moveCards" class="subpanel-summary"></div>
+                </div>
+                <button id="toggle-moveCards" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('moveCards')">Expand</button>
+              </div>
+              <div id="panel-body-moveCards" class="subpanel-body collapsible-body">
+                <p class="move-studio-intro"><strong>A good next move is not just something to do.</strong> It is a small action that can preserve or expand future agency inside a particular field. Generate draft Move Cards from one saved Field Scan, then save, edit, mark not now, or ask the Twin to deliberate with you.</p>
+                <div class="select-row">
+                  <label for="move-scan-select" style="font:700 .72rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--dim);">Choose a saved Field Scan</label>
+                  <select id="move-scan-select"></select>
+                </div>
+                <div class="toolbar">
+                  <button class="btn small primary" type="button" onclick="generateMoveCardsFromSelectedScan()">Generate Move Cards</button>
+                  <button class="btn small ghost" type="button" onclick="saveAllPendingMoveCards()">Save All Draft Cards</button>
+                  <button class="btn small danger" type="button" onclick="clearPendingMoveCards()">Clear Draft Cards</button>
+                </div>
+                <div id="pending-move-cards" class="move-card-list"></div>
+                <div id="saved-move-cards" class="move-card-list"></div>
+              </div>
+            </div>
+            <div class="privacy-note">Field Scans and Move Cards are stored locally and included in JSON export/import. They are not sent to the backend unless you choose to ask the Twin.</div>
           </div>
         </div>
 
@@ -686,7 +750,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.5 Field Map Dashboard and Context Assembly Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.6 Field-Specific Move Cards Build.</div>
           </div>
         </div>
       </aside>
@@ -701,7 +765,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.5 Field Map Dashboard and Context Assembly';
+  const APP_VERSION = 'Navigator Twin v2.6 Field-Specific Move Cards';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -715,6 +779,8 @@
     pendingCapsule: 'navigator_twin_v2_pending_capsule',
     fieldScans: 'navigator_twin_v2_field_scans',
     contextAssembly: 'navigator_twin_v2_context_assembly',
+    moveCards: 'navigator_twin_v2_move_cards',
+    pendingMoveCards: 'navigator_twin_v2_pending_move_cards',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed'
   };
@@ -867,6 +933,10 @@
   function setFieldScans(scans){ setStored(KEYS.fieldScans, scans.slice(-40)); }
   function getContextAssembly(){ return getStored(KEYS.contextAssembly, { text:'', updatedAt:'' }); }
   function setContextAssembly(value){ setStored(KEYS.contextAssembly, Object.assign({ text:'', updatedAt:new Date().toISOString() }, value || {})); }
+  function getMoveCards(){ return getStored(KEYS.moveCards, []); }
+  function setMoveCards(cards){ setStored(KEYS.moveCards, Array.isArray(cards) ? cards.slice(-80) : []); }
+  function getPendingMoveCards(){ return getStored(KEYS.pendingMoveCards, []); }
+  function setPendingMoveCards(cards){ setStored(KEYS.pendingMoveCards, Array.isArray(cards) ? cards.slice(0, 8) : []); }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -881,7 +951,7 @@
   }
 
   function getUiPanels(){
-    return Object.assign({ help:false, journal:false, capsules:false, fieldScans:false }, getStored(KEYS.uiPanels, {}));
+    return Object.assign({ help:false, journal:false, capsules:false, fieldScans:false, moveCards:false }, getStored(KEYS.uiPanels, {}));
   }
 
   function setUiPanels(panels){
@@ -923,6 +993,8 @@
     const capsules = getCapsules();
     const scans = getFieldScans();
     const pending = getPendingCapsule();
+    const moves = getMoveCards();
+    const pendingMoves = getPendingMoveCards();
 
     setPanelSummary('summary-help', 'Quick Start · feature explanations · use cases · plain-language glossary');
 
@@ -943,11 +1015,18 @@
     setPanelSummary('summary-fieldScans', latestScan
       ? scans.length + ' saved scan' + (scans.length === 1 ? '' : 's') + ' · Latest: ' + truncateText(latestScan.title || latestScan.environment || 'Field Scan', 58) + ' · ' + (latestScan.riskLevel || 'risk unknown')
       : 'No saved Field Scans yet. Create one above, then save it here.');
+
+    const latestMove = moves.length ? moves[moves.length - 1] : null;
+    setPanelSummary('summary-moveCards', pendingMoves.length
+      ? pendingMoves.length + ' draft Move Card' + (pendingMoves.length === 1 ? '' : 's') + ' waiting for review.'
+      : latestMove
+        ? moves.length + ' saved Move Card' + (moves.length === 1 ? '' : 's') + ' · Latest: ' + truncateText(latestMove.title || 'Agency-preserving move', 64)
+        : 'No Move Cards yet. Choose a saved Field Scan and generate options.');
   }
 
   function applyPanelStates(){
     updatePanelSummaries();
-    ['help','journal','capsules','fieldScans'].forEach(name => {
+    ['help','journal','capsules','fieldScans','moveCards'].forEach(name => {
       const open = isPanelOpen(name);
       const body = document.getElementById('panel-body-' + name);
       const toggle = document.getElementById('toggle-' + name);
@@ -1153,6 +1232,7 @@
     updateFieldSliderLabels();
     renderFieldScans();
     renderFieldMapDashboard();
+    renderMoveStudio();
     updateSaveStatus();
     applyPanelStates();
   }
@@ -1240,6 +1320,7 @@ Essential design principle: The Twin is not asking the student to confess a self
     const fieldScans = getFieldScans().slice(-8).map(s => ({ title:s.title, scanType:s.scanType, fieldType:getFieldTypeLabel(s.scanType), environment:s.environment, suppressionGap:s.suppressionGap, riskLevel:s.riskLevel, stressLoad:s.stressLoad, summary:s.summary, nextMove:s.nextMove, bioBond:s.bioBond }));
     const fieldMapSummary = buildFieldMapSummary(getFieldScans());
     const contextAssembly = getContextAssembly();
+    const moveCards = getMoveCards().slice(-10).map(m => ({ title:m.title, fieldTitle:m.fieldTitle, fieldType:m.fieldType, pattern:m.pattern, firstAction:m.firstAction, whatPreserves:m.whatPreserves, whatRisks:m.whatRisks, supportNeeded:m.supportNeeded, urgency:m.urgency, reversibility:m.reversibility, suppressionRelief:m.suppressionRelief, futureAgencyValue:m.futureAgencyValue, status:m.status }));
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -1257,6 +1338,7 @@ Essential design principle: The Twin is not asking the student to confess a self
       fieldScans: fieldScans,
       fieldMapSummary: fieldMapSummary,
       contextAssembly: contextAssembly,
+      moveCards: moveCards,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -1550,6 +1632,8 @@ Return only valid JSON with this exact shape:
         pendingCapsule: getPendingCapsule(),
         fieldScans: getFieldScans(),
         contextAssembly: getContextAssembly(),
+        moveCards: getMoveCards(),
+        pendingMoveCards: getPendingMoveCards(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -1561,6 +1645,8 @@ Return only valid JSON with this exact shape:
         + (getContextAssembly().text || '[no context assembly saved]')
         + '\n\n--- Field Scans ---\n'
         + getFieldScans().map((s,i) => (i+1) + '. ' + (s.title || s.environment || 'Field Scan') + ' | Gap: ' + (s.suppressionGap || 0) + ' | Risk: ' + (s.riskLevel || 'unknown') + '\n' + (s.summary || '')).join('\n\n')
+        + '\n\n--- Move Cards ---\n'
+        + getMoveCards().map((m,i) => (i+1) + '. ' + (m.title || 'Move Card') + ' | Field: ' + (m.fieldTitle || 'unknown') + ' | Status: ' + (m.status || 'saved') + '\nFirst action: ' + (m.firstAction || '') + '\nPreserves: ' + (m.whatPreserves || '') + '\nRisks: ' + (m.whatRisks || '')).join('\n\n')
         + '\n\n--- Conversation ---\n'
         + chat.map(m => (m.role === 'assistant' ? 'Twin' : m.role === 'user' ? 'You' : 'System') + ': ' + m.content).join('\n\n');
       type = 'text/plain'; filename = 'navigator-twin-journal.txt';
@@ -1613,6 +1699,36 @@ Return only valid JSON with this exact shape:
     return qs.slice(-60);
   }
 
+
+  function normalizeImportedMoveCard(m){
+    const status = ['saved','not_now','draft'].includes(m && m.status) ? m.status : 'saved';
+    const urgency = Math.max(0, Math.min(100, Number(m && m.urgency) || 50));
+    const reversibility = Math.max(0, Math.min(100, Number(m && m.reversibility) || 60));
+    const suppressionRelief = Math.max(0, Math.min(100, Number(m && m.suppressionRelief) || 50));
+    const futureAgencyValue = Math.max(0, Math.min(100, Number(m && m.futureAgencyValue) || 60));
+    return {
+      id: (m && m.id) || uid('move'),
+      fieldScanId: String((m && m.fieldScanId) || ''),
+      fieldTitle: String((m && m.fieldTitle) || 'Imported field').slice(0, 160),
+      fieldType: String((m && m.fieldType) || 'Field').slice(0, 120),
+      pattern: String((m && m.pattern) || 'custom').slice(0, 80),
+      title: String((m && m.title) || 'Imported Move Card').slice(0, 140),
+      firstAction: String((m && m.firstAction) || '').slice(0, 1200),
+      whatPreserves: String((m && m.whatPreserves) || '').slice(0, 1200),
+      whatRisks: String((m && m.whatRisks) || '').slice(0, 1200),
+      supportNeeded: String((m && m.supportNeeded) || '').slice(0, 1200),
+      timeScale: String((m && m.timeScale) || 'near-term').slice(0, 80),
+      urgency,
+      reversibility,
+      suppressionRelief,
+      futureAgencyValue,
+      status,
+      notes: String((m && m.notes) || '').slice(0, 1200),
+      createdAt: (m && m.createdAt) || new Date().toISOString(),
+      savedAt: (m && m.savedAt) || ''
+    };
+  }
+
   function validateImportPayload(data){
     if(!data || typeof data !== 'object') throw new Error('The selected file is not a valid Navigator Twin JSON object.');
     const chat = Array.isArray(data.chat) ? data.chat.map(normalizeImportedMessage).filter(m => m.content.trim()) : [];
@@ -1635,7 +1751,9 @@ Return only valid JSON with this exact shape:
     const contextAssembly = data.contextAssembly && typeof data.contextAssembly === 'object'
       ? { text:String(data.contextAssembly.text || '').slice(0, 6000), updatedAt:data.contextAssembly.updatedAt || new Date().toISOString() }
       : { text:String(data.contextAssembly || '').slice(0, 6000), updatedAt:new Date().toISOString() };
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly }; 
+    const moveCards = Array.isArray(data.moveCards) ? data.moveCards.map(normalizeImportedMoveCard).filter(m => m.title || m.firstAction) : [];
+    const pendingMoveCards = Array.isArray(data.pendingMoveCards) ? data.pendingMoveCards.map(normalizeImportedMoveCard).filter(m => m.title || m.firstAction).slice(0, 8) : [];
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -1658,11 +1776,13 @@ Return only valid JSON with this exact shape:
       setCapsules(restored.documentCapsules || []);
       setFieldScans(restored.fieldScans || []);
       setContextAssembly(restored.contextAssembly || { text:'', updatedAt:new Date().toISOString() });
+      setMoveCards(restored.moveCards || []);
+      setPendingMoveCards(restored.pendingMoveCards || []);
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -2036,6 +2156,7 @@ Return only valid JSON with this shape:
     renderFieldScanPreview(null);
     renderFieldScans();
     renderFieldMapDashboard();
+    renderMoveStudio();
     applyPanelStates();
     addMessage('system', 'Navigator Field Scan saved: “' + saved.title + '.”');
     if(askTwin) askTwinAboutFieldScan(saved.id);
@@ -2215,6 +2336,7 @@ Return only valid JSON with this shape:
         + '<div class="journal-entry-meta">gap ' + escapeHtml(String(s.suppressionGap || 0)) + ' · raw ' + escapeHtml(String(s.rawCapacity || 0)) + ' · perceived ' + escapeHtml(String(s.perceivedCapacity || 0)) + ' · stress ' + escapeHtml(String(s.stressLoad || 0)) + '</div>'
         + '<div class="entry-actions">'
         + '<button class="btn small ghost" type="button" onclick="askTwinAboutFieldScan(\'' + s.id + '\')">Ask Twin</button>'
+        + '<button class="btn small primary" type="button" onclick="generateMoveCardsForScanId(\'' + s.id + '\')">Generate Move Cards</button>'
         + '<button class="btn small danger" type="button" onclick="deleteFieldScan(\'' + s.id + '\')">Delete</button>'
         + '</div></div>';
     }).join('');
@@ -2223,8 +2345,11 @@ Return only valid JSON with this shape:
   function deleteFieldScan(id){
     if(!confirm('Delete this Navigator Field Scan?')) return;
     setFieldScans(getFieldScans().filter(s => s.id !== id));
+    setMoveCards(getMoveCards().filter(m => m.fieldScanId !== id));
+    setPendingMoveCards(getPendingMoveCards().filter(m => m.fieldScanId !== id));
     renderFieldScans();
     renderFieldMapDashboard();
+    renderMoveStudio();
     applyPanelStates();
   }
   window.deleteFieldScan = deleteFieldScan;
@@ -2288,9 +2413,270 @@ Return only valid JSON with this shape:
     };
   }
 
+
+  function clampScore(n){ return Math.max(0, Math.min(100, Math.round(Number(n) || 0))); }
+
+  function moveTitleForScan(scan, pattern){
+    const field = getFieldTypeLabel(scan.scanType).replace(' Field','');
+    if(pattern === 'stabilize') return 'Stabilize the ' + field + ' field';
+    if(pattern === 'clarify') return 'Clarify how agency can route here';
+    if(pattern === 'biobond') return 'Strengthen one BioBond before acting';
+    return 'Agency-preserving move';
+  }
+
+  function generateMoveCards(scan){
+    const gap = Number(scan.suppressionGap) || 0;
+    const stress = Number(scan.stressLoad) || 0;
+    const raw = Number(scan.rawCapacity) || 0;
+    const perceived = Number(scan.perceivedCapacity) || 0;
+    const supportText = String(scan.bioBond || '').trim();
+    const hasSupport = supportText.length > 8;
+    const fieldTitle = scan.title || scan.environment || 'Field Scan';
+    const fieldType = getFieldTypeLabel(scan.scanType);
+    const base = { fieldScanId: scan.id, fieldTitle, fieldType, createdAt:new Date().toISOString(), status:'draft' };
+    return [
+      Object.assign({}, base, {
+        id: uid('move'), pattern:'stabilize', title: moveTitleForScan(scan, 'stabilize'),
+        firstAction: scan.nextMove && scan.nextMove.trim().length > 12
+          ? 'Begin with the smallest survivable version of the move already named in this scan: ' + shortText(scan.nextMove, 220)
+          : 'Reduce the immediate pressure enough to regain choice: pause, document the pressure, and choose one small action that protects time, energy, or decision space.',
+        whatPreserves: 'Preserves basic agency, energy, and future decision space before attempting a larger intervention.',
+        whatRisks: 'May feel too small or indirect if the field is demanding immediate performance or visible compliance.',
+        supportNeeded: hasSupport ? 'Use existing BioBond/support: ' + shortText(supportText, 220) : 'Identify one person, tool, boundary, or routine that can lower pressure before action.',
+        timeScale:'today / next 24 hours', urgency: clampScore(stress * .55 + gap * .35 + 12), reversibility: 82, suppressionRelief: clampScore(gap * .45 + stress * .25), futureAgencyValue: clampScore(58 + Math.min(25, gap * .25))
+      }),
+      Object.assign({}, base, {
+        id: uid('move'), pattern:'clarify', title: moveTitleForScan(scan, 'clarify'),
+        firstAction: 'Ask one clarifying question or gather one missing piece of evidence about what this field rewards, punishes, or will actually route.',
+        whatPreserves: 'Preserves interpretive accuracy and reduces the chance of acting from confusion, fear, or a false map of the field.',
+        whatRisks: 'May expose uncertainty or slow action in a field that rewards speed, certainty, or compliance.',
+        supportNeeded: 'A trusted reviewer, written notes, or a low-risk conversation that helps separate signal from noise.',
+        timeScale:'next 1–3 days', urgency: clampScore(stress * .35 + gap * .30 + 18), reversibility: 88, suppressionRelief: clampScore(gap * .55 + (raw - perceived) * .25), futureAgencyValue: clampScore(64 + Math.min(20, raw * .15))
+      }),
+      Object.assign({}, base, {
+        id: uid('move'), pattern:'biobond', title: moveTitleForScan(scan, 'biobond'),
+        firstAction: hasSupport
+          ? 'Contact, schedule, or activate the support named in this scan before making the harder move: ' + shortText(supportText, 220)
+          : 'Create or name one BioBond: a person, practice, document, tool, or community connection that helps agency remain coherent under pressure.',
+        whatPreserves: 'Preserves relational and practical support so the agent does not face the field as an isolated self.',
+        whatRisks: 'Requires asking for help, revealing need, or depending on a support channel that may not be fully reliable.',
+        supportNeeded: hasSupport ? shortText(supportText, 220) : 'One reliable support source that can help maintain coherence, evidence, confidence, or time.',
+        timeScale:'this week', urgency: clampScore(stress * .35 + gap * .35 + (hasSupport ? 10 : 22)), reversibility: 72, suppressionRelief: clampScore(gap * .62 + stress * .18), futureAgencyValue: clampScore(70 + Math.min(20, (raw + perceived) * .10))
+      })
+    ];
+  }
+
+  function renderMoveStudio(){
+    const select = document.getElementById('move-scan-select');
+    const scans = getFieldScans();
+    if(select){
+      if(scans.length === 0){
+        select.innerHTML = '<option value="">No saved Field Scans yet</option>';
+      } else {
+        const current = select.value;
+        select.innerHTML = scans.slice().reverse().map(s => '<option value="' + escapeHtml(s.id) + '">' + escapeHtml((s.title || s.environment || 'Field Scan') + ' — ' + getFieldTypeLabel(s.scanType)) + '</option>').join('');
+        if(current && scans.some(s => s.id === current)) select.value = current;
+      }
+    }
+    renderPendingMoveCards();
+    renderSavedMoveCards();
+  }
+
+  function renderMoveCard(card, pending){
+    const cls = 'move-card' + (pending ? '' : ' saved') + (card.status === 'not_now' ? ' not-now' : '');
+    const status = pending ? 'DRAFT — not saved yet' : (card.status === 'not_now' ? 'SAVED · MARKED NOT NOW' : 'SAVED MOVE CARD');
+    return '<div class="' + cls + '">'
+      + '<div class="move-card-meta">' + escapeHtml(status) + ' · ' + escapeHtml(card.fieldType || 'Field') + '</div>'
+      + '<div class="move-card-title">' + escapeHtml(card.title || 'Agency-preserving move') + '</div>'
+      + '<div class="capsule-summary"><strong>First action:</strong> ' + escapeHtml(card.firstAction || '') + '</div>'
+      + '<div class="move-card-grid">'
+      + '<div class="move-mini"><strong>What this preserves</strong>' + escapeHtml(card.whatPreserves || '') + '</div>'
+      + '<div class="move-mini"><strong>What this risks</strong>' + escapeHtml(card.whatRisks || '') + '</div>'
+      + '<div class="move-mini"><strong>Support needed</strong>' + escapeHtml(card.supportNeeded || '') + '</div>'
+      + '<div class="move-mini"><strong>Time scale</strong>' + escapeHtml(card.timeScale || 'near-term') + '</div>'
+      + '</div>'
+      + '<div class="move-score-row">'
+      + '<span class="move-score">Urgency ' + escapeHtml(String(card.urgency || 0)) + '</span>'
+      + '<span class="move-score">Reversibility ' + escapeHtml(String(card.reversibility || 0)) + '</span>'
+      + '<span class="move-score">Suppression relief ' + escapeHtml(String(card.suppressionRelief || 0)) + '</span>'
+      + '<span class="move-score">Future agency ' + escapeHtml(String(card.futureAgencyValue || 0)) + '</span>'
+      + '</div>'
+      + '<div class="entry-actions">'
+      + (pending
+        ? '<button class="btn small primary" type="button" onclick="savePendingMoveCard(\'' + card.id + '\')">Save Move</button>'
+          + '<button class="btn small ghost" type="button" onclick="askTwinAboutMoveCard(\'' + card.id + '\', true)">Ask Twin</button>'
+          + '<button class="btn small ghost" type="button" onclick="editPendingMoveCard(\'' + card.id + '\')">Edit Draft</button>'
+          + '<button class="btn small danger" type="button" onclick="discardPendingMoveCard(\'' + card.id + '\')">Discard</button>'
+        : '<button class="btn small ghost" type="button" onclick="askTwinAboutMoveCard(\'' + card.id + '\', false)">Ask Twin</button>'
+          + '<button class="btn small ghost" type="button" onclick="editSavedMoveCard(\'' + card.id + '\')">Edit</button>'
+          + '<button class="btn small ghost" type="button" onclick="toggleMoveNotNow(\'' + card.id + '\')">' + (card.status === 'not_now' ? 'Reactivate' : 'Mark Not Now') + '</button>'
+          + '<button class="btn small danger" type="button" onclick="deleteMoveCard(\'' + card.id + '\')">Delete</button>')
+      + '</div></div>';
+  }
+
+  function renderPendingMoveCards(){
+    const box = document.getElementById('pending-move-cards');
+    if(!box) return;
+    const pending = getPendingMoveCards();
+    if(!pending.length){ box.innerHTML = '<div class="empty">No draft Move Cards. Choose a saved Field Scan and generate options.</div>'; return; }
+    box.innerHTML = '<div class="status-line" style="color:var(--gold);font-weight:900;">DRAFT MOVE CARDS — review before saving</div>' + pending.map(c => renderMoveCard(c, true)).join('');
+  }
+
+  function renderSavedMoveCards(){
+    const box = document.getElementById('saved-move-cards');
+    if(!box) return;
+    const saved = getMoveCards();
+    if(!saved.length){ box.innerHTML = '<div class="empty">No saved Move Cards yet. Saved moves will appear here and remain available for Twin deliberation.</div>'; return; }
+    box.innerHTML = '<div class="status-line" style="color:var(--teal);font-weight:900;">SAVED MOVE CARDS</div>' + saved.slice().reverse().map(c => renderMoveCard(c, false)).join('');
+  }
+
+  function generateMoveCardsForScanId(id){
+    const scan = getFieldScans().find(s => s.id === id);
+    if(!scan){ alert('Choose a saved Field Scan first.'); return; }
+    setPendingMoveCards(generateMoveCards(scan));
+    setPanelOpen('moveCards', true);
+    renderMoveStudio();
+    applyPanelStates();
+    const shell = document.getElementById('move-studio-shell');
+    if(shell) shell.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.generateMoveCardsForScanId = generateMoveCardsForScanId;
+
+  function generateMoveCardsFromSelectedScan(){
+    const select = document.getElementById('move-scan-select');
+    const id = select ? select.value : '';
+    generateMoveCardsForScanId(id);
+  }
+  window.generateMoveCardsFromSelectedScan = generateMoveCardsFromSelectedScan;
+
+  function savePendingMoveCard(id){
+    const pending = getPendingMoveCards();
+    const card = pending.find(c => c.id === id);
+    if(!card) return;
+    const saved = Object.assign({}, card, { status:'saved', savedAt:new Date().toISOString() });
+    setMoveCards(getMoveCards().concat([saved]));
+    setPendingMoveCards(pending.filter(c => c.id !== id));
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.savePendingMoveCard = savePendingMoveCard;
+
+  function saveAllPendingMoveCards(){
+    const pending = getPendingMoveCards();
+    if(!pending.length){ alert('No draft Move Cards to save.'); return; }
+    const now = new Date().toISOString();
+    setMoveCards(getMoveCards().concat(pending.map(c => Object.assign({}, c, { status:'saved', savedAt:now }))));
+    setPendingMoveCards([]);
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.saveAllPendingMoveCards = saveAllPendingMoveCards;
+
+  function discardPendingMoveCard(id){
+    setPendingMoveCards(getPendingMoveCards().filter(c => c.id !== id));
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.discardPendingMoveCard = discardPendingMoveCard;
+
+  function clearPendingMoveCards(){
+    if(!getPendingMoveCards().length) return;
+    if(!confirm('Clear all draft Move Cards? Saved Move Cards will remain.')) return;
+    setPendingMoveCards([]);
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.clearPendingMoveCards = clearPendingMoveCards;
+
+  function editMoveCardObject(card){
+    const title = prompt('Move title:', card.title || '');
+    if(title === null) return null;
+    const firstAction = prompt('First small action:', card.firstAction || '');
+    if(firstAction === null) return null;
+    const supportNeeded = prompt('Support / BioBond needed:', card.supportNeeded || '');
+    if(supportNeeded === null) return null;
+    return Object.assign({}, card, {
+      title: String(title).trim().slice(0, 140) || card.title,
+      firstAction: String(firstAction).trim().slice(0, 1200) || card.firstAction,
+      supportNeeded: String(supportNeeded).trim().slice(0, 1200) || card.supportNeeded
+    });
+  }
+
+  function editPendingMoveCard(id){
+    const cards = getPendingMoveCards();
+    const idx = cards.findIndex(c => c.id === id);
+    if(idx < 0) return;
+    const edited = editMoveCardObject(cards[idx]);
+    if(!edited) return;
+    cards[idx] = edited;
+    setPendingMoveCards(cards);
+    renderMoveStudio();
+  }
+  window.editPendingMoveCard = editPendingMoveCard;
+
+  function editSavedMoveCard(id){
+    const cards = getMoveCards();
+    const idx = cards.findIndex(c => c.id === id);
+    if(idx < 0) return;
+    const edited = editMoveCardObject(cards[idx]);
+    if(!edited) return;
+    cards[idx] = Object.assign({}, edited, { savedAt: cards[idx].savedAt || new Date().toISOString() });
+    setMoveCards(cards);
+    renderMoveStudio();
+  }
+  window.editSavedMoveCard = editSavedMoveCard;
+
+  function toggleMoveNotNow(id){
+    const cards = getMoveCards();
+    const idx = cards.findIndex(c => c.id === id);
+    if(idx < 0) return;
+    cards[idx].status = cards[idx].status === 'not_now' ? 'saved' : 'not_now';
+    setMoveCards(cards);
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.toggleMoveNotNow = toggleMoveNotNow;
+
+  function deleteMoveCard(id){
+    if(!confirm('Delete this Move Card?')) return;
+    setMoveCards(getMoveCards().filter(c => c.id !== id));
+    renderMoveStudio();
+    applyPanelStates();
+  }
+  window.deleteMoveCard = deleteMoveCard;
+
+  function buildMoveCardTwinPrompt(card){
+    const scan = getFieldScans().find(s => s.id === card.fieldScanId);
+    return 'I created an Agency-Preserving Move Card from one Field Scan. Help me deliberate about it without deciding for me. Please assess whether the move preserves future agency, what it might risk, what support/BioBond it requires, and what question I should ask before acting. Treat this as a possible causal sequence, not a command. Ask one follow-up question.\n\nMOVE CARD:\n'
+      + 'Title: ' + (card.title || '') + '\n'
+      + 'Field: ' + (card.fieldTitle || '') + ' — ' + (card.fieldType || '') + '\n'
+      + 'First action: ' + (card.firstAction || '') + '\n'
+      + 'What it preserves: ' + (card.whatPreserves || '') + '\n'
+      + 'What it risks: ' + (card.whatRisks || '') + '\n'
+      + 'Support needed: ' + (card.supportNeeded || '') + '\n'
+      + 'Time scale: ' + (card.timeScale || '') + '\n'
+      + 'Scores: urgency ' + (card.urgency || 0) + ', reversibility ' + (card.reversibility || 0) + ', suppression relief ' + (card.suppressionRelief || 0) + ', future agency value ' + (card.futureAgencyValue || 0) + '\n\n'
+      + (scan ? 'SOURCE FIELD SCAN:\n' + 'Environment: ' + scan.environment + '\nRewards: ' + scan.rewards + '\nPunishes: ' + scan.punishes + '\nSuppression gap: ' + scan.suppressionGap + '\nStress: ' + scan.stressLoad + '\nBioBond/support: ' + scan.bioBond + '\n' : '')
+      + '\nCONTEXT ASSEMBLY:\n' + (getContextAssembly().text || '[none saved]');
+  }
+
+  function askTwinAboutMoveCard(id, pending){
+    const source = pending ? getPendingMoveCards() : getMoveCards();
+    const card = source.find(c => c.id === id);
+    if(!card){ alert('Could not find that Move Card.'); return; }
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = buildMoveCardTwinPrompt(card);
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => sendToTwin(), 50);
+    }
+  }
+  window.askTwinAboutMoveCard = askTwinAboutMoveCard;
+
 function clearTwinMemory(){
     if(!confirm('Clear the Twin conversation, journal, coverage, and asked questions from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
