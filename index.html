@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.3.1 Layout Compression</title>
-  <meta name="description" content="Navigator Twin v2.3.1 Layout Compression Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.3.2 Global Memory Controls</title>
+  <meta name="description" content="Navigator Twin v2.3.2 Global Memory Controls Build — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -249,9 +249,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.3.1 · Layout Compression</div>
+        <div class="eyebrow">Navigator Twin v2.3.2 · Global Memory Controls</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build preserves the tested Twin, Document Capsule, and Field Scan systems, then compresses memory panels so the active workspace stays easier to navigate.</div>
+        <div class="subtitle">This build keeps backup and restore controls visible at the top while preserving the tested Twin, Document Capsule, Field Scan, and collapsible memory panel systems.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -294,8 +294,25 @@
               <div id="stage-text" class="stage-text">Your Twin is waiting to learn its first pattern.</div>
             </div>
             <div class="coverage-list" id="coverage-list"></div>
-            <div class="privacy-note">Memory is stored in this browser using localStorage. Use Export, Import/Restore, or Clear Memory before changing devices or sharing a computer.</div>
+            <div class="privacy-note">Memory is stored in this browser using localStorage. Use the always-visible Memory & Backup controls below before changing devices or sharing a computer.</div>
             <div id="backup-reminder" class="privacy-note" style="display:none; border-left-color: rgba(96,163,111,.55);"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-header">
+            <div class="card-title">Memory & Backup</div>
+            <div class="card-desc">Global controls for the whole app: conversation, Twin Journal, Document Capsules, Field Scans, coverage, questions, mode, and settings.</div>
+          </div>
+          <div class="card-body">
+            <div class="toolbar">
+              <button class="btn small ghost" type="button" onclick="exportTwinJournal('txt')">Export TXT</button>
+              <button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export JSON</button>
+              <button class="btn small primary" type="button" onclick="triggerImportTwinMemory()">Import / Restore JSON</button>
+              <input id="import-json-file" type="file" accept="application/json,.json" style="display:none" onchange="handleImportTwinMemoryFile(event)" />
+              <button class="btn small danger" type="button" onclick="clearTwinMemory()">Clear Twin Memory</button>
+            </div>
+            <div class="privacy-note">Export JSON is the safest backup because it preserves the full local memory state. Import/Restore replaces the current browser memory only after confirmation.</div>
           </div>
         </div>
 
@@ -312,13 +329,7 @@
           </div>
           <div id="panel-body-journal" class="card-body collapsible-body">
             <div id="journal-list" class="journal-list"></div>
-            <div class="toolbar">
-              <button class="btn small ghost" type="button" onclick="exportTwinJournal('txt')">Export TXT</button>
-              <button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export JSON</button>
-              <button class="btn small primary" type="button" onclick="triggerImportTwinMemory()">Import / Restore JSON</button>
-              <input id="import-json-file" type="file" accept="application/json,.json" style="display:none" onchange="handleImportTwinMemoryFile(event)" />
-              <button class="btn small danger" type="button" onclick="clearTwinMemory()">Clear Twin Memory</button>
-            </div>
+            <div class="privacy-note">Journal entries can be edited or deleted here. Backup and restore controls stay visible above in Memory & Backup.</div>
           </div>
         </div>
 
@@ -435,7 +446,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.3.1 Layout Compression Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.3.2 Global Memory Controls Build.</div>
           </div>
         </div>
       </aside>
@@ -450,7 +461,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.3.1 Layout Compression';
+  const APP_VERSION = 'Navigator Twin v2.3.2 Global Memory Controls';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
