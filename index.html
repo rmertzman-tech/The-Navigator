@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.6.1 Workspace Layout</title>
-  <meta name="description" content="Navigator Twin v2.6.1 Workspace Layout Refactor — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.7 Cross-Field Move Comparison</title>
+  <meta name="description" content="Navigator Twin v2.7 Cross-Field Move Comparison — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -361,6 +361,57 @@
     }
     .move-mini strong { display:block; color: var(--text); font-size: .75rem; margin-bottom: 3px; }
     .move-score-row { display:flex; flex-wrap:wrap; gap:6px; margin-top: 10px; }
+
+    .comparison-grid { display: grid; grid-template-columns: 1.05fr 1.35fr; gap: 12px; margin-top: 12px; }
+    .compare-selector, .compare-output {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.026);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .compare-selector-list { display: grid; gap: 8px; margin-top: 10px; max-height: 360px; overflow: auto; padding-right: 3px; }
+    .compare-option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 9px;
+      align-items: start;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(6,11,24,.26);
+      border-radius: 12px;
+      padding: 9px;
+    }
+    .compare-option input { margin-top: 3px; }
+    .compare-option-title { color: var(--text); font-weight: 900; font-size: .9rem; }
+    .compare-option-meta { color: var(--dim); font: 700 .66rem/1.4 var(--mono); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+    .compare-option-note { color: var(--muted); font-size: .82rem; line-height: 1.42; margin-top: 4px; }
+    .compare-lens-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top: 10px; }
+    .compare-lens-row select { max-width: 260px; }
+    .comparison-table { width:100%; border-collapse: collapse; margin-top: 10px; font-size: .82rem; }
+    .comparison-table th, .comparison-table td { border-bottom: 1px solid rgba(255,255,255,.08); text-align:left; padding: 8px 6px; vertical-align: top; }
+    .comparison-table th { color: var(--gold); font: 800 .65rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: .06em; }
+    .comparison-readout {
+      border-left: 3px solid rgba(201,168,76,.48);
+      background: rgba(201,168,76,.06);
+      border-radius: 0 12px 12px 0;
+      color: var(--muted);
+      padding: 10px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+    .current-move-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(96,163,111,.42);
+      background: rgba(96,163,111,.09);
+      color: var(--green);
+      border-radius: 999px;
+      padding: 4px 7px;
+      font: 900 .62rem/1 var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-left: 6px;
+    }
+    @media (max-width: 900px){ .comparison-grid { grid-template-columns: 1fr; } }
     .move-score {
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
@@ -483,9 +534,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.6.1 · Workspace Layout</div>
+        <div class="eyebrow">Navigator Twin v2.7 · Cross-Field Moves</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build reorganizes Navigator into clear workspaces: Home, Twin, Memory, Field Map, Moves, and Help. It preserves the current Twin, Capsule, Field Scan, Context Assembly, and Move Card logic.</div>
+        <div class="subtitle">This build adds Cross-Field Move Comparison so users can compare possible moves across life fields using simple decision lenses while keeping the Twin, memory, Field Map, Context Assembly, and Move Card logic intact.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -792,9 +843,45 @@
       <div class="card">
         <div class="card-header">
           <div class="card-title">Moves Workspace</div>
-          <div class="card-desc">Generate and review agency-preserving Move Cards from saved Field Scans. Cross-field comparison will be added after this layout is stable.</div>
+          <div class="card-desc">Generate Move Cards from saved Field Scans, then compare possible moves across fields without letting the app decide for you.</div>
         </div>
         <div class="card-body">
+
+            <div class="subpanel-shell" id="move-comparison-shell">
+              <div class="subpanel-header">
+                <div>
+                  <div class="subpanel-title">Cross-Field Move Comparison</div>
+                  <div id="move-comparison-status" class="subpanel-summary">Select two to four saved moves to compare tradeoffs.</div>
+                </div>
+              </div>
+              <div class="subpanel-body">
+                <p class="move-studio-intro"><strong>Which move is mine now?</strong> This comparison does not choose for you. It helps you see urgency, support, reversibility, suppression relief, and future agency across saved moves so you and the Twin can deliberate more clearly.</p>
+                <div class="compare-lens-row">
+                  <label for="move-comparison-lens" style="font:700 .72rem/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--dim);">Decision lens</label>
+                  <select id="move-comparison-lens" onchange="setMoveComparisonLensFromSelect()">
+                    <option value="balanced">Balanced agency</option>
+                    <option value="urgent">Most urgent pressure</option>
+                    <option value="future_agency">Strongest future agency</option>
+                    <option value="suppression_relief">Largest suppression relief</option>
+                    <option value="support_ready">Most support-ready</option>
+                    <option value="low_risk">Lowest-risk first move</option>
+                  </select>
+                  <button class="btn small ghost" type="button" onclick="autoSelectComparisonMoves()">Auto-select 3 active moves</button>
+                  <button class="btn small ghost" type="button" onclick="clearMoveComparisonSelection()">Clear Selection</button>
+                  <button class="btn small primary" type="button" onclick="askTwinAboutComparedMoves()">Ask Twin to Deliberate</button>
+                </div>
+                <div class="comparison-grid">
+                  <div class="compare-selector">
+                    <div class="status-line" style="color:var(--gold);font-weight:900;">SELECT MOVES TO COMPARE</div>
+                    <div id="move-comparison-selector" class="compare-selector-list"></div>
+                  </div>
+                  <div class="compare-output">
+                    <div class="status-line" style="color:var(--teal);font-weight:900;">MAP READING, NOT A COMMAND</div>
+                    <div id="move-comparison-output"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="subpanel-shell" id="move-studio-shell">
               <div class="subpanel-header">
                 <div>
@@ -846,6 +933,7 @@
                 <li>After a few replies, expand the <strong>Twin Journal</strong> to see what the Twin has cautiously learned.</li>
                 <li>Upload a document if you want the Twin to understand a project or research style.</li>
                 <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
+                <li>Generate Move Cards from saved Field Scans, then use <strong>Cross-Field Move Comparison</strong> to compare two to four possible moves.</li>
                 <li>Export JSON before changing browsers, devices, or clearing memory.</li>
               </ol>
             </div>
@@ -855,6 +943,7 @@
                 <li><strong>Self-understanding:</strong> talk with the Twin and review the Twin Journal.</li>
                 <li><strong>Research or creative work:</strong> upload documents and build capsules that show themes, style, and open questions.</li>
                 <li><strong>Life navigation:</strong> run Field Scans to understand which environments support or suppress agency.</li>
+                <li><strong>Action deliberation:</strong> compare saved Move Cards across fields before choosing what to treat as the current next move.</li>
               </ul>
             </div>
             <div class="help-section">
@@ -870,6 +959,7 @@
                 <div class="glossary-item"><strong>Suppression Gap</strong><span>The gap between what you could contribute under supportive conditions and what you feel able to express now.</span></div>
                 <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
                 <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
+                <div class="glossary-item"><strong>Decision lens</strong><span>A temporary way of viewing moves, such as urgency, future agency, support-readiness, or reversibility. It is a perspective, not an order.</span></div>
               </div>
             </div>
             <div class="toolbar">
@@ -889,7 +979,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.6.1 Workspace Layout Refactor Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.7 Cross-Field Move Comparison Build.</div>
           </div>
         </div>
         </aside>
@@ -905,7 +995,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.6.1 Workspace Layout Refactor';
+  const APP_VERSION = 'Navigator Twin v2.7 Cross-Field Move Comparison';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -921,6 +1011,9 @@
     contextAssembly: 'navigator_twin_v2_context_assembly',
     moveCards: 'navigator_twin_v2_move_cards',
     pendingMoveCards: 'navigator_twin_v2_pending_move_cards',
+    currentMoveId: 'navigator_twin_v2_current_move_id',
+    moveCompareSelection: 'navigator_twin_v2_move_compare_selection',
+    moveComparisonLens: 'navigator_twin_v2_move_comparison_lens',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
     workspace: 'navigator_twin_v2_active_workspace'
@@ -1079,6 +1172,12 @@
   function setMoveCards(cards){ setStored(KEYS.moveCards, Array.isArray(cards) ? cards.slice(-80) : []); }
   function getPendingMoveCards(){ return getStored(KEYS.pendingMoveCards, []); }
   function setPendingMoveCards(cards){ setStored(KEYS.pendingMoveCards, Array.isArray(cards) ? cards.slice(0, 8) : []); }
+  function getCurrentMoveId(){ try { return localStorage.getItem(KEYS.currentMoveId) || ''; } catch(e) { return ''; } }
+  function setCurrentMoveId(id){ try { if(id) localStorage.setItem(KEYS.currentMoveId, id); else localStorage.removeItem(KEYS.currentMoveId); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} }
+  function getMoveCompareSelection(){ return getStored(KEYS.moveCompareSelection, []); }
+  function setMoveCompareSelection(ids){ setStored(KEYS.moveCompareSelection, Array.isArray(ids) ? ids.slice(0, 4) : []); }
+  function getMoveComparisonLens(){ try { return localStorage.getItem(KEYS.moveComparisonLens) || 'balanced'; } catch(e) { return 'balanced'; } }
+  function setMoveComparisonLens(value){ try { localStorage.setItem(KEYS.moveComparisonLens, value || 'balanced'); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -1342,12 +1441,13 @@
     const summary = buildFieldMapSummary(scans);
     const stage = getStage(journal.length);
     const largest = summary.largestGap;
-    const nextHint = moves.length ? 'Review saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
+    const currentMove = moves.find(m => m.id === getCurrentMoveId());
+    const nextHint = currentMove ? 'Review current move' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
     const cards = [
       ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
       ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
       ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
-      ['Moves', moves.length + ' saved', nextHint],
+      ['Moves', moves.length + ' saved', currentMove ? 'Current: ' + truncateText(currentMove.title || 'Current move', 88) : nextHint],
       ['Context Assembly', ctx.text ? 'saved' : 'not yet saved', ctx.text ? truncateText(ctx.text, 96) : 'Use Field Map to name the combined situation.'],
       ['Largest gap', largest ? largest.suppressionGap : 'none', largest ? truncateText(largest.title || largest.environment || 'Field Scan', 96) : 'No suppression gap mapped yet.'],
       ['Next workspace', moves.length ? 'Moves' : scans.length ? 'Moves / Field' : 'Field Map', nextHint],
@@ -1840,6 +1940,9 @@ Return only valid JSON with this exact shape:
         contextAssembly: getContextAssembly(),
         moveCards: getMoveCards(),
         pendingMoveCards: getPendingMoveCards(),
+        currentMoveId: getCurrentMoveId(),
+        moveCompareSelection: getMoveCompareSelection(),
+        moveComparisonLens: getMoveComparisonLens(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -1851,6 +1954,8 @@ Return only valid JSON with this exact shape:
         + (getContextAssembly().text || '[no context assembly saved]')
         + '\n\n--- Field Scans ---\n'
         + getFieldScans().map((s,i) => (i+1) + '. ' + (s.title || s.environment || 'Field Scan') + ' | Gap: ' + (s.suppressionGap || 0) + ' | Risk: ' + (s.riskLevel || 'unknown') + '\n' + (s.summary || '')).join('\n\n')
+        + '\n\n--- Current Move ---\n'
+        + ((getMoveCards().find(m => m.id === getCurrentMoveId()) || {}).title || '[no current move selected]')
         + '\n\n--- Move Cards ---\n'
         + getMoveCards().map((m,i) => (i+1) + '. ' + (m.title || 'Move Card') + ' | Field: ' + (m.fieldTitle || 'unknown') + ' | Status: ' + (m.status || 'saved') + '\nFirst action: ' + (m.firstAction || '') + '\nPreserves: ' + (m.whatPreserves || '') + '\nRisks: ' + (m.whatRisks || '')).join('\n\n')
         + '\n\n--- Conversation ---\n'
@@ -1959,7 +2064,11 @@ Return only valid JSON with this exact shape:
       : { text:String(data.contextAssembly || '').slice(0, 6000), updatedAt:new Date().toISOString() };
     const moveCards = Array.isArray(data.moveCards) ? data.moveCards.map(normalizeImportedMoveCard).filter(m => m.title || m.firstAction) : [];
     const pendingMoveCards = Array.isArray(data.pendingMoveCards) ? data.pendingMoveCards.map(normalizeImportedMoveCard).filter(m => m.title || m.firstAction).slice(0, 8) : [];
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards }; 
+    const currentMoveId = String(data.currentMoveId || '').slice(0, 80);
+    const moveCompareSelection = Array.isArray(data.moveCompareSelection) ? data.moveCompareSelection.map(x => String(x).slice(0,80)).slice(0,4) : [];
+    const allowedLens = ['balanced','urgent','future_agency','suppression_relief','support_ready','low_risk'];
+    const moveComparisonLens = allowedLens.includes(data.moveComparisonLens) ? data.moveComparisonLens : 'balanced';
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -1984,6 +2093,9 @@ Return only valid JSON with this exact shape:
       setContextAssembly(restored.contextAssembly || { text:'', updatedAt:new Date().toISOString() });
       setMoveCards(restored.moveCards || []);
       setPendingMoveCards(restored.pendingMoveCards || []);
+      setCurrentMoveId(restored.currentMoveId && (restored.moveCards || []).some(m => m.id === restored.currentMoveId) ? restored.currentMoveId : '');
+      setMoveCompareSelection((restored.moveCompareSelection || []).filter(id => (restored.moveCards || []).some(m => m.id === id)));
+      setMoveComparisonLens(restored.moveComparisonLens || 'balanced');
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
@@ -2690,13 +2802,15 @@ Return only valid JSON with this shape:
     }
     renderPendingMoveCards();
     renderSavedMoveCards();
+    renderMoveComparison();
   }
 
   function renderMoveCard(card, pending){
     const cls = 'move-card' + (pending ? '' : ' saved') + (card.status === 'not_now' ? ' not-now' : '');
+    const isCurrent = !pending && card.id === getCurrentMoveId();
     const status = pending ? 'DRAFT — not saved yet' : (card.status === 'not_now' ? 'SAVED · MARKED NOT NOW' : 'SAVED MOVE CARD');
     return '<div class="' + cls + '">'
-      + '<div class="move-card-meta">' + escapeHtml(status) + ' · ' + escapeHtml(card.fieldType || 'Field') + '</div>'
+      + '<div class="move-card-meta">' + escapeHtml(status) + ' · ' + escapeHtml(card.fieldType || 'Field') + (isCurrent ? '<span class="current-move-badge">Current</span>' : '') + '</div>'
       + '<div class="move-card-title">' + escapeHtml(card.title || 'Agency-preserving move') + '</div>'
       + '<div class="capsule-summary"><strong>First action:</strong> ' + escapeHtml(card.firstAction || '') + '</div>'
       + '<div class="move-card-grid">'
@@ -2720,6 +2834,7 @@ Return only valid JSON with this shape:
         : '<button class="btn small ghost" type="button" onclick="askTwinAboutMoveCard(\'' + card.id + '\', false)">Ask Twin</button>'
           + '<button class="btn small ghost" type="button" onclick="editSavedMoveCard(\'' + card.id + '\')">Edit</button>'
           + '<button class="btn small ghost" type="button" onclick="toggleMoveNotNow(\'' + card.id + '\')">' + (card.status === 'not_now' ? 'Reactivate' : 'Mark Not Now') + '</button>'
+          + '<button class="btn small ghost" type="button" onclick="setCurrentMove(\'' + card.id + '\')">' + (isCurrent ? 'Clear Current' : 'Set Current') + '</button>'
           + '<button class="btn small danger" type="button" onclick="deleteMoveCard(\'' + card.id + '\')">Delete</button>')
       + '</div></div>';
   }
@@ -2852,10 +2967,175 @@ Return only valid JSON with this shape:
   function deleteMoveCard(id){
     if(!confirm('Delete this Move Card?')) return;
     setMoveCards(getMoveCards().filter(c => c.id !== id));
+    if(getCurrentMoveId() === id) setCurrentMoveId('');
+    setMoveCompareSelection(getMoveCompareSelection().filter(x => x !== id));
     renderMoveStudio();
     applyPanelStates();
   }
   window.deleteMoveCard = deleteMoveCard;
+
+
+  function supportReadinessScore(card){
+    const text = String((card && card.supportNeeded) || '').trim().toLowerCase();
+    if(!text) return 20;
+    if(text.includes('create or name') || text.includes('one reliable support')) return 42;
+    if(text.length > 45) return 78;
+    return 62;
+  }
+
+  function moveLensLabel(lens){
+    return {
+      balanced:'Balanced agency', urgent:'Most urgent pressure', future_agency:'Strongest future agency',
+      suppression_relief:'Largest suppression relief', support_ready:'Most support-ready', low_risk:'Lowest-risk first move'
+    }[lens || 'balanced'] || 'Balanced agency';
+  }
+
+  function scoreMoveForLens(card, lens){
+    const u = Number(card.urgency) || 0;
+    const r = Number(card.reversibility) || 0;
+    const s = Number(card.suppressionRelief) || 0;
+    const f = Number(card.futureAgencyValue) || 0;
+    const support = supportReadinessScore(card);
+    switch(lens){
+      case 'urgent': return u;
+      case 'future_agency': return f;
+      case 'suppression_relief': return s;
+      case 'support_ready': return support * .52 + r * .18 + f * .20 + s * .10;
+      case 'low_risk': return r * .58 + support * .22 + (100 - Math.min(100, u)) * .20;
+      case 'balanced':
+      default: return u * .18 + r * .14 + s * .22 + f * .28 + support * .18;
+    }
+  }
+
+  function getMoveById(id){ return getMoveCards().find(m => m.id === id); }
+
+  function cleanMoveComparisonSelection(){
+    const cards = getMoveCards();
+    const ids = getMoveCompareSelection().filter(id => cards.some(c => c.id === id)).slice(0,4);
+    if(ids.join('|') !== getMoveCompareSelection().join('|')) setMoveCompareSelection(ids);
+    return ids;
+  }
+
+  function setMoveComparisonLensFromSelect(){
+    const sel = document.getElementById('move-comparison-lens');
+    setMoveComparisonLens(sel ? sel.value : 'balanced');
+    renderMoveComparison();
+  }
+  window.setMoveComparisonLensFromSelect = setMoveComparisonLensFromSelect;
+
+  function toggleMoveCompareSelection(id, checked){
+    let ids = cleanMoveComparisonSelection();
+    if(checked){
+      if(!ids.includes(id)) ids.push(id);
+      if(ids.length > 4){
+        alert('Choose up to four moves for comparison. Clear one selection before adding another.');
+        renderMoveComparison();
+        return;
+      }
+    } else {
+      ids = ids.filter(x => x !== id);
+    }
+    setMoveCompareSelection(ids);
+    renderMoveComparison();
+  }
+  window.toggleMoveCompareSelection = toggleMoveCompareSelection;
+
+  function autoSelectComparisonMoves(){
+    const cards = getMoveCards().filter(c => c.status !== 'not_now');
+    if(!cards.length){ alert('Save at least one active Move Card first.'); return; }
+    const selected = cards.slice().sort((a,b) => scoreMoveForLens(b, 'balanced') - scoreMoveForLens(a, 'balanced')).slice(0, Math.min(3, cards.length)).map(c => c.id);
+    setMoveCompareSelection(selected);
+    renderMoveComparison();
+  }
+  window.autoSelectComparisonMoves = autoSelectComparisonMoves;
+
+  function clearMoveComparisonSelection(){
+    setMoveCompareSelection([]);
+    renderMoveComparison();
+  }
+  window.clearMoveComparisonSelection = clearMoveComparisonSelection;
+
+  function setCurrentMove(id){
+    if(getCurrentMoveId() === id) setCurrentMoveId('');
+    else setCurrentMoveId(id);
+    renderMoveStudio();
+    renderWorkspaceDashboard();
+  }
+  window.setCurrentMove = setCurrentMove;
+
+  function renderMoveComparison(){
+    const selector = document.getElementById('move-comparison-selector');
+    const output = document.getElementById('move-comparison-output');
+    const status = document.getElementById('move-comparison-status');
+    const lensSelect = document.getElementById('move-comparison-lens');
+    if(!selector || !output) return;
+    const cards = getMoveCards();
+    const selectedIds = cleanMoveComparisonSelection();
+    const selected = selectedIds.map(getMoveById).filter(Boolean);
+    const lens = getMoveComparisonLens();
+    if(lensSelect) lensSelect.value = lens;
+    const activeCount = cards.filter(c => c.status !== 'not_now').length;
+    const current = getMoveById(getCurrentMoveId());
+    if(status) status.textContent = cards.length
+      ? activeCount + ' active · ' + (cards.length - activeCount) + ' not now' + (current ? ' · Current: ' + truncateText(current.title || 'Current move', 60) : ' · no current move selected')
+      : 'No saved Move Cards yet. Generate cards from a Field Scan first.';
+    if(!cards.length){
+      selector.innerHTML = '<div class="empty">No saved Move Cards yet. Generate and save moves below, then return here to compare them across fields.</div>';
+      output.innerHTML = '<div class="empty">Comparison will appear here after you save and select at least two Move Cards.</div>';
+      return;
+    }
+    selector.innerHTML = cards.slice().reverse().map(c => {
+      const checked = selectedIds.includes(c.id) ? ' checked' : '';
+      const disabled = (!checked && selectedIds.length >= 4) ? ' disabled' : '';
+      const notNow = c.status === 'not_now' ? ' · NOT NOW' : '';
+      return '<label class="compare-option">'
+        + '<input type="checkbox" onchange="toggleMoveCompareSelection(\'' + c.id + '\', this.checked)"' + checked + disabled + ' />'
+        + '<span><span class="compare-option-title">' + escapeHtml(c.title || 'Move Card') + (c.id === getCurrentMoveId() ? '<span class="current-move-badge">Current</span>' : '') + '</span>'
+        + '<span class="compare-option-meta">' + escapeHtml(c.fieldTitle || 'Field') + ' · ' + escapeHtml(c.fieldType || 'Field') + notNow + '</span>'
+        + '<span class="compare-option-note">' + escapeHtml(truncateText(c.firstAction || '', 130)) + '</span></span></label>';
+    }).join('');
+    if(selected.length < 2){
+      output.innerHTML = '<div class="comparison-readout"><strong>Select two to four moves.</strong><br>This tool is designed for comparison, not command. It becomes useful when there are multiple plausible moves competing for limited attention.</div>';
+      return;
+    }
+    const ranked = selected.slice().sort((a,b) => scoreMoveForLens(b, lens) - scoreMoveForLens(a, lens));
+    const top = ranked[0];
+    const lensText = moveLensLabel(lens);
+    const rows = ranked.map(c => '<tr>'
+      + '<td><strong>' + escapeHtml(c.title || 'Move') + '</strong><br><span style="color:var(--dim);">' + escapeHtml(c.fieldType || c.fieldTitle || 'Field') + '</span></td>'
+      + '<td>' + Math.round(scoreMoveForLens(c, lens)) + '</td>'
+      + '<td>' + escapeHtml(String(c.urgency || 0)) + '</td>'
+      + '<td>' + escapeHtml(String(c.suppressionRelief || 0)) + '</td>'
+      + '<td>' + escapeHtml(String(c.futureAgencyValue || 0)) + '</td>'
+      + '<td>' + escapeHtml(String(c.reversibility || 0)) + '</td>'
+      + '<td>' + supportReadinessScore(c) + '</td>'
+      + '<td><button class="btn small ghost" type="button" onclick="setCurrentMove(\'' + c.id + '\')">' + (c.id === getCurrentMoveId() ? 'Clear Current' : 'Set Current') + '</button></td>'
+      + '</tr>').join('');
+    output.innerHTML = '<div class="comparison-readout"><strong>Current lens: ' + escapeHtml(lensText) + '.</strong><br>Under this lens, <strong>' + escapeHtml(top.title || 'one move') + '</strong> rises to the top. This is a map reading, not a decision. Ask whether this move preserves future agency under present constraint.</div>'
+      + '<table class="comparison-table"><thead><tr><th>Move</th><th>Lens</th><th>Urgency</th><th>Relief</th><th>Future</th><th>Reversible</th><th>Support</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>'
+      + '<div class="toolbar"><button class="btn small primary" type="button" onclick="askTwinAboutComparedMoves()">Ask Twin to Deliberate These Moves</button></div>';
+  }
+
+  function buildComparedMovesPrompt(){
+    const selected = cleanMoveComparisonSelection().map(getMoveById).filter(Boolean);
+    const lens = getMoveComparisonLens();
+    const current = getMoveById(getCurrentMoveId());
+    return 'I selected several possible Agency-Preserving Move Cards from different fields. Help me deliberate across fields without deciding for me. Compare urgency, suppression relief, support/BioBond readiness, reversibility, future agency, and life-project alignment. Please identify the tradeoffs, name which move may deserve attention under the current lens, explain why this is not automatically the right choice, and ask one final question that helps me choose as the author of my life.\n\nDECISION LENS: ' + moveLensLabel(lens) + '\nCURRENT MOVE MARKED BY USER: ' + (current ? current.title : '[none]') + '\n\nSELECTED MOVES:\n' + selected.map((m,i) => (i+1) + '. ' + (m.title || 'Move') + '\nField: ' + (m.fieldTitle || '') + ' — ' + (m.fieldType || '') + '\nFirst action: ' + (m.firstAction || '') + '\nPreserves: ' + (m.whatPreserves || '') + '\nRisks: ' + (m.whatRisks || '') + '\nSupport: ' + (m.supportNeeded || '') + '\nScores: urgency ' + (m.urgency || 0) + ', reversibility ' + (m.reversibility || 0) + ', suppression relief ' + (m.suppressionRelief || 0) + ', future agency ' + (m.futureAgencyValue || 0) + ', support readiness ' + supportReadinessScore(m)).join('\n\n') + '\n\nFIELD MAP AND CONTEXT:\n' + fieldMapPromptBase();
+  }
+
+  function askTwinAboutComparedMoves(){
+    const selected = cleanMoveComparisonSelection().map(getMoveById).filter(Boolean);
+    if(selected.length < 2){ alert('Select at least two saved Move Cards before asking the Twin to deliberate.'); return; }
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = buildComparedMovesPrompt();
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => sendToTwin(), 50);
+    }
+  }
+  window.askTwinAboutComparedMoves = askTwinAboutComparedMoves;
 
   function buildMoveCardTwinPrompt(card){
     const scan = getFieldScans().find(s => s.id === card.fieldScanId);
@@ -2888,8 +3168,8 @@ Return only valid JSON with this shape:
   window.askTwinAboutMoveCard = askTwinAboutMoveCard;
 
 function clearTwinMemory(){
-    if(!confirm('Clear the Twin conversation, journal, coverage, and asked questions from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    if(!confirm('Clear the Twin conversation, journal, capsules, field scans, context assembly, move cards, and comparison selections from this browser?')) return;
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
