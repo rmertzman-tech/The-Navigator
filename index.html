@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.6 Move Cards</title>
-  <meta name="description" content="Navigator Twin v2.6 Field-Specific Move Cards Build — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.6.1 Workspace Layout</title>
+  <meta name="description" content="Navigator Twin v2.6.1 Workspace Layout Refactor — no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -86,6 +86,52 @@
     .btn.ghost { background: rgba(255,255,255,.035); border-color: var(--line); color: var(--muted); }
     .btn.small { font-size: .82rem; padding: 7px 9px; border-radius: 10px; }
     .grid { display: grid; grid-template-columns: minmax(0, 1.32fr) minmax(340px, .82fr); gap: 18px; align-items: start; }
+
+    .workspace-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 18px 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(17,28,51,.72);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    }
+    .workspace-btn {
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.045);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font: 800 .72rem/1 var(--mono);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .workspace-btn:hover { color: var(--text); border-color: rgba(201,168,76,.35); transform: translateY(-1px); }
+    .workspace-btn.active { background: rgba(201,168,76,.14); border-color: rgba(201,168,76,.55); color: var(--gold); }
+    .workspace-pane { display: none; }
+    .workspace-pane.active { display: block; }
+    .workspace-grid { margin-top: 0; }
+    .workspace-stack { display: grid; gap: 18px; }
+    .home-dashboard { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-top: 14px; }
+    .home-metric { border: 1px solid var(--line); background: rgba(255,255,255,.04); border-radius: 16px; padding: 13px; min-height: 96px; }
+    .home-metric-label { font: 800 .68rem/1 var(--mono); letter-spacing: .09em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+    .home-metric-value { font-family: var(--serif); font-size: 1.25rem; color: var(--text); line-height: 1.1; margin-bottom: 6px; }
+    .home-metric-note { color: var(--muted); font-size: .84rem; line-height: 1.35; }
+    .home-flow { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 8px; margin-top: 14px; }
+    .home-flow-step { border: 1px solid rgba(201,168,76,.22); border-radius: 14px; padding: 10px; background: rgba(201,168,76,.055); color: var(--muted); font-size: .82rem; line-height: 1.35; }
+    .home-flow-step strong { display: block; color: var(--gold); font: 900 .68rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+    .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .workspace-note { border-left: 3px solid rgba(96,163,111,.55); background: rgba(96,163,111,.06); color: var(--muted); border-radius: 0 14px 14px 0; padding: 12px; line-height: 1.55; }
+
     .card {
       background: rgba(17,28,51,.84);
       border: 1px solid var(--line);
@@ -403,6 +449,33 @@
       .two-col { grid-template-columns: 1fr; }
       .welcome-grid { grid-template-columns: 1fr; }
       .glossary-item { grid-template-columns: 1fr; }
+
+      .home-dashboard { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .home-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
+
+    }
+
+    @media (max-width: 620px) {
+      body { padding-bottom: 86px; }
+      .app-shell { padding-left: 14px; padding-right: 14px; }
+      .workspace-nav {
+        position: fixed;
+        top: auto;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        margin: 0;
+        padding: 8px;
+        justify-content: space-between;
+        border-radius: 20px;
+      }
+      .workspace-btn {
+        flex: 1 1 28%;
+        font-size: .62rem;
+        padding: 8px 6px;
+      }
+      .home-dashboard { grid-template-columns: 1fr; }
+      .home-flow { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -410,9 +483,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.4 · Onboarding and Help</div>
+        <div class="eyebrow">Navigator Twin v2.6.1 · Workspace Layout</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build adds field-specific agency-preserving Move Cards so each saved Field Scan can generate concrete next-move options for Twin-guided deliberation.</div>
+        <div class="subtitle">This build reorganizes Navigator into clear workspaces: Home, Twin, Memory, Field Map, Moves, and Help. It preserves the current Twin, Capsule, Field Scan, Context Assembly, and Move Card logic.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -449,7 +522,47 @@
       </div>
     </div>
 
-    <section class="grid">
+
+    <nav class="workspace-nav" aria-label="Navigator workspaces">
+      <button id="workspace-btn-home" class="workspace-btn active" type="button" onclick="showWorkspace('home')">Home</button>
+      <button id="workspace-btn-twin" class="workspace-btn" type="button" onclick="showWorkspace('twin')">Twin</button>
+      <button id="workspace-btn-memory" class="workspace-btn" type="button" onclick="showWorkspace('memory')">Memory</button>
+      <button id="workspace-btn-field" class="workspace-btn" type="button" onclick="showWorkspace('field')">Field Map</button>
+      <button id="workspace-btn-moves" class="workspace-btn" type="button" onclick="showWorkspace('moves')">Moves</button>
+      <button id="workspace-btn-help" class="workspace-btn" type="button" onclick="showWorkspace('help')">Help</button>
+    </nav>
+
+    <div id="workspace-home" class="workspace-pane active">
+      <div class="card">
+        <div class="card-header">
+          <div class="eyebrow">Navigator Workspace</div>
+          <div class="card-title">Home Dashboard</div>
+          <div class="card-desc">A command center for the full cycle: talk with the Twin, preserve memory, map fields, assemble context, and deliberate about next moves.</div>
+        </div>
+        <div class="card-body">
+          <div class="workspace-note"><strong>Current design principle:</strong> Navigator should always show where you are in the cycle: understanding self, remembering evidence, mapping fields, assembling context, or choosing a move.</div>
+          <div id="home-dashboard" class="home-dashboard"></div>
+          <div class="home-flow">
+            <div class="home-flow-step"><strong>Talk</strong>Begin or continue the Twin conversation.</div>
+            <div class="home-flow-step"><strong>Remember</strong>Review Journal entries and Document Capsules.</div>
+            <div class="home-flow-step"><strong>Map</strong>Run Field Scans for the environments acting on you.</div>
+            <div class="home-flow-step"><strong>Assemble</strong>Name what the fields create together.</div>
+            <div class="home-flow-step"><strong>Move</strong>Generate agency-preserving Move Cards.</div>
+            <div class="home-flow-step"><strong>Reflect</strong>Ask the Twin to help you deliberate without deciding for you.</div>
+          </div>
+          <div class="quick-actions">
+            <button class="btn small primary" type="button" onclick="showWorkspace('twin'); startTwin();">Continue Twin</button>
+            <button class="btn small ghost" type="button" onclick="showWorkspace('memory')">Review Memory</button>
+            <button class="btn small ghost" type="button" onclick="showWorkspace('field')">Build Field Map</button>
+            <button class="btn small purple" type="button" onclick="showWorkspace('moves')">Review Moves</button>
+            <button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export JSON Backup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="workspace-twin" class="workspace-pane">
+      <section class="grid workspace-grid">
       <div id="twin-conversation-card" class="card">
         <div class="card-header">
           <div class="card-title">Twin Conversation</div>
@@ -467,8 +580,7 @@
           <button id="send-btn" class="btn primary" type="button" onclick="sendToTwin()">Send</button>
         </div>
       </div>
-
-      <aside class="side-panel">
+        <aside class="side-panel">
         <div class="card">
           <div class="card-header">
             <div class="card-title">Twin Coherence</div>
@@ -489,7 +601,13 @@
             <div id="backup-reminder" class="privacy-note" style="display:none; border-left-color: rgba(96,163,111,.55);"></div>
           </div>
         </div>
+        </aside>
+      </section>
+    </div>
 
+    <div id="workspace-memory" class="workspace-pane">
+      <section class="grid workspace-grid">
+        <div class="workspace-stack">
         <div class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="card-title">Memory & Backup</div>
@@ -507,59 +625,6 @@
             <div class="privacy-note">Export JSON is the safest backup because it preserves the full local memory state. Import/Restore replaces the current browser memory only after confirmation.</div>
           </div>
         </div>
-
-        <div class="card collapsible-card" style="margin-top:18px;" data-panel="help">
-          <div class="card-header">
-            <div class="card-title-row">
-              <div>
-                <div class="card-title">Help / Tutorial</div>
-                <div class="card-desc">A quick guide to using Navigator without needing the theory first.</div>
-              </div>
-              <button id="toggle-help" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('help')">Expand</button>
-            </div>
-            <div id="summary-help" class="panel-summary"></div>
-          </div>
-          <div id="panel-body-help" class="card-body collapsible-body">
-            <div class="help-section">
-              <h3>Quick Start</h3>
-              <ol>
-                <li>Click <strong>Start / Resume Twin</strong>.</li>
-                <li>Reply briefly and honestly. The Twin should ask one question at a time.</li>
-                <li>After a few replies, expand the <strong>Twin Journal</strong> to see what the Twin has cautiously learned.</li>
-                <li>Upload a document if you want the Twin to understand a project or research style.</li>
-                <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
-                <li>Export JSON before changing browsers, devices, or clearing memory.</li>
-              </ol>
-            </div>
-            <div class="help-section">
-              <h3>Three ways to use Navigator</h3>
-              <ul>
-                <li><strong>Self-understanding:</strong> talk with the Twin and review the Twin Journal.</li>
-                <li><strong>Research or creative work:</strong> upload documents and build capsules that show themes, style, and open questions.</li>
-                <li><strong>Life navigation:</strong> run Field Scans to understand which environments support or suppress agency.</li>
-              </ul>
-            </div>
-            <div class="help-section">
-              <h3>Example use case</h3>
-              <p>A student feels stuck in a course. They talk with the Twin and notice they care about meaningful work, not just grades. They run a Field Scan and see that effort feels absorbed by compliance tasks. They identify one BioBond: a study partner who helps them think clearly. Their next move is not perfect, but it preserves agency.</p>
-            </div>
-            <div class="help-section">
-              <h3>Plain-language glossary</h3>
-              <div class="glossary-grid">
-                <div class="glossary-item"><strong>Twin Journal</strong><span>Brief, editable learnings the Twin gathers from conversation.</span></div>
-                <div class="glossary-item"><strong>Document Capsule</strong><span>A short approved memory made from a document, not the raw file itself.</span></div>
-                <div class="glossary-item"><strong>Field Scan</strong><span>A map of an environment and how it shapes what you can express or do.</span></div>
-                <div class="glossary-item"><strong>Suppression Gap</strong><span>The gap between what you could contribute under supportive conditions and what you feel able to express now.</span></div>
-                <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
-                <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
-              </div>
-            </div>
-            <div class="toolbar">
-              <button class="btn small ghost" type="button" onclick="showWelcomeAgain()">Show welcome card again</button>
-            </div>
-          </div>
-        </div>
-
         <div class="card collapsible-card" style="margin-top:18px;" data-panel="journal">
           <div class="card-header">
             <div class="card-title-row">
@@ -577,7 +642,8 @@
             <div class="privacy-note">Journal entries can be edited or deleted here. Backup and restore controls stay visible above in Memory & Backup.</div>
           </div>
         </div>
-
+        </div>
+        <aside class="side-panel">
         <div class="card collapsible-card" style="margin-top:18px;" data-panel="capsules">
           <div class="card-header">
             <div class="card-title-row">
@@ -609,7 +675,11 @@
             <div class="privacy-note">Use uploads for artifacts you are comfortable sharing with the backend. The saved Twin memory contains only the capsule you approve.</div>
           </div>
         </div>
+        </aside>
+      </section>
+    </div>
 
+    <div id="workspace-field" class="workspace-pane">
         <div id="field-scan-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="card-title">Navigator Field Scan</div>
@@ -713,6 +783,18 @@
                 <div id="field-scan-list" class="field-scan-list"></div>
               </div>
             </div>
+            <div class="privacy-note">Field Scans and Move Cards are stored locally and included in JSON export/import. They are not sent to the backend unless you choose to ask the Twin.</div>
+          </div>
+        </div>
+    </div>
+
+    <div id="workspace-moves" class="workspace-pane">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Moves Workspace</div>
+          <div class="card-desc">Generate and review agency-preserving Move Cards from saved Field Scans. Cross-field comparison will be added after this layout is stable.</div>
+        </div>
+        <div class="card-body">
             <div class="subpanel-shell" id="move-studio-shell">
               <div class="subpanel-header">
                 <div>
@@ -736,10 +818,67 @@
                 <div id="saved-move-cards" class="move-card-list"></div>
               </div>
             </div>
-            <div class="privacy-note">Field Scans and Move Cards are stored locally and included in JSON export/import. They are not sent to the backend unless you choose to ask the Twin.</div>
+          <div class="privacy-note">Move Cards are stored locally and included in JSON export/import. Asking the Twin about a move sends only the selected prompt context to the backend.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="workspace-help" class="workspace-pane">
+      <section class="grid workspace-grid">
+        <div class="workspace-stack">
+        <div class="card collapsible-card" style="margin-top:18px;" data-panel="help">
+          <div class="card-header">
+            <div class="card-title-row">
+              <div>
+                <div class="card-title">Help / Tutorial</div>
+                <div class="card-desc">A quick guide to using Navigator without needing the theory first.</div>
+              </div>
+              <button id="toggle-help" class="btn small ghost collapse-toggle" type="button" onclick="togglePanel('help')">Expand</button>
+            </div>
+            <div id="summary-help" class="panel-summary"></div>
+          </div>
+          <div id="panel-body-help" class="card-body collapsible-body">
+            <div class="help-section">
+              <h3>Quick Start</h3>
+              <ol>
+                <li>Click <strong>Start / Resume Twin</strong>.</li>
+                <li>Reply briefly and honestly. The Twin should ask one question at a time.</li>
+                <li>After a few replies, expand the <strong>Twin Journal</strong> to see what the Twin has cautiously learned.</li>
+                <li>Upload a document if you want the Twin to understand a project or research style.</li>
+                <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
+                <li>Export JSON before changing browsers, devices, or clearing memory.</li>
+              </ol>
+            </div>
+            <div class="help-section">
+              <h3>Three ways to use Navigator</h3>
+              <ul>
+                <li><strong>Self-understanding:</strong> talk with the Twin and review the Twin Journal.</li>
+                <li><strong>Research or creative work:</strong> upload documents and build capsules that show themes, style, and open questions.</li>
+                <li><strong>Life navigation:</strong> run Field Scans to understand which environments support or suppress agency.</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h3>Example use case</h3>
+              <p>A student feels stuck in a course. They talk with the Twin and notice they care about meaningful work, not just grades. They run a Field Scan and see that effort feels absorbed by compliance tasks. They identify one BioBond: a study partner who helps them think clearly. Their next move is not perfect, but it preserves agency.</p>
+            </div>
+            <div class="help-section">
+              <h3>Plain-language glossary</h3>
+              <div class="glossary-grid">
+                <div class="glossary-item"><strong>Twin Journal</strong><span>Brief, editable learnings the Twin gathers from conversation.</span></div>
+                <div class="glossary-item"><strong>Document Capsule</strong><span>A short approved memory made from a document, not the raw file itself.</span></div>
+                <div class="glossary-item"><strong>Field Scan</strong><span>A map of an environment and how it shapes what you can express or do.</span></div>
+                <div class="glossary-item"><strong>Suppression Gap</strong><span>The gap between what you could contribute under supportive conditions and what you feel able to express now.</span></div>
+                <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
+                <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
+              </div>
+            </div>
+            <div class="toolbar">
+              <button class="btn small ghost" type="button" onclick="showWelcomeAgain()">Show welcome card again</button>
+            </div>
           </div>
         </div>
-
+        </div>
+        <aside class="side-panel">
         <div class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="card-title">Settings</div>
@@ -750,11 +889,12 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.6 Field-Specific Move Cards Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.6.1 Workspace Layout Refactor Build.</div>
           </div>
         </div>
-      </aside>
-    </section>
+        </aside>
+      </section>
+    </div>
 
     <pre id="debug-box" class="debug"></pre>
   </main>
@@ -765,7 +905,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.6 Field-Specific Move Cards';
+  const APP_VERSION = 'Navigator Twin v2.6.1 Workspace Layout Refactor';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -782,7 +922,8 @@
     moveCards: 'navigator_twin_v2_move_cards',
     pendingMoveCards: 'navigator_twin_v2_pending_move_cards',
     uiPanels: 'navigator_twin_v2_ui_panels',
-    welcomeDismissed: 'navigator_twin_v2_welcome_dismissed'
+    welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
+    workspace: 'navigator_twin_v2_active_workspace'
   };
 
   const DIMENSIONS = [
@@ -893,6 +1034,7 @@
       if(key !== KEYS.lastSaved){
         localStorage.setItem(KEYS.lastSaved, new Date().toISOString());
         updateSaveStatus();
+        try { renderWorkspaceDashboard(); } catch(e) {}
       }
     } catch(e) { showDebug('Storage error: ' + e.message); }
   }
@@ -1156,6 +1298,64 @@
   }
 
 
+
+  const WORKSPACES = ['home','twin','memory','field','moves','help'];
+
+  function getActiveWorkspace(){
+    try {
+      const saved = localStorage.getItem(KEYS.workspace) || 'home';
+      return WORKSPACES.includes(saved) ? saved : 'home';
+    } catch(e) { return 'home'; }
+  }
+
+  function setActiveWorkspace(name){
+    try { localStorage.setItem(KEYS.workspace, name); } catch(e) {}
+  }
+
+  function applyWorkspaceState(){
+    const active = getActiveWorkspace();
+    WORKSPACES.forEach(name => {
+      const pane = document.getElementById('workspace-' + name);
+      const btn = document.getElementById('workspace-btn-' + name);
+      if(pane) pane.classList.toggle('active', name === active);
+      if(btn) btn.classList.toggle('active', name === active);
+    });
+  }
+
+  function showWorkspace(name){
+    if(!WORKSPACES.includes(name)) name = 'home';
+    setActiveWorkspace(name);
+    applyWorkspaceState();
+    const pane = document.getElementById('workspace-' + name);
+    if(pane) pane.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.showWorkspace = showWorkspace;
+
+  function renderWorkspaceDashboard(){
+    const box = document.getElementById('home-dashboard');
+    if(!box) return;
+    const journal = getJournal();
+    const capsules = getCapsules();
+    const scans = getFieldScans();
+    const moves = getMoveCards();
+    const ctx = getContextAssembly();
+    const summary = buildFieldMapSummary(scans);
+    const stage = getStage(journal.length);
+    const largest = summary.largestGap;
+    const nextHint = moves.length ? 'Review saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
+    const cards = [
+      ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
+      ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
+      ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
+      ['Moves', moves.length + ' saved', nextHint],
+      ['Context Assembly', ctx.text ? 'saved' : 'not yet saved', ctx.text ? truncateText(ctx.text, 96) : 'Use Field Map to name the combined situation.'],
+      ['Largest gap', largest ? largest.suppressionGap : 'none', largest ? truncateText(largest.title || largest.environment || 'Field Scan', 96) : 'No suppression gap mapped yet.'],
+      ['Next workspace', moves.length ? 'Moves' : scans.length ? 'Moves / Field' : 'Field Map', nextHint],
+      ['Privacy posture', 'local-first', 'Memory remains in this browser unless you export or ask the Twin.']
+    ];
+    box.innerHTML = cards.map(([label,value,note]) => '<div class="home-metric"><div class="home-metric-label">' + escapeHtml(label) + '</div><div class="home-metric-value">' + escapeHtml(String(value)) + '</div><div class="home-metric-note">' + escapeHtml(String(note)) + '</div></div>').join('');
+  }
+
   function isWelcomeDismissed(){
     try { return localStorage.getItem(KEYS.welcomeDismissed) === 'true'; } catch(e) { return false; }
   }
@@ -1185,6 +1385,7 @@
   window.showWelcomeAgain = showWelcomeAgain;
 
   function openHelpPanel(){
+    showWorkspace('help');
     setPanelOpen('help', true);
     applyPanelStates();
     dismissWelcome();
@@ -1195,6 +1396,7 @@
 
   function welcomeStartTwin(){
     dismissWelcome();
+    showWorkspace('twin');
     const card = document.getElementById('twin-conversation-card');
     if(card) card.scrollIntoView({ behavior:'smooth', block:'start' });
     startTwin();
@@ -1203,6 +1405,7 @@
 
   function welcomeOpenCapsules(){
     dismissWelcome();
+    showWorkspace('memory');
     setPanelOpen('capsules', true);
     applyPanelStates();
     const el = document.getElementById('panel-body-capsules') || document.getElementById('toggle-capsules');
@@ -1212,6 +1415,7 @@
 
   function welcomeOpenFieldScan(){
     dismissWelcome();
+    showWorkspace('field');
     const el = document.getElementById('field-scan-card') || document.getElementById('field-environment');
     if(el) el.scrollIntoView({ behavior:'smooth', block:'start' });
     const env = document.getElementById('field-environment');
@@ -1233,8 +1437,10 @@
     renderFieldScans();
     renderFieldMapDashboard();
     renderMoveStudio();
+    renderWorkspaceDashboard();
     updateSaveStatus();
     applyPanelStates();
+    applyWorkspaceState();
   }
 
   function setBackendStatus(kind, label){
@@ -2251,6 +2457,7 @@ Return only valid JSON with this shape:
   }
 
   function startSuggestedFieldScan(type){
+    showWorkspace('field');
     const select = document.getElementById('field-scan-type');
     if(select) select.value = FIELD_TYPES.some(t => t.key === type) ? type : 'custom';
     const env = document.getElementById('field-environment');
@@ -2293,6 +2500,7 @@ Return only valid JSON with this shape:
   }
 
   function askTwinAboutFieldMap(){
+    showWorkspace('twin');
     const scans = getFieldScans();
     if(!scans.length){ alert('Create at least one Field Scan before asking the Twin about your Field Map.'); return; }
     const input = document.getElementById('chat-input');
@@ -2306,6 +2514,7 @@ Return only valid JSON with this shape:
   window.askTwinAboutFieldMap = askTwinAboutFieldMap;
 
   function askTwinAboutContextAssembly(){
+    showWorkspace('twin');
     saveContextAssemblyFromInput();
     const ctx = getContextAssembly();
     if(!ctx.text || ctx.text.trim().length < 20){ alert('Write and save a little Context Assembly first.'); return; }
@@ -2371,6 +2580,7 @@ Return only valid JSON with this shape:
   }
 
   function askTwinAboutFieldScan(id){
+    showWorkspace('twin');
     const scan = getFieldScans().find(s => s.id === id) || window.__pendingFieldScan;
     if(!scan){ alert('Could not find that Field Scan.'); return; }
     const input = document.getElementById('chat-input');
@@ -2531,6 +2741,7 @@ Return only valid JSON with this shape:
   }
 
   function generateMoveCardsForScanId(id){
+    showWorkspace('moves');
     const scan = getFieldScans().find(s => s.id === id);
     if(!scan){ alert('Choose a saved Field Scan first.'); return; }
     setPendingMoveCards(generateMoveCards(scan));
@@ -2543,6 +2754,7 @@ Return only valid JSON with this shape:
   window.generateMoveCardsForScanId = generateMoveCardsForScanId;
 
   function generateMoveCardsFromSelectedScan(){
+    showWorkspace('moves');
     const select = document.getElementById('move-scan-select');
     const id = select ? select.value : '';
     generateMoveCardsForScanId(id);
@@ -2661,6 +2873,7 @@ Return only valid JSON with this shape:
   }
 
   function askTwinAboutMoveCard(id, pending){
+    showWorkspace('twin');
     const source = pending ? getPendingMoveCards() : getMoveCards();
     const card = source.find(c => c.id === id);
     if(!card){ alert('Could not find that Move Card.'); return; }
