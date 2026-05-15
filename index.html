@@ -1890,6 +1890,10 @@
     return String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
   }
 
+  function escapeAttr(s){
+    return escapeHtml(s).replace(/`/g, '&#096;');
+  }
+
 
 
   function normalizePathKey(value){
