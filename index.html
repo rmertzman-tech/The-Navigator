@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v3.0.1 Coach Usability Patch</title>
-  <meta name="description" content="Navigator Twin v3.0.1 — Coach Usability Patch adds clearer coach controls, primers, examples, and guidance; no service worker in this stable fallback build." />
+  <title>The Navigator — Twin v3.1 Daily Coherence Pulse</title>
+  <meta name="description" content="Navigator Twin v3.1 — Daily Coherence Pulse adds a seven-signal daily check-in with Beauty/Awe/Meaning, trend memory, ABCD thought, and Twin integration; no service worker in this stable fallback build." />
   <style>
     :root {
       --void: #060b18;
@@ -614,10 +614,86 @@
     .coach-note { border:1px solid rgba(255,255,255,.10); border-radius:15px; padding:12px; background:rgba(255,255,255,.04); margin-top:10px; }
     .coach-note-meta { color:var(--dim); font:700 .68rem/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
     .coach-warning { border:1px solid rgba(201,168,76,.20); background:rgba(201,168,76,.07); border-radius:14px; padding:10px 12px; color:var(--muted); font-size:.9rem; margin:10px 0; }
+
+    .pulse-hero {
+      border: 1px solid rgba(201,168,76,.24);
+      background: linear-gradient(135deg, rgba(201,168,76,.09), rgba(13,94,87,.07));
+      border-radius: 18px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+    .pulse-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .pulse-domain {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,255,255,.035);
+    }
+    .pulse-domain-header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+    .pulse-domain-name { font-weight: 900; color: var(--text); }
+    .pulse-domain-score { font: 900 1.05rem/1 var(--mono); color: var(--gold); }
+    .pulse-domain-desc { color: var(--muted); font-size: .86rem; margin-bottom: 8px; }
+    .pulse-domain input[type="range"] { width: 100%; }
+    .pulse-note-box { margin-top: 14px; }
+    .pulse-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+    .pulse-summary-card { border:1px solid var(--line); background:rgba(255,255,255,.04); border-radius:14px; padding:11px; }
+    .pulse-summary-label { font:700 .67rem/1 var(--mono); color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
+    .pulse-summary-value { font-weight:900; margin-top:5px; }
+    .pulse-thought { border-left: 3px solid var(--gold); padding: 10px 12px; background: rgba(201,168,76,.07); border-radius: 12px; color: var(--text); }
+    .pulse-chart { display:flex; align-items:flex-end; gap:8px; min-height:116px; padding: 10px 4px; border-bottom:1px solid var(--line); overflow-x:auto; }
+    .pulse-bar-wrap { min-width:44px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; }
+    .pulse-bar { width:24px; border-radius:8px 8px 0 0; background: linear-gradient(180deg, rgba(201,168,76,.95), rgba(13,94,87,.95)); }
+    .pulse-label { font-size:.68rem; color:var(--muted); white-space:nowrap; }
+    .pulse-list { display:grid; gap:10px; margin-top:12px; }
+    .pulse-entry { border:1px solid var(--line); background:rgba(255,255,255,.035); border-radius:14px; padding:12px; }
+    .pulse-entry-head { display:flex; justify-content:space-between; gap:10px; align-items:start; margin-bottom:6px; }
+    .pulse-entry-title { font-weight:900; color:var(--text); }
+    .pulse-entry-meta { color:var(--muted); font-size:.84rem; }
+    .pulse-mini-scores { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .pulse-chip { border:1px solid var(--line); border-radius:999px; padding:4px 7px; color:var(--muted); font-size:.74rem; }
+
     @media (max-width: 900px) { .coach-layout, .coach-catalog, .coach-context-grid { grid-template-columns: 1fr; } }
 
     .debug { display: none; margin-top: 16px; border: 1px solid rgba(204,107,95,.45); background: rgba(204,107,95,.08); color: #ffd3cd; border-radius: 14px; padding: 12px; white-space: pre-wrap; font-family: var(--mono); font-size: .78rem; }
     .privacy-note { color: var(--muted); font-size: .84rem; border-left: 3px solid rgba(201,168,76,.45); padding-left: 11px; margin-top: 12px; }
+
+    .pulse-hero {
+      border: 1px solid rgba(201,168,76,.24);
+      background: linear-gradient(135deg, rgba(201,168,76,.09), rgba(13,94,87,.07));
+      border-radius: 18px;
+      padding: 15px;
+      margin-bottom: 14px;
+    }
+    .pulse-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .pulse-domain {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255,255,255,.035);
+    }
+    .pulse-domain-header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+    .pulse-domain-name { font-weight: 900; color: var(--text); }
+    .pulse-domain-score { font: 900 1.05rem/1 var(--mono); color: var(--gold); }
+    .pulse-domain-desc { color: var(--muted); font-size: .86rem; margin-bottom: 8px; }
+    .pulse-domain input[type="range"] { width: 100%; }
+    .pulse-note-box { margin-top: 14px; }
+    .pulse-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin: 12px 0; }
+    .pulse-summary-card { border:1px solid var(--line); background:rgba(255,255,255,.04); border-radius:14px; padding:11px; }
+    .pulse-summary-label { font:700 .67rem/1 var(--mono); color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
+    .pulse-summary-value { font-weight:900; margin-top:5px; }
+    .pulse-thought { border-left: 3px solid var(--gold); padding: 10px 12px; background: rgba(201,168,76,.07); border-radius: 12px; color: var(--text); }
+    .pulse-chart { display:flex; align-items:flex-end; gap:8px; min-height:116px; padding: 10px 4px; border-bottom:1px solid var(--line); overflow-x:auto; }
+    .pulse-bar-wrap { min-width:44px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; }
+    .pulse-bar { width:24px; border-radius:8px 8px 0 0; background: linear-gradient(180deg, rgba(201,168,76,.95), rgba(13,94,87,.95)); }
+    .pulse-label { font-size:.68rem; color:var(--muted); white-space:nowrap; }
+    .pulse-list { display:grid; gap:10px; margin-top:12px; }
+    .pulse-entry { border:1px solid var(--line); background:rgba(255,255,255,.035); border-radius:14px; padding:12px; }
+    .pulse-entry-head { display:flex; justify-content:space-between; gap:10px; align-items:start; margin-bottom:6px; }
+    .pulse-entry-title { font-weight:900; color:var(--text); }
+    .pulse-entry-meta { color:var(--muted); font-size:.84rem; }
+    .pulse-mini-scores { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .pulse-chip { border:1px solid var(--line); border-radius:999px; padding:4px 7px; color:var(--muted); font-size:.74rem; }
+
     @media (max-width: 900px) {
       .topbar { grid-template-columns: 1fr; }
       .status-cluster { justify-content: flex-start; }
@@ -659,6 +735,8 @@
       .home-flow { grid-template-columns: 1fr; }
       .workflow-grid { grid-template-columns: 1fr; }
       .readiness-grid { grid-template-columns: 1fr; }
+      .pulse-grid { grid-template-columns: 1fr; }
+      .pulse-summary-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -666,9 +744,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v3.0.1 · Coach Usability Patch</div>
+        <div class="eyebrow">Navigator Twin v3.1 · Daily Coherence Pulse</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build keeps the Applications & Coaches framework and adds clearer controls, coach primers, sample prompts, and Ethical Reasoning guidance for PRF, OS1/OS2, reasoning lenses, and logical fallacies.</div>
+        <div class="subtitle">This build adds the Daily Coherence Pulse: seven quick signals, including Beauty/Awe/Meaning, to help the Twin notice the conditions of agency over time while keeping the Twin Conversation as the central coherence engine.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -709,6 +787,7 @@
 
     <nav class="workspace-nav" aria-label="Navigator workspaces">
       <button id="workspace-btn-home" class="workspace-btn active" type="button" onclick="showWorkspace('home')">Home</button>
+      <button id="workspace-btn-pulse" class="workspace-btn" type="button" onclick="showWorkspace('pulse')">Pulse</button>
       <button id="workspace-btn-twin" class="workspace-btn" type="button" onclick="showWorkspace('twin')">Twin</button>
       <button id="workspace-btn-memory" class="workspace-btn" type="button" onclick="showWorkspace('memory')">Memory</button>
       <button id="workspace-btn-field" class="workspace-btn" type="button" onclick="showWorkspace('field')">Field Map</button>
@@ -752,6 +831,7 @@
           </div>
           <div class="quick-actions">
             <button class="btn small primary" type="button" onclick="showWorkspace('twin'); startTwin();">Continue Twin</button>
+            <button class="btn small ghost" type="button" onclick="showWorkspace('pulse')">Daily Pulse</button>
             <button class="btn small ghost" type="button" onclick="showWorkspace('memory')">Review Memory</button>
             <button class="btn small ghost" type="button" onclick="showWorkspace('field')">Build Field Map</button>
             <button class="btn small purple" type="button" onclick="showWorkspace('moves')">Review Moves</button>
@@ -760,6 +840,80 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div id="workspace-pulse" class="workspace-pane">
+      <section class="grid workspace-grid">
+        <div class="workspace-stack">
+          <div class="card">
+            <div class="card-header">
+              <div class="eyebrow">Daily Coherence Pulse</div>
+              <div class="card-title">Seven signals. One minute. No judgment.</div>
+              <div class="card-desc">This phone-friendly check-in tracks the conditions of coherence over time: energy, horizon, connection, clarity, identity, recovery, and Beauty/Awe/Meaning.</div>
+            </div>
+            <div class="card-body">
+              <div class="pulse-hero">
+                <strong>The pattern matters more than any single score.</strong> Low coherence is not failure. It is information about pressure, support, recovery, and the next small agency-preserving move. Beauty/Awe is included as a core signal because meaning, wonder, sacredness, humor, art, nature, and gratitude can help a person stay coherent when the pressure field narrows.
+              </div>
+              <div id="daily-pulse-form" class="pulse-grid"></div>
+              <div class="pulse-note-box field">
+                <label for="pulse-note">Optional note for today</label>
+                <textarea id="pulse-note" placeholder="What is affecting these scores today? A few words is enough."></textarea>
+              </div>
+              <div id="pulse-relational-question" class="pulse-hero" style="display:none;">
+                <div class="eyebrow">A relational question to hold</div>
+                <p style="font-family:var(--serif);font-size:1.1rem;font-style:italic;margin:0 0 10px;">Is there anyone whose capacity to act from their values is being shaped — supported or limited — by your situation, decisions, or context right now?</p>
+                <p style="color:var(--muted);margin:0 0 10px;">You do not need to solve this. Just notice it.</p>
+                <textarea id="pulse-relational-note" placeholder="A few words, or nothing at all…"></textarea>
+              </div>
+              <div class="toolbar">
+                <button class="btn small primary" type="button" onclick="saveCoherencePulse()">Save Today's Pulse</button>
+                <button class="btn small ghost" type="button" onclick="resetCoherencePulseForm()">Reset Sliders</button>
+                <button class="btn small purple" type="button" onclick="askTwinAboutLatestPulse()">Ask Twin About Latest Pulse</button>
+                <button class="btn small ghost" type="button" onclick="createStabilizingMoveFromPulse()">Create Small Stabilizing Move</button>
+              </div>
+              <div class="privacy-note">Daily Pulse readings are stored locally and included in JSON export/import. They are sent to the backend only when you ask the Twin to interpret them.</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <div class="card-title-row">
+                <div>
+                  <div class="card-title">Pulse History</div>
+                  <div id="summary-coherencePulse" class="card-desc">No Daily Pulse readings saved yet.</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="pulse-latest-summary" class="pulse-summary-grid"></div>
+              <div id="pulse-abcd-thought" class="pulse-thought">Complete a Daily Pulse to receive an ABCD thought calibrated to today's lowest signal.</div>
+              <div id="pulse-chart" class="pulse-chart" style="margin-top:14px;"></div>
+              <div id="pulse-history-list" class="pulse-list"></div>
+            </div>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Seven Signals</div>
+              <div class="card-desc">These are not medical vital signs. They are coherence signals for self-navigation.</div>
+            </div>
+            <div class="card-body">
+              <ul class="help-list">
+                <li><strong>Physical Energy:</strong> capacity available today.</li>
+                <li><strong>Temporal Horizon:</strong> ability to see beyond immediate pressure.</li>
+                <li><strong>Relational Coherence:</strong> connection and BioBond support.</li>
+                <li><strong>Structural Clarity:</strong> whether the field makes sense.</li>
+                <li><strong>Identity Integrity:</strong> feeling like oneself under pressure.</li>
+                <li><strong>Recovery Access:</strong> room to rest, repair, or reset.</li>
+                <li><strong>Beauty / Awe / Meaning:</strong> contact with what is beautiful, sacred, inspiring, humorous, creative, or larger than the pressure field.</li>
+              </ul>
+              <div class="privacy-note">The Daily Pulse supports the Twin; it does not replace the Twin conversation. The user chooses what, if anything, becomes part of long-term Twin memory.</div>
+            </div>
+          </div>
+        </aside>
+      </section>
     </div>
 
     <div id="workspace-twin" class="workspace-pane">
@@ -1226,8 +1380,8 @@
         <div id="release-notes-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="eyebrow">Stable feature build package</div>
-            <div class="card-title">Navigator Twin v3.0.1 — Applications & Coaches Usability Patch</div>
-            <div class="card-desc">This build preserves the complete stable agency-navigation loop and adds a first Applications & Coaches workspace: guided pathways for critical thinking, ethical reasoning, core traditions, EBB chapter templates, and research projects. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
+            <div class="card-title">Navigator Twin v3.1 — Daily Coherence Pulse</div>
+            <div class="card-desc">This build preserves the complete agency-navigation loop and adds the Daily Coherence Pulse: seven quick local check-ins, including Beauty/Awe/Meaning, with trend memory, ABCD thought, and Twin integration. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
           </div>
           <div class="card-body">
             <div class="help-section">
@@ -1235,7 +1389,7 @@
               <ol>
                 <li>Open <strong>Home</strong> and read the guided workflow card.</li>
                 <li>Click <strong>Load Fictional Demo</strong> if you want to see the full system without creating your own scans first.</li>
-                <li>Visit <strong>Field Map</strong> to see how life-fields, Field Scans, and Context Assembly work together.</li>
+                <li>Visit <strong>Pulse</strong> to complete a seven-signal coherence check-in, then visit <strong>Field Map</strong> to see how life-fields, Field Scans, and Context Assembly work together.</li>
                 <li>Visit <strong>Moves</strong> to see Move Cards, Cross-Field Move Comparison, Current Move selection, and Current Move Deliberation.</li>
                 <li>Return to <strong>Twin</strong> and ask the Twin what it sees in the demo case.</li>
                 <li>Use <strong>Memory</strong> to inspect Journal entries, import a PRF-22 profile, review Document Capsules, and use export/import controls.</li>
@@ -1258,7 +1412,7 @@
             </div>
             <div class="help-section">
               <h3>Privacy and security posture</h3>
-              <p><strong>Local-first by design:</strong> conversation, Journal entries, PRF-22 profile summaries, Document Capsules, Field Scans, Context Assembly, Move Cards, comparison state, and Current Move Plans, and Coach Notes are stored in this browser unless the user exports or restores them.</p>
+              <p><strong>Local-first by design:</strong> conversation, Journal entries, Daily Pulse readings, PRF-22 profile summaries, Document Capsules, Field Scans, Context Assembly, Move Cards, comparison state, Current Move Plans, and Coach Notes are stored in this browser unless the user exports or restores them.</p>
               <p><strong>Backend transparency:</strong> backend AI calls occur only when the user asks the Twin to interpret, summarize, deliberate, create a capsule, or generate an AI-assisted response. Those requests require sending selected prompt context to the configured backend service for processing. PRF-22 import stores the raw JSON locally and sends only a short profile summary when Twin Context is turned on. Users should avoid uploading highly sensitive material unless they understand that selected content may be sent for AI processing.</p>
               <p><strong>User control:</strong> users can export JSON, export TXT, import/restore JSON, delete saved items, and clear local memory. Document uploads create reviewable capsules; the app saves only the capsule the user approves, not the raw uploaded document text.</p>
             </div>
@@ -1362,7 +1516,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.0.1 — Applications & Coaches Usability Patch Shell.</div>
+            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.1 — Daily Coherence Pulse Shell.</div>
           </div>
         </div>
         </aside>
@@ -1378,7 +1532,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v3.0.1 — Applications & Coaches Usability Patch Shell';
+  const APP_VERSION = 'Navigator Twin v3.1 — Daily Coherence Pulse Build';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1400,6 +1554,7 @@
     currentMovePlan: 'navigator_twin_v2_current_move_plan',
     prf22Profile: 'navigator_twin_v2_prf22_profile',
     coachNotes: 'navigator_twin_v3_coach_notes',
+    coherencePulse: 'navigator_twin_v3_coherence_pulse',
     activeCoach: 'navigator_twin_v3_active_coach',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
@@ -1416,6 +1571,27 @@
     { key:'meaning', label:'Meaning', prompt:'purpose, work, vocation, story, future, legacy' },
     { key:'ethics', label:'Ethics', prompt:'integrity, obligation, fairness, harm, refusal, right action' }
   ];
+
+
+  const COHERENCE_PULSE_DOMAINS = [
+    { key:'physicalEnergy', label:'Physical Energy', short:'Energy', abc:'Agency', desc:'How much physical and mental energy is available today?', question:'How much energy do I have today?' },
+    { key:'temporalHorizon', label:'Temporal Horizon', short:'Horizon', abc:'Dynamism', desc:'Can you see beyond the pressure of today?', question:'Can I see beyond the pressure of today?' },
+    { key:'relationalCoherence', label:'Relational Coherence', short:'Connection', abc:'Context', desc:'Do you feel connected to people, places, or practices that help you stay coherent?', question:'Do I feel connected to people who matter?' },
+    { key:'structuralClarity', label:'Structural Clarity', short:'Clarity', abc:'Context', desc:'Does your situation make enough sense to navigate it?', question:'Does my situation make sense right now?' },
+    { key:'identityIntegrity', label:'Identity Integrity', short:'Identity', abc:'Agency', desc:'Do you feel like yourself under the demands of the day?', question:'Do I feel like myself today?' },
+    { key:'recoveryAccess', label:'Recovery Access', short:'Recovery', abc:'Dynamism', desc:'Do you have space to rest, repair, or reset between demands?', question:'Do I have space to rest, repair, or reset?' },
+    { key:'beautyAweMeaning', label:'Beauty / Awe / Meaning', short:'Beauty/Awe', abc:'Beauty/Awe', desc:'Are you connected to anything beautiful, meaningful, sacred, inspiring, humorous, creative, or larger than the pressure field?', question:'Do I feel connected to anything beautiful, meaningful, sacred, inspiring, or larger than the pressure field?' }
+  ];
+
+  const ABCD_PULSE_THOUGHTS = {
+    physicalEnergy: 'Agency does not always begin by doing more. Sometimes it begins by preserving the body and attention that make action possible.',
+    temporalHorizon: 'Dynamism can start with one reversible step. You do not need the whole path today; you need one move that keeps possibility open.',
+    relationalCoherence: 'Context is not just background. One BioBond — a person, practice, place, or memory of belonging — can help agency remain alive under pressure.',
+    structuralClarity: 'When the field is confusing, pause before blaming yourself. Ask what the environment rewards, punishes, hides, or makes costly.',
+    identityIntegrity: 'Agency includes returning to the line you do not want to cross. Feeling unlike yourself is a signal worth respecting, not a defect to hide.',
+    recoveryAccess: 'Dynamism requires recovery. Living systems do not grow by constant strain; they need rhythm, repair, and time to reassemble.',
+    beautyAweMeaning: 'Beauty is not decoration. It can be the signal that life is still larger than the pressure field.'
+  };
 
   const FIELD_TYPES = [
     { key:'general_life', label:'General Life Field', priority:1 },
@@ -1574,6 +1750,8 @@
 
   function getCoachNotes(){ return getStored(KEYS.coachNotes, []); }
   function setCoachNotes(notes){ setStored(KEYS.coachNotes, Array.isArray(notes) ? notes.slice(-80) : []); }
+  function getCoherencePulseHistory(){ return getStored(KEYS.coherencePulse, []); }
+  function setCoherencePulseHistory(items){ setStored(KEYS.coherencePulse, Array.isArray(items) ? items.slice(-120) : []); }
   function getActiveCoachId(){ try { return localStorage.getItem(KEYS.activeCoach) || 'ethical-reasoning'; } catch(e) { return 'ethical-reasoning'; } }
   function setActiveCoachId(id){ try { localStorage.setItem(KEYS.activeCoach, id || 'ethical-reasoning'); } catch(e) {} }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
@@ -2105,7 +2283,7 @@
 
 
 
-  const WORKSPACES = ['home','twin','memory','field','moves','apps','help'];
+  const WORKSPACES = ['home','pulse','twin','memory','field','moves','apps','help'];
 
   function getActiveWorkspace(){
     try {
@@ -2153,10 +2331,12 @@
     const currentMovePlan = getCurrentMovePlan();
     const prfProfile = getPrf22Profile();
     const coachNotes = getCoachNotes();
+    const pulseSummary = buildCoherencePulseSummary();
     const planMatchesCurrent = !!(currentMove && currentMovePlan && currentMovePlan.moveId === currentMove.id);
     const nextHint = planMatchesCurrent ? 'Review current move plan' : currentMove ? 'Create current move plan' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
     const cards = [
       ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
+      ['Daily Pulse', pulseSummary.count ? (pulseSummary.latest.avg + ' / 5') : 'not yet', pulseSummary.count ? ('Lowest: ' + pulseSummary.lowest.label + ' · Trend: ' + pulseSummary.trend) : 'Open Pulse for seven quick coherence signals.'],
       ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
       ['PRF-22 Profile', prfProfile ? 'imported' : 'optional', prfProfile ? truncateText(prfProfile.summary || 'Profile baseline available', 96) : 'Import an E-Twin JSON baseline when available.'],
       ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
@@ -2189,7 +2369,8 @@
         { label:'Context Assembly', ready: !!ctx.text, note: ctx.text ? 'Combined context saved' : 'Name what the fields create together.' },
         { label:'Current Move', ready: !!currentMove, note: currentMove ? truncateText(currentMove.title || 'selected', 60) : 'Set one move as current when ready.' },
         { label:'Current Move Plan', ready: planMatchesCurrent, note: planMatchesCurrent ? 'Plan saved for current move' : currentMove ? 'Create a deliberation plan next.' : 'Requires a Current Move first.' },
-        { label:'Coach Note', ready: coachNotes.length > 0, note: coachNotes.length ? coachNotes.length + ' saved coaching sessions' : 'Use a Coach when you need a guided reasoning arena.' }
+        { label:'Coach Note', ready: coachNotes.length > 0, note: coachNotes.length ? coachNotes.length + ' saved coaching sessions' : 'Use a Coach when you need a guided reasoning arena.' },
+        { label:'Daily Pulse', ready: pulseSummary.count > 0, note: pulseSummary.count ? pulseSummary.summary : 'Complete a seven-signal check-in when you want a quick coherence reading.' }
       ];
       readiness.innerHTML = items.map(item => '<div class="readiness-item ' + (item.ready ? 'ready' : 'waiting') + '"><strong>' + (item.ready ? '✓ ' : '○ ') + escapeHtml(item.label) + '</strong>' + escapeHtml(item.note) + '</div>').join('');
     }
@@ -2269,6 +2450,274 @@
   }
   window.welcomeOpenFieldScan = welcomeOpenFieldScan;
 
+
+  function normalizeImportedCoherencePulse(entry){
+    if(!entry || typeof entry !== 'object') return null;
+    const rawScores = entry.scores && typeof entry.scores === 'object' ? entry.scores : {};
+    const scores = {};
+    COHERENCE_PULSE_DOMAINS.forEach(d => {
+      let v = rawScores[d.key];
+      if(Array.isArray(entry.scores)) v = entry.scores[COHERENCE_PULSE_DOMAINS.indexOf(d)];
+      scores[d.key] = Math.max(0, Math.min(5, Number(v == null ? 3 : v)));
+    });
+    const avg = Number(entry.avg) || averagePulseScores(scores);
+    return {
+      id: entry.id || uid('pulse'),
+      createdAt: entry.createdAt || entry.timestamp || new Date().toISOString(),
+      dateLabel: String(entry.dateLabel || entry.date || new Date().toLocaleDateString([], { month:'short', day:'numeric' })).slice(0, 40),
+      scores,
+      avg,
+      lowestKey: entry.lowestKey && COHERENCE_PULSE_DOMAINS.some(d => d.key === entry.lowestKey) ? entry.lowestKey : getLowestPulseDomain(scores).key,
+      note: String(entry.note || '').slice(0, 1500),
+      relationalNote: String(entry.relationalNote || '').slice(0, 1500),
+      abcThought: String(entry.abcThought || '').slice(0, 1000)
+    };
+  }
+
+  function averagePulseScores(scores){
+    const vals = COHERENCE_PULSE_DOMAINS.map(d => Number(scores && scores[d.key] != null ? scores[d.key] : 3));
+    return Math.round((vals.reduce((a,b) => a + b, 0) / vals.length) * 10) / 10;
+  }
+
+  function getLowestPulseDomain(scores){
+    let found = COHERENCE_PULSE_DOMAINS[0];
+    let val = 99;
+    COHERENCE_PULSE_DOMAINS.forEach(d => {
+      const current = Number(scores && scores[d.key] != null ? scores[d.key] : 3);
+      if(current < val){ val = current; found = d; }
+    });
+    return found;
+  }
+
+  function formatPulseScores(scores){
+    return COHERENCE_PULSE_DOMAINS.map(d => d.short + ': ' + (scores && scores[d.key] != null ? scores[d.key] : 3)).join(' · ');
+  }
+
+  function getLatestCoherencePulse(){
+    const history = getCoherencePulseHistory();
+    return history.length ? history[history.length - 1] : null;
+  }
+
+  function buildCoherencePulseSummary(){
+    const history = getCoherencePulseHistory();
+    const latest = history.length ? history[history.length - 1] : null;
+    if(!latest) return { count:0, latest:null, trend:'No readings yet', summary:'No Daily Pulse readings saved yet.' };
+    const lastThree = history.slice(-3);
+    const avg3 = Math.round((lastThree.reduce((a,e) => a + (Number(e.avg) || averagePulseScores(e.scores)), 0) / lastThree.length) * 10) / 10;
+    const previous = history.length > 1 ? history[history.length - 2] : null;
+    let trend = 'first reading';
+    if(previous){
+      const diff = (Number(latest.avg) || 0) - (Number(previous.avg) || 0);
+      trend = diff > .35 ? 'rising' : diff < -.35 ? 'falling' : 'steady';
+    }
+    const low = getLowestPulseDomain(latest.scores);
+    return { count:history.length, latest, avg3, trend, lowest:low, summary:'Latest average ' + latest.avg + '/5 · lowest signal: ' + low.label + ' · trend: ' + trend };
+  }
+
+  function pulseShouldShowRelationalQuestion(){
+    const history = getCoherencePulseHistory();
+    const latest = history.length ? history[history.length - 1] : null;
+    if(history.length === 0) return false;
+    if(history.length % 3 === 0) return true;
+    return !!(latest && latest.scores && Number(latest.scores.relationalCoherence) <= 2);
+  }
+
+  function renderCoherencePulse(){
+    const form = document.getElementById('daily-pulse-form');
+    if(form){
+      form.innerHTML = COHERENCE_PULSE_DOMAINS.map((d,i) => {
+        return '<div class="pulse-domain">'
+          + '<div class="pulse-domain-header"><div class="pulse-domain-name">' + escapeHtml(d.label) + '</div><div id="pulse-score-' + d.key + '" class="pulse-domain-score">3</div></div>'
+          + '<div class="pulse-domain-desc">' + escapeHtml(d.question) + '</div>'
+          + '<input id="pulse-input-' + d.key + '" type="range" min="0" max="5" step="1" value="3" oninput="updatePulseSliderLabels()" />'
+          + '<div class="pulse-domain-desc" style="margin-top:5px;">0 = very low today · 5 = strong today</div>'
+          + '</div>';
+      }).join('');
+      updatePulseSliderLabels();
+    }
+    const relational = document.getElementById('pulse-relational-question');
+    if(relational) relational.style.display = pulseShouldShowRelationalQuestion() ? 'block' : 'none';
+    const summary = buildCoherencePulseSummary();
+    setText('summary-coherencePulse', summary.summary);
+    const latestBox = document.getElementById('pulse-latest-summary');
+    if(latestBox){
+      if(!summary.latest){
+        latestBox.innerHTML = '<div class="pulse-summary-card"><div class="pulse-summary-label">Status</div><div class="pulse-summary-value">No readings yet</div></div>';
+      } else {
+        latestBox.innerHTML = [
+          ['Latest average', summary.latest.avg + ' / 5'],
+          ['Lowest signal', summary.lowest.label],
+          ['Recent trend', summary.trend]
+        ].map(pair => '<div class="pulse-summary-card"><div class="pulse-summary-label">' + escapeHtml(pair[0]) + '</div><div class="pulse-summary-value">' + escapeHtml(pair[1]) + '</div></div>').join('');
+      }
+    }
+    const thought = document.getElementById('pulse-abcd-thought');
+    if(thought){
+      if(!summary.latest){
+        thought.textContent = 'Complete a Daily Pulse to receive an ABCD thought calibrated to today\'s lowest signal.';
+      } else {
+        const low = summary.lowest;
+        thought.innerHTML = '<strong>' + escapeHtml(low.abc) + ' thought:</strong> ' + escapeHtml(summary.latest.abcThought || ABCD_PULSE_THOUGHTS[low.key] || 'Choose one small coherence-preserving move today.');
+      }
+    }
+    const chart = document.getElementById('pulse-chart');
+    if(chart){
+      const history = getCoherencePulseHistory().slice(-14);
+      if(!history.length){
+        chart.innerHTML = '<div style="color:var(--muted);font-style:italic;align-self:center;">No readings yet. Complete your first Daily Pulse above.</div>';
+      } else {
+        chart.innerHTML = history.map(e => {
+          const h = Math.round(((Number(e.avg) || averagePulseScores(e.scores)) / 5) * 96) + 8;
+          return '<div class="pulse-bar-wrap"><div class="pulse-bar" title="' + escapeHtml(String(e.avg)) + '/5" style="height:' + h + 'px"></div><div class="pulse-label">' + escapeHtml(e.dateLabel || '') + '</div></div>';
+        }).join('');
+      }
+    }
+    const list = document.getElementById('pulse-history-list');
+    if(list){
+      const history = getCoherencePulseHistory().slice(-8).reverse();
+      if(!history.length){
+        list.innerHTML = '<div class="status-line">No Daily Pulse history yet.</div>';
+      } else {
+        list.innerHTML = history.map(e => {
+          const low = getLowestPulseDomain(e.scores);
+          return '<div class="pulse-entry">'
+            + '<div class="pulse-entry-head"><div><div class="pulse-entry-title">' + escapeHtml(e.dateLabel || 'Pulse') + ' · Average ' + escapeHtml(String(e.avg)) + '/5</div><div class="pulse-entry-meta">Lowest signal: ' + escapeHtml(low.label) + '</div></div>'
+            + '<button class="btn small danger" type="button" onclick="deleteCoherencePulse(\'' + escapeAttr(e.id) + '\')">Delete</button></div>'
+            + '<div class="pulse-mini-scores">' + COHERENCE_PULSE_DOMAINS.map(d => '<span class="pulse-chip">' + escapeHtml(d.short) + ' ' + escapeHtml(String(e.scores[d.key])) + '</span>').join('') + '</div>'
+            + (e.note ? '<p style="color:var(--muted);margin:8px 0 0;">' + escapeHtml(e.note) + '</p>' : '')
+            + (e.relationalNote ? '<p style="color:var(--muted);margin:8px 0 0;"><strong>Relational note:</strong> ' + escapeHtml(e.relationalNote) + '</p>' : '')
+            + '</div>';
+        }).join('');
+      }
+    }
+  }
+
+  function updatePulseSliderLabels(){
+    COHERENCE_PULSE_DOMAINS.forEach(d => {
+      const input = document.getElementById('pulse-input-' + d.key);
+      const out = document.getElementById('pulse-score-' + d.key);
+      if(input && out) out.textContent = input.value;
+    });
+  }
+  window.updatePulseSliderLabels = updatePulseSliderLabels;
+
+  function resetCoherencePulseForm(){
+    COHERENCE_PULSE_DOMAINS.forEach(d => {
+      const input = document.getElementById('pulse-input-' + d.key);
+      if(input) input.value = 3;
+    });
+    const note = document.getElementById('pulse-note');
+    const rnote = document.getElementById('pulse-relational-note');
+    if(note) note.value = '';
+    if(rnote) rnote.value = '';
+    updatePulseSliderLabels();
+  }
+  window.resetCoherencePulseForm = resetCoherencePulseForm;
+
+  function saveCoherencePulse(){
+    const scores = {};
+    COHERENCE_PULSE_DOMAINS.forEach(d => {
+      const input = document.getElementById('pulse-input-' + d.key);
+      scores[d.key] = Math.max(0, Math.min(5, Number(input ? input.value : 3)));
+    });
+    const low = getLowestPulseDomain(scores);
+    const entry = {
+      id: uid('pulse'),
+      createdAt: new Date().toISOString(),
+      dateLabel: new Date().toLocaleDateString([], { month:'short', day:'numeric' }),
+      scores,
+      avg: averagePulseScores(scores),
+      lowestKey: low.key,
+      note: String((document.getElementById('pulse-note') || {}).value || '').slice(0, 1500),
+      relationalNote: String((document.getElementById('pulse-relational-note') || {}).value || '').slice(0, 1500),
+      abcThought: ABCD_PULSE_THOUGHTS[low.key] || ''
+    };
+    const history = getCoherencePulseHistory();
+    history.push(entry);
+    setCoherencePulseHistory(history);
+    resetCoherencePulseForm();
+    renderCoherencePulse();
+    renderWorkspaceDashboard();
+    alert('Daily Pulse saved. Latest average: ' + entry.avg + '/5. Lowest signal: ' + low.label + '.');
+  }
+  window.saveCoherencePulse = saveCoherencePulse;
+
+  function deleteCoherencePulse(id){
+    if(!confirm('Delete this Daily Pulse reading?')) return;
+    setCoherencePulseHistory(getCoherencePulseHistory().filter(e => e.id !== id));
+    renderCoherencePulse();
+    renderWorkspaceDashboard();
+  }
+  window.deleteCoherencePulse = deleteCoherencePulse;
+
+  function formatCoherencePulseForText(history){
+    history = Array.isArray(history) ? history : getCoherencePulseHistory();
+    if(!history.length) return '[no Daily Pulse readings saved]';
+    return history.map((e,i) => {
+      const low = getLowestPulseDomain(e.scores);
+      return (i+1) + '. ' + (e.dateLabel || e.createdAt || 'Pulse') + ' · Avg ' + e.avg + '/5 · Lowest: ' + low.label + '\n' + formatPulseScores(e.scores) + (e.note ? '\nNote: ' + e.note : '') + (e.relationalNote ? '\nRelational note: ' + e.relationalNote : '');
+    }).join('\n\n');
+  }
+
+  function askTwinAboutLatestPulse(){
+    const latest = getLatestCoherencePulse();
+    if(!latest){ alert('Complete and save a Daily Pulse first.'); return; }
+    const low = getLowestPulseDomain(latest.scores);
+    const msg = 'I just completed a Daily Coherence Pulse. Please help me interpret it gently without diagnosing me, and ask one useful next question. Average: ' + latest.avg + '/5. Lowest signal: ' + low.label + '. Scores: ' + formatPulseScores(latest.scores) + '. Note: ' + (latest.note || '[none]') + '. Relational note: ' + (latest.relationalNote || '[none]') + '.';
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){ input.value = msg; input.focus(); }
+  }
+  window.askTwinAboutLatestPulse = askTwinAboutLatestPulse;
+
+  function createStabilizingMoveFromPulse(){
+    const latest = getLatestCoherencePulse();
+    if(!latest){ alert('Complete and save a Daily Pulse first.'); return; }
+    const low = getLowestPulseDomain(latest.scores);
+    const move = {
+      id: uid('move'),
+      fieldScanId: '',
+      fieldTitle: 'Daily Coherence Pulse',
+      fieldType: 'Self-navigation',
+      pattern: 'stabilizing_pulse_move',
+      title: 'Small stabilizing move for ' + low.label,
+      firstAction: suggestPulseFirstAction(low.key),
+      whatPreserves: 'Preserves agency by responding to a low coherence signal without treating it as failure or command.',
+      whatRisks: 'Risk: overcorrecting, turning the check-in into self-judgment, or trying to fix the whole situation at once.',
+      supportNeeded: low.key === 'relationalCoherence' ? 'One low-pressure BioBond: a trusted person, practice, place, or community channel.' : 'A small amount of time, permission to slow down, and one concrete cue that makes the move easier to start.',
+      timeScale: 'today / next 24 hours',
+      urgency: Math.max(40, 100 - Math.round((Number(latest.avg) || 3) * 14)),
+      reversibility: 90,
+      suppressionRelief: low.key === 'structuralClarity' || low.key === 'recoveryAccess' ? 72 : 55,
+      futureAgencyValue: 70,
+      status: 'saved',
+      notes: 'Created from Daily Pulse. Latest average: ' + latest.avg + '/5. Lowest signal: ' + low.label + '.',
+      createdAt: new Date().toISOString(),
+      savedAt: new Date().toISOString()
+    };
+    const cards = getMoveCards();
+    cards.push(move);
+    setMoveCards(cards);
+    setCurrentMoveId(move.id);
+    renderAll();
+    showWorkspace('moves');
+    alert('Created a small stabilizing Move Card and set it as the Current Move.');
+  }
+  window.createStabilizingMoveFromPulse = createStabilizingMoveFromPulse;
+
+  function suggestPulseFirstAction(key){
+    const map = {
+      physicalEnergy:'Choose the smallest necessary action for the next hour, and deliberately postpone one nonessential demand.',
+      temporalHorizon:'Write one sentence naming what still matters beyond today, then choose one reversible step that keeps that future open.',
+      relationalCoherence:'Send one low-pressure message or make one brief contact with a BioBond that helps you stay connected without over-explaining.',
+      structuralClarity:'Name the field in one sentence: what is being rewarded, punished, hidden, and made costly?',
+      identityIntegrity:'Pause before the next demand and name one boundary, value, or promise you do not want to betray today.',
+      recoveryAccess:'Schedule or protect one small recovery interval, even if it is only ten minutes without new input.',
+      beautyAweMeaning:'Seek one real contact with beauty, awe, gratitude, humor, music, art, nature, prayer, or wonder before returning to the pressure field.'
+    };
+    return map[key] || 'Choose one small coherence-preserving action today.';
+  }
+
   function renderAll(){
     setTwinMode(getMode());
     const settings = getSettings();
@@ -2286,6 +2735,7 @@
     renderMoveStudio();
     renderCurrentMovePlan();
     renderCoaches();
+    renderCoherencePulse();
     renderWorkspaceDashboard();
     updateSaveStatus();
     applyPanelStates();
@@ -2380,6 +2830,8 @@ Essential design principle: The Twin is not asking the student to confess a self
     const currentMovePlan = getCurrentMovePlan();
     const prf22Profile = getTwinSafePrf22Summary();
     const coachNotes = getCoachNotes().slice(-5).map(n => ({ title:n.title, coachTitle:n.coachTitle, summary:n.summary, createdAt:n.createdAt }));
+    const coherencePulseSummary = buildCoherencePulseSummary();
+    const recentCoherencePulse = getCoherencePulseHistory().slice(-7).map(e => ({ dateLabel:e.dateLabel, avg:e.avg, lowestKey:e.lowestKey, lowestLabel:getLowestPulseDomain(e.scores).label, scores:e.scores, note:e.note, relationalNote:e.relationalNote }));
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -2402,6 +2854,8 @@ Essential design principle: The Twin is not asking the student to confess a self
       currentMovePlan: currentMovePlan,
       prf22Profile: prf22Profile,
       recentCoachNotes: coachNotes,
+      coherencePulseSummary: coherencePulseSummary,
+      recentCoherencePulse: recentCoherencePulse,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -2703,6 +3157,7 @@ Return only valid JSON with this exact shape:
         currentMovePlan: getCurrentMovePlan(),
         prf22Profile: getPrf22Profile(),
         coachNotes: getCoachNotes(),
+        coherencePulse: getCoherencePulseHistory(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -2710,6 +3165,8 @@ Return only valid JSON with this exact shape:
     } else {
       content = 'Navigator Twin Journal\nExported: ' + new Date().toLocaleString() + '\n\n'
         + journal.map((e,i) => (i+1) + '. ' + e.text + ' [' + (e.category || 'uncategorized') + ']').join('\n')
+        + '\n\n--- Daily Coherence Pulse ---\n'
+        + formatCoherencePulseForText(getCoherencePulseHistory())
         + '\n\n--- PRF-22 Profile ---\n'
         + formatPrf22ProfileForText(getPrf22Profile())
         + '\n\n--- Context Assembly ---\n'
@@ -2879,7 +3336,8 @@ Return only valid JSON with this exact shape:
     const currentMovePlan = normalizeImportedCurrentMovePlan(data.currentMovePlan);
     const prf22Profile = normalizeImportedPrf22Profile(data.prf22Profile || data.prfProfile || null, { fromNavigatorBackup:true });
     const coachNotes = Array.isArray(data.coachNotes) ? data.coachNotes.map(normalizeImportedCoachNote).filter(Boolean) : [];
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan, prf22Profile, coachNotes }; 
+    const coherencePulse = Array.isArray(data.coherencePulse) ? data.coherencePulse.map(normalizeImportedCoherencePulse).filter(Boolean) : [];
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan, prf22Profile, coachNotes, coherencePulse }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -2910,11 +3368,12 @@ Return only valid JSON with this exact shape:
       setCurrentMovePlan(restored.currentMovePlan && (restored.moveCards || []).some(m => m.id === restored.currentMovePlan.moveId) ? restored.currentMovePlan : null);
       setPrf22Profile(restored.prf22Profile || null);
       setCoachNotes(restored.coachNotes || []);
+      setCoherencePulseHistory(restored.coherencePulse || []);
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '. PRF-22 profile: ' + (restored.prf22Profile ? 'yes' : 'no') + '. Coach notes: ' + (restored.coachNotes || []).length + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '. PRF-22 profile: ' + (restored.prf22Profile ? 'yes' : 'no') + '. Coach notes: ' + (restored.coachNotes || []).length + '. Daily Pulse readings: ' + (restored.coherencePulse || []).length + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -4397,6 +4856,7 @@ Return only valid JSON with this shape:
     setCoachNotes(getCoachNotes().concat([note]));
     currentCoachDraft = Object.assign({}, note);
     renderCoaches();
+    renderCoherencePulse();
     renderWorkspaceDashboard();
   }
   window.saveCurrentCoachNote = saveCurrentCoachNote;
@@ -4454,6 +4914,7 @@ Return only valid JSON with this shape:
     if(!confirm('Delete this Coach Note?')) return;
     setCoachNotes(getCoachNotes().filter(n => n.id !== id));
     renderCoaches();
+    renderCoherencePulse();
     renderWorkspaceDashboard();
   }
   window.deleteCoachNote = deleteCoachNote;
@@ -4505,12 +4966,16 @@ Return only valid JSON with this shape:
       raw:null
     };
     const coachNotes = [{ id:'demo_coach_note_1', coachId:'ethical-reasoning', coachTitle:'Ethical Reasoning Coach', title:'Ethical Reasoning Demo Note', input:'Should the fictional student use AI to finish quickly under deadline pressure?', mode:'quick', contextUsed:{ journal:true, prf22:true, fields:true, context:true }, summary:'Maps the issue as a PRF-sensitive conflict between survival pressure, authorship, and OS2 coordination with the course requirements.', structuredText:'Ethical Reasoning Coach Note\n\nSituation / Ethical Issue:\nThe fictional student feels pressure to use AI as the fastest route under deadline stress.\n\nMy PRF Perspective:\nMeaning, authorship, care, and fairness are highly salient.\n\nReasoning Lenses:\nDeduction asks what academic integrity requires. Induction asks what deadline pressure usually produces. Abduction asks whether the behavior is best explained as dishonesty or survival pressure. Analogy compares this to other institutional environments where performance theater crowds out learning.\n\nFallacy Watch:\nAvoid false dilemma: either pure original work or total cheating. Avoid hasty generalization about student character.\n\nOS1 / OS2:\nOS1 disagreement may concern what counts as authentic authorship. OS2 bridge may be a transparent AI-use plan that preserves learning while meeting course tasks.\n\nAgency-Preserving Next Move:\nAsk one clarifying question and create a plan for what AI may and may not do.', source:'demo', createdAt:iso, updatedAt:iso }];
+    const coherencePulse = [
+      { id:'demo_pulse_1', createdAt:iso, dateLabel:'Demo 1', scores:{ physicalEnergy:2, temporalHorizon:2, relationalCoherence:3, structuralClarity:2, identityIntegrity:3, recoveryAccess:2, beautyAweMeaning:4 }, avg:2.6, lowestKey:'physicalEnergy', note:'Deadline pressure is narrowing the day, but music and one supportive conversation still help.', relationalNote:'A study partner may also be under the same pressure.', abcThought:ABCD_PULSE_THOUGHTS.physicalEnergy },
+      { id:'demo_pulse_2', createdAt:iso, dateLabel:'Demo 2', scores:{ physicalEnergy:3, temporalHorizon:3, relationalCoherence:3, structuralClarity:3, identityIntegrity:4, recoveryAccess:2, beautyAweMeaning:4 }, avg:3.1, lowestKey:'recoveryAccess', note:'A small plan created more clarity, but recovery is still limited.', relationalNote:'', abcThought:ABCD_PULSE_THOUGHTS.recoveryAccess }
+    ];
     const currentMovePlan = { id:'demo_plan_1', moveId:move1, moveTitle:'Clarify assignment scope before acting', field:'Course Deadline Pressure', whyNow:'This move is worth considering now because school pressure is high and ambiguity is pushing the user toward the fastest acceptable output. Clarification may preserve authorship without requiring a major confrontation.', firstSmallAction:'Draft a two-sentence clarification message asking what counts as original contribution and what must be completed first.', supportNeeded:'A study partner or trusted reviewer can check that the message is concise and not over-explained.', riskToWatch:'Watch for pressure to apologize excessively or accept unclear expectations without question.', whatNotToSacrifice:'Do not sacrifice authorship, dignity, or the right to understand the demand before responding.', pauseOrReviseIf:'Pause if the reply creates new risk, if stress spikes, or if a simpler stabilizing action becomes necessary first.', checkBack:'Check back within 24 hours.', status:'draft', createdAt:iso, updatedAt:iso };
-    return { chat, journal, coverage, questions:extractQuestionsFromChat(chat), mode:'twin_asks', documentCapsules:capsules, fieldScans, contextAssembly, moveCards, pendingMoveCards:[], currentMoveId:move1, moveCompareSelection:[move1,move2,move3], moveComparisonLens:'balanced', currentMovePlan, prf22Profile, coachNotes };
+    return { chat, journal, coverage, questions:extractQuestionsFromChat(chat), mode:'twin_asks', documentCapsules:capsules, fieldScans, contextAssembly, moveCards, pendingMoveCards:[], currentMoveId:move1, moveCompareSelection:[move1,move2,move3], moveComparisonLens:'balanced', currentMovePlan, prf22Profile, coachNotes, coherencePulse };
   }
 
   function loadDemoData(){
-    const existing = getChat().length + getJournal().length + getCapsules().length + getFieldScans().length + getMoveCards().length + getCoachNotes().length;
+    const existing = getChat().length + getJournal().length + getCapsules().length + getFieldScans().length + getMoveCards().length + getCoachNotes().length + getCoherencePulseHistory().length;
     const warning = existing ? 'Load fictional demo data? This will replace the current local Navigator memory in this browser. Export JSON first if you want to keep your current work.' : 'Load fictional demo data into this browser?';
     if(!confirm(warning)) return;
     const demo = buildFictionalDemoData();
@@ -4529,6 +4994,7 @@ Return only valid JSON with this shape:
     setCurrentMovePlan(demo.currentMovePlan);
     setPrf22Profile(demo.prf22Profile || null);
     setCoachNotes(demo.coachNotes || []);
+    setCoherencePulseHistory(demo.coherencePulse || []);
     clearPendingCapsule();
     try { localStorage.setItem(KEYS.mode, demo.mode); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
     showWorkspace('home');
@@ -4538,8 +5004,8 @@ Return only valid JSON with this shape:
   window.loadDemoData = loadDemoData;
 
   function clearTwinMemory(){
-    if(!confirm('Clear the Twin conversation, journal, PRF-22 profile, capsules, field scans, context assembly, move cards, coach notes, and comparison selections from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.prf22Profile, KEYS.coachNotes, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    if(!confirm('Clear the Twin conversation, journal, PRF-22 profile, capsules, Daily Pulse readings, field scans, context assembly, move cards, coach notes, and comparison selections from this browser?')) return;
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.prf22Profile, KEYS.coachNotes, KEYS.coherencePulse, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
