@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v3.0 Applications &amp; Coaches</title>
-  <meta name="description" content="Navigator Twin v3.0 — Applications & Coaches Framework adds guided coaching pathways on top of the stable agency-navigation loop; no service worker in this stable fallback build." />
+  <title>The Navigator — Twin v3.0.1 Coach Usability Patch</title>
+  <meta name="description" content="Navigator Twin v3.0.1 — Coach Usability Patch adds clearer coach controls, primers, examples, and guidance; no service worker in this stable fallback build." />
   <style>
     :root {
       --void: #060b18;
@@ -598,6 +598,13 @@
     .coach-purpose { color: var(--muted); font-size: .9rem; }
     .coach-tag-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
     .coach-tag { border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:4px 7px; color:var(--dim); font:700 .66rem/1 var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+    .coach-card-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+    .coach-mini-help { margin-top:10px; color:var(--dim); font-size:.82rem; line-height:1.35; }
+    .coach-primer-box { border:1px solid rgba(108,92,231,.24); background:rgba(108,92,231,.075); border-radius:14px; padding:12px 13px; color:var(--muted); margin:10px 0; }
+    .coach-primer-box strong { color: var(--text); }
+    .coach-start-here { border:1px solid rgba(201,168,76,.26); background:rgba(201,168,76,.07); border-radius:16px; padding:14px; margin-bottom:14px; }
+    .coach-start-here ol { margin:8px 0 0 20px; padding:0; color:var(--muted); }
+    .coach-start-here li { margin:5px 0; }
     .coach-layout { display:grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap:14px; align-items:start; }
     .coach-context-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px; margin:10px 0; }
     .coach-context-grid label { display:flex; gap:8px; align-items:flex-start; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.035); border-radius:12px; padding:9px; color:var(--muted); font-size:.86rem; }
@@ -659,9 +666,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v3.0 · Applications & Coaches Framework</div>
+        <div class="eyebrow">Navigator Twin v3.0.1 · Coach Usability Patch</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build turns Navigator into an expandable agency platform: the Twin, PRF-22 profile, memory, Field Map, and Move Cards now support guided Applications & Coaches for thinking, ethics, traditions, research, and future curriculum modules.</div>
+        <div class="subtitle">This build keeps the Applications & Coaches framework and adds clearer controls, coach primers, sample prompts, and Ethical Reasoning guidance for PRF, OS1/OS2, reasoning lenses, and logical fallacies.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -1117,6 +1124,16 @@
             </div>
             <div class="card-body">
               <div class="workspace-note"><strong>Coaches are arenas, not authorities.</strong> They help structure attention, reasoning, comparison, and next-move preparation. They do not grade, diagnose, decide, or replace the user’s authorship.</div>
+              <div class="coach-start-here">
+                <div class="guided-card-title">How to use Coaches</div>
+                <ol>
+                  <li>Choose a Coach card. Use the <strong>Open</strong>, <strong>Learn</strong>, or <strong>Example</strong> buttons.</li>
+                  <li>Describe the situation, dilemma, draft, or project in the Coach Session Arena.</li>
+                  <li>Select only the memory you want the Coach to use.</li>
+                  <li>Click <strong>Build Local Coach Note</strong> for a private browser-only structure, or <strong>Ask AI-Assisted Coach</strong> to send selected context to the backend.</li>
+                  <li>Save the note only if it is useful.</li>
+                </ol>
+              </div>
               <div id="coach-catalog" class="coach-catalog"></div>
             </div>
           </div>
@@ -1209,7 +1226,7 @@
         <div id="release-notes-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="eyebrow">Stable feature build package</div>
-            <div class="card-title">Navigator Twin v3.0 — Applications & Coaches Framework</div>
+            <div class="card-title">Navigator Twin v3.0.1 — Applications & Coaches Usability Patch</div>
             <div class="card-desc">This build preserves the complete stable agency-navigation loop and adds a first Applications & Coaches workspace: guided pathways for critical thinking, ethical reasoning, core traditions, EBB chapter templates, and research projects. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
           </div>
           <div class="card-body">
@@ -1345,7 +1362,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.0 — Applications & Coaches Framework Shell.</div>
+            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.0.1 — Applications & Coaches Usability Patch Shell.</div>
           </div>
         </div>
         </aside>
@@ -1361,7 +1378,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v3.0 — Applications & Coaches Framework Shell';
+  const APP_VERSION = 'Navigator Twin v3.0.1 — Applications & Coaches Usability Patch Shell';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -4168,11 +4185,14 @@ Return only valid JSON with this shape:
         + '<div class="coach-title">' + escapeHtml(c.title) + '</div>'
         + '<div class="coach-purpose">' + escapeHtml(c.purpose) + '</div>'
         + '<div class="coach-tag-row"><span class="coach-tag">' + escapeHtml(c.category) + '</span>' + (c.tags || []).map(t => '<span class="coach-tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+        + '<div class="coach-card-actions"><button class="btn small primary" type="button" onclick="event.stopPropagation(); openCoach(\'' + c.id + '\')">Open</button><button class="btn small ghost" type="button" onclick="event.stopPropagation(); showCoachPrimer(\'' + c.id + '\')">Learn</button><button class="btn small ghost" type="button" onclick="event.stopPropagation(); useCoachExample(\'' + c.id + '\')">Example</button></div>'
+        + '<div class="coach-mini-help">Open selects the coach. Learn explains the ideas. Example fills the prompt box with a starter case.</div>'
         + '</div>').join('');
     }
     if(detail){
       detail.innerHTML = '<div class="guided-card"><div class="guided-card-title">' + escapeHtml(active.title) + '</div>'
         + '<div class="guided-card-text">' + escapeHtml(active.purpose) + '</div>'
+        + '<div class="coach-primer-box"><strong>Plain-language primer:</strong><br>' + escapeHtml(getCoachPrimerText(active.id)) + '</div>'
         + '<div class="coach-step-list">' + active.steps.map((s,i) => '<div class="coach-step"><strong>' + (i+1) + '.</strong> ' + escapeHtml(s) + '</div>').join('') + '</div>'
         + '<div class="privacy-note"><strong>Output:</strong> ' + escapeHtml(active.outputs) + '</div></div>';
     }
@@ -4188,6 +4208,66 @@ Return only valid JSON with this shape:
         + '</div>').join('');
     }
   }
+
+  function getCoachPrimerText(id){
+    if(id === 'ethical-reasoning'){
+      return 'This coach is a guided arena for ethical reasoning, not a verdict machine. PRF means the user\'s own Personal Reality Framework: the beliefs, rules, ontology, values, identity commitments, and experiences that make some things feel morally obvious. OS1 means shared meaning or worldview-level agreement. OS2 means task-level coordination: people may not agree about ultimate meanings but may still coordinate around a practical bridge such as reducing harm, protecting dignity, clarifying evidence, or preserving agency. The reasoning lenses help the user see how deduction, induction, abduction, and analogy each contribute and each can mislead. The fallacy check asks whether common distortions are shaping the situation before the user chooses a next move.';
+    }
+    if(id === 'critical-thinking'){
+      return 'This coach helps separate the question, evidence, assumptions, alternatives, and justified conclusion. It is useful before taking a position, answering an assignment prompt, or deciding what more information is needed.';
+    }
+    if(id === 'core-traditions'){
+      return 'This coach compares how major ethical traditions see the same dilemma. It does not force one theory to win. It asks what each tradition notices, what it may miss, and where different traditions may support functionally equivalent action.';
+    }
+    if(id === 'research-project'){
+      return 'This coach helps turn a project into a map: central problem, contribution, audience, missing evidence, next section, and next research move. It is useful with Document Capsules and PRF profile context.';
+    }
+    return 'This template is a placeholder for future EBB chapter-specific coaches. It gives the structure of a chapter coach without loading the full curriculum yet.';
+  }
+
+  function getCoachExamplePrompt(id){
+    if(id === 'ethical-reasoning'){
+      return 'I am facing an ethical situation where I need to decide whether to use AI to complete a difficult assignment under deadline pressure. I want to understand my own PRF perspective, how another person or instructor might see it, what OS1 and OS2 mean in this case, which reasoning methods I am using, and what logical fallacies or distortions I should watch for.';
+    }
+    if(id === 'critical-thinking'){
+      return 'I need to evaluate a claim that sounds persuasive but may be incomplete. Help me identify the issue, evidence, assumptions, alternatives, and what conclusion is justified.';
+    }
+    if(id === 'core-traditions'){
+      return 'A professional faces pressure to follow an institutional rule that may harm a vulnerable person. Compare how virtue ethics, deontology, consequentialism, care ethics, social contract/justice, and constructor/agency thinking would approach the case.';
+    }
+    if(id === 'research-project'){
+      return 'I am developing a research project and need help clarifying its central contribution, audience, missing evidence, and next writing move.';
+    }
+    return 'I want to apply a chapter concept to my lived experience and a concrete case. Help me identify key terms, a case, a Field Scan suggestion, and a reflection outline.';
+  }
+
+  function showCoachPrimer(id){
+    setActiveCoachId(id);
+    currentCoachDraft = null;
+    renderCoaches();
+    showWorkspace('apps');
+    const out = document.getElementById('coach-output');
+    if(out){
+      const def = getCoachDef(id);
+      out.textContent = def.title + ' — Plain-Language Primer\n\n' + getCoachPrimerText(id) + '\n\nHow to use it:\n1. Put your actual situation or question in the text box.\n2. Choose Quick or Full mode.\n3. Check only the memory you want included.\n4. Click Build Local Coach Note for private local structure, or Ask AI-Assisted Coach for a backend-supported response.\n5. Save the note only if it helps.';
+    }
+  }
+  window.showCoachPrimer = showCoachPrimer;
+
+  function useCoachExample(id){
+    setActiveCoachId(id);
+    renderCoaches();
+    showWorkspace('apps');
+    const input = document.getElementById('coach-input');
+    if(input){
+      input.value = getCoachExamplePrompt(id);
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = 'Example prompt loaded. You can edit it, then click Build Local Coach Note or Ask AI-Assisted Coach.';
+  }
+  window.useCoachExample = useCoachExample;
 
   function openCoach(id){
     setActiveCoachId(id);
