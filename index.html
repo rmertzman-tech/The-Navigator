@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.9 PRF-22 Profile Import</title>
-  <meta name="description" content="Navigator Twin v2.9 — PRF-22 Profile Import adds local PRF-22 / E-Twin profile import to the stable agency-navigation loop; no service worker in this stable fallback build." />
+  <title>The Navigator — Twin v3.0 Applications &amp; Coaches</title>
+  <meta name="description" content="Navigator Twin v3.0 — Applications & Coaches Framework adds guided coaching pathways on top of the stable agency-navigation loop; no service worker in this stable fallback build." />
   <style>
     :root {
       --void: #060b18;
@@ -581,6 +581,34 @@
     .glossary-item:first-child { border-top: 0; padding-top: 0; }
     .glossary-item strong { color: var(--text); }
 
+
+
+    .coach-catalog { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .coach-card {
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.045);
+      border-radius: 16px;
+      padding: 13px;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+    .coach-card:hover { transform: translateY(-1px); border-color: rgba(201,168,76,.38); background: rgba(201,168,76,.07); }
+    .coach-card.active { border-color: rgba(201,168,76,.65); background: rgba(201,168,76,.12); }
+    .coach-title { font-weight: 900; color: var(--text); margin-bottom: 4px; }
+    .coach-purpose { color: var(--muted); font-size: .9rem; }
+    .coach-tag-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .coach-tag { border:1px solid rgba(255,255,255,.08); border-radius:999px; padding:4px 7px; color:var(--dim); font:700 .66rem/1 var(--mono); text-transform:uppercase; letter-spacing:.06em; }
+    .coach-layout { display:grid; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); gap:14px; align-items:start; }
+    .coach-context-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px; margin:10px 0; }
+    .coach-context-grid label { display:flex; gap:8px; align-items:flex-start; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.035); border-radius:12px; padding:9px; color:var(--muted); font-size:.86rem; }
+    .coach-step-list { display:grid; gap:8px; margin:10px 0; }
+    .coach-step { border-left:3px solid rgba(201,168,76,.45); padding:8px 10px; background:rgba(255,255,255,.035); border-radius:10px; color:var(--muted); font-size:.9rem; }
+    .coach-output { border:1px solid rgba(201,168,76,.22); background:rgba(6,11,24,.36); border-radius:16px; padding:13px; min-height:160px; white-space:pre-wrap; color:var(--text); }
+    .coach-note { border:1px solid rgba(255,255,255,.10); border-radius:15px; padding:12px; background:rgba(255,255,255,.04); margin-top:10px; }
+    .coach-note-meta { color:var(--dim); font:700 .68rem/1.3 var(--mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+    .coach-warning { border:1px solid rgba(201,168,76,.20); background:rgba(201,168,76,.07); border-radius:14px; padding:10px 12px; color:var(--muted); font-size:.9rem; margin:10px 0; }
+    @media (max-width: 900px) { .coach-layout, .coach-catalog, .coach-context-grid { grid-template-columns: 1fr; } }
+
     .debug { display: none; margin-top: 16px; border: 1px solid rgba(204,107,95,.45); background: rgba(204,107,95,.08); color: #ffd3cd; border-radius: 14px; padding: 12px; white-space: pre-wrap; font-family: var(--mono); font-size: .78rem; }
     .privacy-note { color: var(--muted); font-size: .84rem; border-left: 3px solid rgba(201,168,76,.45); padding-left: 11px; margin-top: 12px; }
     @media (max-width: 900px) {
@@ -631,9 +659,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.9 · PRF-22 Profile Import Build</div>
+        <div class="eyebrow">Navigator Twin v3.0 · Applications & Coaches Framework</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build preserves the stable agency-navigation loop and adds PRF-22 / E-Twin profile import as a local-first memory source for the Twin, Field Scans, Move Cards, and future Coaches.</div>
+        <div class="subtitle">This build turns Navigator into an expandable agency platform: the Twin, PRF-22 profile, memory, Field Map, and Move Cards now support guided Applications & Coaches for thinking, ethics, traditions, research, and future curriculum modules.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -678,6 +706,7 @@
       <button id="workspace-btn-memory" class="workspace-btn" type="button" onclick="showWorkspace('memory')">Memory</button>
       <button id="workspace-btn-field" class="workspace-btn" type="button" onclick="showWorkspace('field')">Field Map</button>
       <button id="workspace-btn-moves" class="workspace-btn" type="button" onclick="showWorkspace('moves')">Moves</button>
+      <button id="workspace-btn-apps" class="workspace-btn" type="button" onclick="showWorkspace('apps')">Coaches</button>
       <button id="workspace-btn-help" class="workspace-btn" type="button" onclick="showWorkspace('help')">Help</button>
     </nav>
 
@@ -1075,14 +1104,113 @@
       </div>
     </div>
 
+
+
+    <div id="workspace-apps" class="workspace-pane">
+      <section class="grid workspace-grid">
+        <div class="workspace-stack">
+          <div class="card">
+            <div class="card-header">
+              <div class="eyebrow">Applications &amp; Coaches</div>
+              <div class="card-title">Guided pathways through Navigator.</div>
+              <div class="card-desc">Navigator is the core agency platform; Coaches are guided pathways for applying that platform to particular life, learning, research, and ethical tasks.</div>
+            </div>
+            <div class="card-body">
+              <div class="workspace-note"><strong>Coaches are arenas, not authorities.</strong> They help structure attention, reasoning, comparison, and next-move preparation. They do not grade, diagnose, decide, or replace the user’s authorship.</div>
+              <div id="coach-catalog" class="coach-catalog"></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <div class="card-title">Coach Session Arena</div>
+              <div class="card-desc">Choose a coach, select what local memory it may use, then build a local note or ask the AI-assisted coach for a structured response.</div>
+            </div>
+            <div class="card-body">
+              <div id="coach-active-detail"></div>
+              <div class="coach-layout">
+                <div>
+                  <div class="field">
+                    <label for="coach-input">What situation, question, draft, dilemma, or project should this coach help with?</label>
+                    <textarea id="coach-input" placeholder="Describe the issue or task. For Ethical Reasoning, name the situation, who is affected, what feels ethically difficult, and what you are trying to understand."></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="coach-depth">Coach mode</label>
+                    <select id="coach-depth">
+                      <option value="quick">Quick mode — short structured map</option>
+                      <option value="full">Full mode — deeper coaching pass</option>
+                    </select>
+                  </div>
+                  <div class="coach-warning"><strong>Context control:</strong> check only what you want included. Local note generation stays in your browser. AI-assisted coaching sends the selected context to the configured backend.</div>
+                  <div class="coach-context-grid">
+                    <label><input id="coach-ctx-journal" type="checkbox" checked /> Twin Journal summary</label>
+                    <label><input id="coach-ctx-prf" type="checkbox" checked /> PRF-22 profile summary</label>
+                    <label><input id="coach-ctx-capsules" type="checkbox" /> Document Capsules</label>
+                    <label><input id="coach-ctx-fields" type="checkbox" checked /> Field Scans / Field Map</label>
+                    <label><input id="coach-ctx-context" type="checkbox" checked /> Context Assembly</label>
+                    <label><input id="coach-ctx-moves" type="checkbox" /> Current Move / Move Cards</label>
+                  </div>
+                  <div class="toolbar">
+                    <button class="btn small primary" type="button" onclick="buildLocalCoachNote()">Build Local Coach Note</button>
+                    <button class="btn small purple" type="button" onclick="askCoachWithAI()">Ask AI-Assisted Coach</button>
+                    <button class="btn small ghost" type="button" onclick="clearCoachDraft()">Clear Draft</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="status-line" style="color:var(--gold);font-weight:900;">COACH OUTPUT DRAFT</div>
+                  <div id="coach-output" class="coach-output">Choose a coach and enter a situation. The output will appear here before you choose whether to save it.</div>
+                  <div class="toolbar" style="margin-top:10px;">
+                    <button class="btn small primary" type="button" onclick="saveCurrentCoachNote()">Save Coach Note</button>
+                    <button class="btn small ghost" type="button" onclick="sendCurrentCoachDraftToTwin()">Ask Twin About Draft</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:18px;">
+            <div class="card-header">
+              <div class="card-title-row">
+                <div>
+                  <div class="card-title">Saved Coach Notes</div>
+                  <div id="summary-coachNotes" class="card-desc">Coach Notes are local records of guided sessions.</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="coach-notes-list"></div>
+            </div>
+          </div>
+        </div>
+        <aside class="side-panel">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Coach Design Rules</div>
+              <div class="card-desc">These rules keep the Coaches useful and safe.</div>
+            </div>
+            <div class="card-body">
+              <ul class="help-list">
+                <li><strong>Minimal context:</strong> use only the local memory needed for the task.</li>
+                <li><strong>No silent authority:</strong> a Coach may suggest distinctions, not decide for the user.</li>
+                <li><strong>PRF humility:</strong> the PRF profile is a starting map, never a verdict.</li>
+                <li><strong>OS1/OS2 discipline:</strong> distinguish shared meaning from shared coordination.</li>
+                <li><strong>Reasoning literacy:</strong> deduction, induction, abduction, analogy, and fallacy detection are treated as tools, each with limits.</li>
+              </ul>
+              <div class="privacy-note">Coach Notes are stored locally and included in JSON export/import. AI-assisted coaching sends selected context to the backend only when you click that button.</div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </div>
+
     <div id="workspace-help" class="workspace-pane">
       <section class="grid workspace-grid">
         <div class="workspace-stack">
         <div id="release-notes-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="eyebrow">Stable feature build package</div>
-            <div class="card-title">Navigator Twin v2.9 — PRF-22 Profile Import</div>
-            <div class="card-desc">This build preserves the complete stable agency-navigation loop and adds PRF-22 / E-Twin profile import as a local-first baseline memory source. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
+            <div class="card-title">Navigator Twin v3.0 — Applications & Coaches Framework</div>
+            <div class="card-desc">This build preserves the complete stable agency-navigation loop and adds a first Applications & Coaches workspace: guided pathways for critical thinking, ethical reasoning, core traditions, EBB chapter templates, and research projects. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
           </div>
           <div class="card-body">
             <div class="help-section">
@@ -1113,7 +1241,7 @@
             </div>
             <div class="help-section">
               <h3>Privacy and security posture</h3>
-              <p><strong>Local-first by design:</strong> conversation, Journal entries, PRF-22 profile summaries, Document Capsules, Field Scans, Context Assembly, Move Cards, comparison state, and Current Move Plans are stored in this browser unless the user exports or restores them.</p>
+              <p><strong>Local-first by design:</strong> conversation, Journal entries, PRF-22 profile summaries, Document Capsules, Field Scans, Context Assembly, Move Cards, comparison state, and Current Move Plans, and Coach Notes are stored in this browser unless the user exports or restores them.</p>
               <p><strong>Backend transparency:</strong> backend AI calls occur only when the user asks the Twin to interpret, summarize, deliberate, create a capsule, or generate an AI-assisted response. Those requests require sending selected prompt context to the configured backend service for processing. PRF-22 import stores the raw JSON locally and sends only a short profile summary when Twin Context is turned on. Users should avoid uploading highly sensitive material unless they understand that selected content may be sent for AI processing.</p>
               <p><strong>User control:</strong> users can export JSON, export TXT, import/restore JSON, delete saved items, and clear local memory. Document uploads create reviewable capsules; the app saves only the capsule the user approves, not the raw uploaded document text.</p>
             </div>
@@ -1197,7 +1325,7 @@
                 <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
                 <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
                 <div class="glossary-item"><strong>Decision lens</strong><span>A temporary way of viewing moves, such as urgency, future agency, support-readiness, or reversibility. It is a perspective, not an order.</span></div>
-                <div class="glossary-item"><strong>Current Move Plan</strong><span>A small, revisable action plan for the move the user is presently considering. It names why now, first action, support, risk, non-sacrifice, and check-back.</span></div>
+                <div class="glossary-item"><strong>Current Move Plan</strong><span>A small, revisable action plan for the move the user is presently considering. It names why now, first action, support, risk, non-sacrifice, and check-back.</span></div><div class="glossary-item"><strong>Coach Note</strong><span>A saved output from a guided Coach session, such as Critical Thinking, Ethical Reasoning, Core Traditions, or Research Project coaching.</span></div>
               </div>
             </div>
             <div class="toolbar">
@@ -1217,7 +1345,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.9 — PRF-22 Profile Import Build.</div>
+            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.0 — Applications & Coaches Framework Shell.</div>
           </div>
         </div>
         </aside>
@@ -1233,7 +1361,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.9 — PRF-22 Profile Import Build';
+  const APP_VERSION = 'Navigator Twin v3.0 — Applications & Coaches Framework Shell';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1254,6 +1382,8 @@
     moveComparisonLens: 'navigator_twin_v2_move_comparison_lens',
     currentMovePlan: 'navigator_twin_v2_current_move_plan',
     prf22Profile: 'navigator_twin_v2_prf22_profile',
+    coachNotes: 'navigator_twin_v3_coach_notes',
+    activeCoach: 'navigator_twin_v3_active_coach',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
     workspace: 'navigator_twin_v2_active_workspace'
@@ -1423,6 +1553,12 @@
 
   function getPrf22Profile(){ return getStored(KEYS.prf22Profile, null); }
   function setPrf22Profile(profile){ if(profile) setStored(KEYS.prf22Profile, profile); else { try { localStorage.removeItem(KEYS.prf22Profile); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} } }
+
+
+  function getCoachNotes(){ return getStored(KEYS.coachNotes, []); }
+  function setCoachNotes(notes){ setStored(KEYS.coachNotes, Array.isArray(notes) ? notes.slice(-80) : []); }
+  function getActiveCoachId(){ try { return localStorage.getItem(KEYS.activeCoach) || 'ethical-reasoning'; } catch(e) { return 'ethical-reasoning'; } }
+  function setActiveCoachId(id){ try { localStorage.setItem(KEYS.activeCoach, id || 'ethical-reasoning'); } catch(e) {} }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -1952,7 +2088,7 @@
 
 
 
-  const WORKSPACES = ['home','twin','memory','field','moves','help'];
+  const WORKSPACES = ['home','twin','memory','field','moves','apps','help'];
 
   function getActiveWorkspace(){
     try {
@@ -1999,6 +2135,7 @@
     const currentMove = moves.find(m => m.id === getCurrentMoveId());
     const currentMovePlan = getCurrentMovePlan();
     const prfProfile = getPrf22Profile();
+    const coachNotes = getCoachNotes();
     const planMatchesCurrent = !!(currentMove && currentMovePlan && currentMovePlan.moveId === currentMove.id);
     const nextHint = planMatchesCurrent ? 'Review current move plan' : currentMove ? 'Create current move plan' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
     const cards = [
@@ -2009,6 +2146,7 @@
       ['Move Cards', moves.length + ' saved', activeMoves.length + ' active · ' + (moves.length - activeMoves.length) + ' not now'],
       ['Current Move Plan', planMatchesCurrent ? 'saved' : currentMove ? 'needed' : 'not ready', planMatchesCurrent ? truncateText(currentMovePlan.firstSmallAction || currentMovePlan.whyNow || 'Plan saved', 96) : currentMove ? 'Create a plan from the selected Current Move.' : 'Select a Current Move before planning.'],
       ['Context Assembly', ctx.text ? 'saved' : 'not yet saved', ctx.text ? truncateText(ctx.text, 96) : 'Use Field Map to name the combined situation.'],
+      ['Coach Notes', coachNotes.length + ' saved', coachNotes.length ? truncateText((coachNotes[coachNotes.length - 1].title || 'Latest Coach Note'), 96) : 'Open Coaches for critical thinking, ethics, traditions, research, or templates.'],
       ['Largest gap', largest ? largest.suppressionGap : 'none', largest ? truncateText(largest.title || largest.environment || 'Field Scan', 96) : 'No suppression gap mapped yet.'],
       ['Next workspace', moves.length ? 'Moves' : scans.length ? 'Moves / Field' : 'Field Map', nextHint],
       ['Privacy posture', 'local-first', 'Memory remains in this browser unless you export or ask the Twin.']
@@ -2033,7 +2171,8 @@
         { label:'2+ Move Cards', ready: moves.length >= 2, note: moves.length >= 2 ? moves.length + ' saved' : 'Generate moves from saved scans.' },
         { label:'Context Assembly', ready: !!ctx.text, note: ctx.text ? 'Combined context saved' : 'Name what the fields create together.' },
         { label:'Current Move', ready: !!currentMove, note: currentMove ? truncateText(currentMove.title || 'selected', 60) : 'Set one move as current when ready.' },
-        { label:'Current Move Plan', ready: planMatchesCurrent, note: planMatchesCurrent ? 'Plan saved for current move' : currentMove ? 'Create a deliberation plan next.' : 'Requires a Current Move first.' }
+        { label:'Current Move Plan', ready: planMatchesCurrent, note: planMatchesCurrent ? 'Plan saved for current move' : currentMove ? 'Create a deliberation plan next.' : 'Requires a Current Move first.' },
+        { label:'Coach Note', ready: coachNotes.length > 0, note: coachNotes.length ? coachNotes.length + ' saved coaching sessions' : 'Use a Coach when you need a guided reasoning arena.' }
       ];
       readiness.innerHTML = items.map(item => '<div class="readiness-item ' + (item.ready ? 'ready' : 'waiting') + '"><strong>' + (item.ready ? '✓ ' : '○ ') + escapeHtml(item.label) + '</strong>' + escapeHtml(item.note) + '</div>').join('');
     }
@@ -2129,6 +2268,7 @@
     renderFieldMapDashboard();
     renderMoveStudio();
     renderCurrentMovePlan();
+    renderCoaches();
     renderWorkspaceDashboard();
     updateSaveStatus();
     applyPanelStates();
@@ -2222,6 +2362,7 @@ Essential design principle: The Twin is not asking the student to confess a self
     const currentMove = getMoveById(getCurrentMoveId()) || null;
     const currentMovePlan = getCurrentMovePlan();
     const prf22Profile = getTwinSafePrf22Summary();
+    const coachNotes = getCoachNotes().slice(-5).map(n => ({ title:n.title, coachTitle:n.coachTitle, summary:n.summary, createdAt:n.createdAt }));
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -2243,6 +2384,7 @@ Essential design principle: The Twin is not asking the student to confess a self
       currentMove: currentMove,
       currentMovePlan: currentMovePlan,
       prf22Profile: prf22Profile,
+      recentCoachNotes: coachNotes,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -2543,6 +2685,7 @@ Return only valid JSON with this exact shape:
         moveComparisonLens: getMoveComparisonLens(),
         currentMovePlan: getCurrentMovePlan(),
         prf22Profile: getPrf22Profile(),
+        coachNotes: getCoachNotes(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -2562,6 +2705,8 @@ Return only valid JSON with this exact shape:
         + formatCurrentMovePlanForText(getCurrentMovePlan())
         + '\n\n--- Move Cards ---\n'
         + getMoveCards().map((m,i) => (i+1) + '. ' + (m.title || 'Move Card') + ' | Field: ' + (m.fieldTitle || 'unknown') + ' | Status: ' + (m.status || 'saved') + '\nFirst action: ' + (m.firstAction || '') + '\nPreserves: ' + (m.whatPreserves || '') + '\nRisks: ' + (m.whatRisks || '')).join('\n\n')
+        + '\n\n--- Coach Notes ---\n'
+        + getCoachNotes().map((n,i) => (i+1) + '. ' + (n.title || 'Coach Note') + ' [' + (n.coachTitle || n.coachId || 'coach') + ']\n' + (n.summary || '') + '\n' + (n.structuredText || '')).join('\n\n')
         + '\n\n--- Conversation ---\n'
         + chat.map(m => (m.role === 'assistant' ? 'Twin' : m.role === 'user' ? 'You' : 'System') + ': ' + m.content).join('\n\n');
       type = 'text/plain'; filename = 'navigator-twin-journal.txt';
@@ -2666,6 +2811,26 @@ Return only valid JSON with this exact shape:
     return plan.moveId || plan.firstSmallAction || plan.whyNow ? plan : null;
   }
 
+
+
+  function normalizeImportedCoachNote(n){
+    if(!n || typeof n !== 'object') return null;
+    return {
+      id: n.id || uid('coachnote'),
+      coachId: String(n.coachId || 'custom').slice(0, 80),
+      coachTitle: String(n.coachTitle || 'Coach').slice(0, 120),
+      title: String(n.title || 'Imported Coach Note').slice(0, 140),
+      input: String(n.input || '').slice(0, 4000),
+      mode: ['quick','full'].includes(n.mode) ? n.mode : 'quick',
+      contextUsed: n.contextUsed && typeof n.contextUsed === 'object' ? n.contextUsed : {},
+      summary: String(n.summary || '').slice(0, 1600),
+      structuredText: String(n.structuredText || '').slice(0, 9000),
+      source: String(n.source || 'imported').slice(0, 60),
+      createdAt: n.createdAt || new Date().toISOString(),
+      updatedAt: n.updatedAt || n.createdAt || new Date().toISOString()
+    };
+  }
+
   function validateImportPayload(data){
     if(!data || typeof data !== 'object') throw new Error('The selected file is not a valid Navigator Twin JSON object.');
     const chat = Array.isArray(data.chat) ? data.chat.map(normalizeImportedMessage).filter(m => m.content.trim()) : [];
@@ -2696,7 +2861,8 @@ Return only valid JSON with this exact shape:
     const moveComparisonLens = allowedLens.includes(data.moveComparisonLens) ? data.moveComparisonLens : 'balanced';
     const currentMovePlan = normalizeImportedCurrentMovePlan(data.currentMovePlan);
     const prf22Profile = normalizeImportedPrf22Profile(data.prf22Profile || data.prfProfile || null, { fromNavigatorBackup:true });
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan, prf22Profile }; 
+    const coachNotes = Array.isArray(data.coachNotes) ? data.coachNotes.map(normalizeImportedCoachNote).filter(Boolean) : [];
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan, prf22Profile, coachNotes }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -2726,11 +2892,12 @@ Return only valid JSON with this exact shape:
       setMoveComparisonLens(restored.moveComparisonLens || 'balanced');
       setCurrentMovePlan(restored.currentMovePlan && (restored.moveCards || []).some(m => m.id === restored.currentMovePlan.moveId) ? restored.currentMovePlan : null);
       setPrf22Profile(restored.prf22Profile || null);
+      setCoachNotes(restored.coachNotes || []);
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '. PRF-22 profile: ' + (restored.prf22Profile ? 'yes' : 'no') + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '. PRF-22 profile: ' + (restored.prf22Profile ? 'yes' : 'no') + '. Coach notes: ' + (restored.coachNotes || []).length + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -3945,6 +4112,272 @@ Return only valid JSON with this shape:
   window.askTwinAboutMoveCard = askTwinAboutMoveCard;
 
 
+
+  const COACH_DEFS = [
+    {
+      id:'critical-thinking', title:'Critical Thinking Coach', category:'Core Coach',
+      purpose:'Clarify a question, examine evidence, surface assumptions, test alternatives, and form a justified conclusion.',
+      tags:['evidence','assumptions','alternatives'],
+      outputs:'Issue statement, assumptions, evidence map, alternatives, conclusion limits.',
+      steps:['Name the issue or question.','Separate evidence from interpretation.','Identify assumptions and missing information.','Consider alternative explanations or perspectives.','State a justified conclusion and its limits.']
+    },
+    {
+      id:'ethical-reasoning', title:'Ethical Reasoning Coach', category:'Core Coach',
+      purpose:'Reason through an ethical situation using PRF self-awareness, other-perspective mapping, OS1/OS2 coordination, logical reasoning tools, fallacy checks, and agency-preserving next moves.',
+      tags:['PRF','OS1/OS2','fallacies'],
+      outputs:'Ethical issue map, PRF perspective, other PRFs, reasoning lenses, fallacy watch, OS2 bridge, next move.',
+      steps:['Name the ethical situation and who is affected.','Map your own PRF perspective: what seems obvious, important, or threatening from inside your worldview.','Map other PRF perspectives without collapsing them into your own.','Use deduction, induction, abduction, and analogy; note what each contributes and where each can mislead.','Check for common fallacies: straw man, false dilemma, ad hominem, appeal to authority, slippery slope, hasty generalization, confirmation bias, equivocation, red herring, and is/ought confusion.','Distinguish OS1 meaning conflict from OS2 task-level coordination.','Identify an agency-preserving next move that does not require false consensus.']
+    },
+    {
+      id:'core-traditions', title:'Core Ethics Traditions Coach', category:'Core Coach',
+      purpose:'View a dilemma through virtue ethics, deontology, consequentialism, care ethics, social contract, justice, and constructor-oriented agency.',
+      tags:['theories','comparison','limits'],
+      outputs:'Theory comparison, what each lens notices, what each lens misses, possible functional equivalences.',
+      steps:['Describe the dilemma.','Ask what virtue/character sees.','Ask what duty/rights/rules require.','Ask what consequences and harms matter.','Ask what relationships and vulnerabilities need care.','Ask what social contract or justice demands.','Ask what system redesign could preserve agency better next time.']
+    },
+    {
+      id:'ebb-chapter-template', title:'EBB Chapter Coach Template', category:'Template Coach',
+      purpose:'A placeholder template for future EBB chapter-specific coaches without loading the full curriculum yet.',
+      tags:['template','chapter','future'],
+      outputs:'Chapter concept map, key terms, self-reflection, case application, Field Scan suggestion, Move Card suggestion.',
+      steps:['Name the chapter concept.','Identify key terms.','Connect the concept to lived experience.','Apply the concept to a case or dilemma.','Create or recommend a Field Scan.','Prepare a reflection or assignment outline.']
+    },
+    {
+      id:'research-project', title:'Research Project Coach', category:'Core Coach',
+      purpose:'Help organize a research or writing project by identifying themes, open questions, audience, next section, and evidence needs.',
+      tags:['research','writing','next move'],
+      outputs:'Research theme map, unresolved questions, audience fit, next writing move, capsule suggestions.',
+      steps:['State the project and intended audience.','Identify the central thesis or problem.','Name the strongest contribution.','Identify missing evidence or conceptual gaps.','Choose the next section or next research move.','Suggest which documents should become capsules.']
+    }
+  ];
+
+  let currentCoachDraft = null;
+
+  function getCoachDef(id){ return COACH_DEFS.find(c => c.id === id) || COACH_DEFS[1]; }
+
+  function renderCoaches(){
+    const catalog = document.getElementById('coach-catalog');
+    const detail = document.getElementById('coach-active-detail');
+    const list = document.getElementById('coach-notes-list');
+    const summary = document.getElementById('summary-coachNotes');
+    if(!catalog && !detail && !list) return;
+    const activeId = getActiveCoachId();
+    const active = getCoachDef(activeId);
+    if(catalog){
+      catalog.innerHTML = COACH_DEFS.map(c => '<div class="coach-card ' + (c.id === active.id ? 'active' : '') + '" onclick="openCoach(\'' + c.id + '\')">'
+        + '<div class="coach-title">' + escapeHtml(c.title) + '</div>'
+        + '<div class="coach-purpose">' + escapeHtml(c.purpose) + '</div>'
+        + '<div class="coach-tag-row"><span class="coach-tag">' + escapeHtml(c.category) + '</span>' + (c.tags || []).map(t => '<span class="coach-tag">' + escapeHtml(t) + '</span>').join('') + '</div>'
+        + '</div>').join('');
+    }
+    if(detail){
+      detail.innerHTML = '<div class="guided-card"><div class="guided-card-title">' + escapeHtml(active.title) + '</div>'
+        + '<div class="guided-card-text">' + escapeHtml(active.purpose) + '</div>'
+        + '<div class="coach-step-list">' + active.steps.map((s,i) => '<div class="coach-step"><strong>' + (i+1) + '.</strong> ' + escapeHtml(s) + '</div>').join('') + '</div>'
+        + '<div class="privacy-note"><strong>Output:</strong> ' + escapeHtml(active.outputs) + '</div></div>';
+    }
+    const notes = getCoachNotes();
+    if(summary) summary.textContent = notes.length ? notes.length + ' saved Coach Notes. Latest: ' + (notes[notes.length - 1].title || 'Coach Note') : 'No Coach Notes saved yet.';
+    if(list){
+      if(!notes.length){ list.innerHTML = '<div class="empty">No saved Coach Notes yet. Run a Coach session and save the output when it is useful.</div>'; return; }
+      list.innerHTML = notes.slice().reverse().map(n => '<div class="coach-note">'
+        + '<div class="coach-note-meta">' + escapeHtml(n.coachTitle || 'Coach') + ' · ' + escapeHtml(new Date(n.createdAt || Date.now()).toLocaleString()) + ' · ' + escapeHtml(n.source || 'local') + '</div>'
+        + '<div class="move-card-title">' + escapeHtml(n.title || 'Coach Note') + '</div>'
+        + '<div class="capsule-summary">' + escapeHtml(n.summary || truncateText(n.structuredText || '', 260)) + '</div>'
+        + '<div class="entry-actions"><button class="btn small ghost" type="button" onclick="viewCoachNote(\'' + n.id + '\')">View</button><button class="btn small ghost" type="button" onclick="askTwinAboutCoachNote(\'' + n.id + '\')">Ask Twin</button><button class="btn small ghost" type="button" onclick="createJournalFromCoachNote(\'' + n.id + '\')">Journal Seed</button><button class="btn small danger" type="button" onclick="deleteCoachNote(\'' + n.id + '\')">Delete</button></div>'
+        + '</div>').join('');
+    }
+  }
+
+  function openCoach(id){
+    setActiveCoachId(id);
+    currentCoachDraft = null;
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = 'Coach selected. Describe the situation or task, choose context, then build a local note or ask the AI-assisted coach.';
+    renderCoaches();
+    showWorkspace('apps');
+  }
+  window.openCoach = openCoach;
+
+  function coachContextSelections(){
+    function checked(id){ const el = document.getElementById(id); return !!(el && el.checked); }
+    return { journal:checked('coach-ctx-journal'), prf22:checked('coach-ctx-prf'), capsules:checked('coach-ctx-capsules'), fields:checked('coach-ctx-fields'), context:checked('coach-ctx-context'), moves:checked('coach-ctx-moves') };
+  }
+
+  function gatherCoachContext(sel){
+    sel = sel || coachContextSelections();
+    const ctx = {};
+    if(sel.journal) ctx.twinJournal = getJournal().slice(-14).map(j => ({ text:j.text, category:j.category, confidence:j.confidence }));
+    if(sel.prf22) ctx.prf22Profile = getTwinSafePrf22Summary();
+    if(sel.capsules) ctx.documentCapsules = getCapsules().slice(-8).map(c => ({ title:c.title, mode:c.mode, summary:c.summary, themes:c.themes, projectPurpose:c.projectPurpose }));
+    if(sel.fields) ctx.fieldMap = { summary:buildFieldMapSummary(getFieldScans()), scans:getFieldScans().slice(-8).map(s => ({ title:s.title, fieldType:getFieldTypeLabel(s.scanType), environment:s.environment, suppressionGap:s.suppressionGap, riskLevel:s.riskLevel, stressLoad:s.stressLoad, summary:s.summary, nextMove:s.nextMove, bioBond:s.bioBond })) };
+    if(sel.context) ctx.contextAssembly = getContextAssembly();
+    if(sel.moves) ctx.moves = { current:getMoveById(getCurrentMoveId()) || null, currentMovePlan:getCurrentMovePlan(), saved:getMoveCards().slice(-8) };
+    return ctx;
+  }
+
+  function coachSystemPrompt(def){
+    let base = 'You are a Navigator Coach inside a local-first agency app. You are not a therapist, grader, legal advisor, medical advisor, or final authority. Help the user think clearly while preserving authorship. Be structured, concrete, humble, and practical. Do not write as if you know more about the user than the provided context supports. Distinguish what is given, what is inferred, and what remains uncertain. End with one next question or next action.';
+    if(def.id === 'ethical-reasoning'){
+      base += '\n\nFor the Ethical Reasoning Coach, explicitly include: (1) ethical issue recognition, (2) the user\'s PRF perspective, (3) other possible PRF perspectives, (4) deduction, induction, abduction, and analogy as reasoning lenses, (5) common logical fallacies and cognitive distortions relevant to ethical reasoning, including straw man, false dilemma, ad hominem, appeal to authority, slippery slope, hasty generalization, confirmation bias, equivocation, red herring, and is/ought confusion, (6) OS1 shared-meaning conflict versus OS2 task-level coordination, and (7) one agency-preserving next move. Make clear that OS2 coordination is not forced OS1 agreement.';
+    }
+    return base;
+  }
+
+  function buildCoachPrompt(def, input, mode, sel){
+    return JSON.stringify({
+      coach: { id:def.id, title:def.title, purpose:def.purpose, steps:def.steps, outputs:def.outputs },
+      mode: mode,
+      userTask: input,
+      selectedContextNotice: 'Only the selected context below is included. Treat it as partial and revisable.',
+      context: gatherCoachContext(sel),
+      requestedFormat: 'Use clear headings. Provide a structured Coach Note with: Situation/Task, Key Distinctions, Reasoning or Framework Map, Risks/Blind Spots, OS1/OS2 or Coordination Notes when relevant, Possible Next Move, and One Question to Continue.'
+    }, null, 2);
+  }
+
+  function buildLocalStructuredText(def, input, mode, sel){
+    const ctx = gatherCoachContext(sel);
+    const prfActive = !!(ctx.prf22Profile && ctx.prf22Profile.active !== false);
+    const fieldCount = ctx.fieldMap && ctx.fieldMap.scans ? ctx.fieldMap.scans.length : 0;
+    const moveCount = ctx.moves && ctx.moves.saved ? ctx.moves.saved.length : 0;
+    if(def.id === 'ethical-reasoning'){
+      return 'Ethical Reasoning Coach Note\n\nSituation / Ethical Issue:\n' + (input || '[Add the ethical situation here.]')
+        + '\n\nMy PRF Perspective:\nWhat feels obvious or morally salient from inside my own PRF? ' + (prfActive ? 'A PRF-22 profile is available as a starting map, not a verdict.' : 'No PRF-22 profile is active; use conversation and self-description instead.')
+        + '\n\nOther PRF Perspectives:\nWho else is involved, and how might their meanings, loyalties, duties, fears, evidence policies, or constraints differ from mine?'
+        + '\n\nReasoning Lenses:\nDeduction: What follows if a principle, duty, right, or rule is accepted? Limit: a bad or incomplete principle can mislead.\nInduction: What patterns from experience or cases suggest likely outcomes? Limit: past patterns may not fit this case.\nAbduction: What is the best explanation of what is happening? Limit: my PRF may bias what counts as best.\nAnalogy: What similar case illuminates this one? Limit: weak analogies hide morally relevant differences.'
+        + '\n\nFallacy / Distortion Watch:\nCheck for straw man, false dilemma, ad hominem, appeal to authority, slippery slope, hasty generalization, confirmation bias, equivocation, red herring, and is/ought confusion. Ask: which one would most distort this situation?'
+        + '\n\nOS1 / OS2 Map:\nOS1: Where is there disagreement about meaning, values, identity, or worldview?\nOS2: What task-level bridge might still allow coordination without pretending full agreement?'
+        + '\n\nAgency-Preserving Next Move:\nName the smallest action that preserves evidence, dignity, relationship, safety, or future agency without requiring false consensus.\n\nContext available: ' + fieldCount + ' field scans, ' + moveCount + ' move cards.';
+    }
+    if(def.id === 'critical-thinking'){
+      return 'Critical Thinking Coach Note\n\nQuestion / Issue:\n' + (input || '[State the question.]') + '\n\nEvidence:\nWhat evidence do I have, and how reliable is it?\n\nAssumptions:\nWhat am I taking for granted?\n\nAlternatives:\nWhat else might explain the situation?\n\nConclusion and Limits:\nWhat can I responsibly conclude now, and what should remain open?';
+    }
+    if(def.id === 'core-traditions'){
+      return 'Core Ethics Traditions Coach Note\n\nDilemma:\n' + (input || '[Describe the dilemma.]') + '\n\nVirtue Ethics: What kind of person or character is called for?\nDeontology: What duty, right, rule, or respect requirement is active?\nConsequentialism: What harms, benefits, and downstream effects matter?\nCare Ethics: Whose vulnerability, relationship, or dependence needs attention?\nSocial Contract / Justice: What fair terms or institutional duties are implicated?\nConstructor / Agency Lens: What redesign would make better action more possible next time?\n\nFunctional Equivalence: Where do different traditions support a similar practical move?';
+    }
+    if(def.id === 'research-project'){
+      return 'Research Project Coach Note\n\nProject / Question:\n' + (input || '[Name the project.]') + '\n\nCentral Contribution:\nWhat is this work trying to make visible or possible?\n\nAudience:\nWho needs this, and what will they need to understand first?\n\nOpen Questions:\nWhat is unclear, under-supported, or still too abstract?\n\nNext Writing / Research Move:\nWhat small section, outline, source check, or capsule should come next?';
+    }
+    return 'EBB Chapter Coach Template Note\n\nChapter Concept:\n' + (input || '[Name the chapter concept or assignment.]') + '\n\nKey Terms:\n[List terms.]\n\nLived Connection:\nHow does this concept connect to experience?\n\nCase Application:\nWhat case or dilemma tests the idea?\n\nField Scan Suggestion:\nWhat environment should be scanned?\n\nMove / Reflection Output:\nWhat should the student produce next?';
+  }
+
+  function summarizeCoachText(text){
+    const clean = String(text || '').replace(/\s+/g, ' ').trim();
+    return truncateText(clean, 260) || 'Coach note created.';
+  }
+
+  function buildLocalCoachNote(){
+    const def = getCoachDef(getActiveCoachId());
+    const inputEl = document.getElementById('coach-input');
+    const modeEl = document.getElementById('coach-depth');
+    const input = inputEl ? inputEl.value.trim() : '';
+    const mode = modeEl ? modeEl.value : 'quick';
+    const sel = coachContextSelections();
+    const structuredText = buildLocalStructuredText(def, input, mode, sel);
+    currentCoachDraft = { id:uid('coachdraft'), coachId:def.id, coachTitle:def.title, title:def.title + ' — ' + new Date().toLocaleDateString(), input, mode, contextUsed:sel, summary:summarizeCoachText(structuredText), structuredText, source:'local', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = structuredText;
+  }
+  window.buildLocalCoachNote = buildLocalCoachNote;
+
+  async function askCoachWithAI(){
+    const def = getCoachDef(getActiveCoachId());
+    const inputEl = document.getElementById('coach-input');
+    const modeEl = document.getElementById('coach-depth');
+    const input = inputEl ? inputEl.value.trim() : '';
+    if(!input && !confirm('No situation/task text is entered. Continue using only selected local context?')) return;
+    const mode = modeEl ? modeEl.value : 'quick';
+    const sel = coachContextSelections();
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = 'Coach is assembling a structured response…';
+    try {
+      const reply = await callBackend(coachSystemPrompt(def), buildCoachPrompt(def, input, mode, sel), mode === 'full' ? 1500 : 950);
+      const structuredText = reply || buildLocalStructuredText(def, input, mode, sel);
+      currentCoachDraft = { id:uid('coachdraft'), coachId:def.id, coachTitle:def.title, title:def.title + ' — ' + new Date().toLocaleDateString(), input, mode, contextUsed:sel, summary:summarizeCoachText(structuredText), structuredText, source:'ai-assisted', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
+      if(out) out.textContent = structuredText;
+    } catch(e) {
+      setBackendStatus('bad', 'Backend unavailable');
+      const structuredText = buildLocalStructuredText(def, input, mode, sel) + '\n\n[Local fallback used because backend was unavailable.]';
+      currentCoachDraft = { id:uid('coachdraft'), coachId:def.id, coachTitle:def.title, title:def.title + ' — ' + new Date().toLocaleDateString(), input, mode, contextUsed:sel, summary:summarizeCoachText(structuredText), structuredText, source:'local-fallback', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
+      if(out) out.textContent = structuredText;
+    }
+  }
+  window.askCoachWithAI = askCoachWithAI;
+
+  function clearCoachDraft(){
+    currentCoachDraft = null;
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = 'Draft cleared. Choose a coach and build a new note when ready.';
+  }
+  window.clearCoachDraft = clearCoachDraft;
+
+  function saveCurrentCoachNote(){
+    if(!currentCoachDraft){ alert('Build a local note or ask the Coach first.'); return; }
+    const note = Object.assign({}, currentCoachDraft, { id:uid('coachnote'), savedAt:new Date().toISOString() });
+    setCoachNotes(getCoachNotes().concat([note]));
+    currentCoachDraft = Object.assign({}, note);
+    renderCoaches();
+    renderWorkspaceDashboard();
+  }
+  window.saveCurrentCoachNote = saveCurrentCoachNote;
+
+  function sendCurrentCoachDraftToTwin(){
+    if(!currentCoachDraft){ alert('Build a Coach output first.'); return; }
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = 'I created this Coach draft. Please help me reflect on it without deciding for me. What seems most important, what might be missing, and what one question should I consider next?\n\n' + currentCoachDraft.structuredText;
+      input.focus();
+    }
+  }
+  window.sendCurrentCoachDraftToTwin = sendCurrentCoachDraftToTwin;
+
+  function viewCoachNote(id){
+    const note = getCoachNotes().find(n => n.id === id);
+    if(!note) return;
+    currentCoachDraft = Object.assign({}, note);
+    setActiveCoachId(note.coachId || getActiveCoachId());
+    showWorkspace('apps');
+    renderCoaches();
+    const out = document.getElementById('coach-output');
+    if(out) out.textContent = note.structuredText || note.summary || '';
+    const input = document.getElementById('coach-input');
+    if(input) input.value = note.input || '';
+  }
+  window.viewCoachNote = viewCoachNote;
+
+  function askTwinAboutCoachNote(id){
+    const note = getCoachNotes().find(n => n.id === id);
+    if(!note) return;
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = 'I saved this Coach Note. Please help me reflect on it as my Twin. Do not decide for me. Identify the most important pattern, the main blind spot or risk, and one concrete question I should answer next.\n\n' + (note.structuredText || note.summary || '');
+      input.focus();
+    }
+  }
+  window.askTwinAboutCoachNote = askTwinAboutCoachNote;
+
+  function createJournalFromCoachNote(id){
+    const note = getCoachNotes().find(n => n.id === id);
+    if(!note) return;
+    const text = prompt('Create a cautious Twin Journal seed from this Coach Note:', 'seems to be using ' + (note.coachTitle || 'a Coach') + ' to clarify agency, reasoning, and next moves');
+    if(text === null) return;
+    const entry = { id:uid('journal'), text:sanitizeJournalText(text), category:'ethics', confidence:.62, sourceTurnIds:[], timestamp:new Date().toISOString() };
+    setJournal(getJournal().concat([entry]));
+    recalculateCoverageFromJournal();
+    renderAll();
+  }
+  window.createJournalFromCoachNote = createJournalFromCoachNote;
+
+  function deleteCoachNote(id){
+    if(!confirm('Delete this Coach Note?')) return;
+    setCoachNotes(getCoachNotes().filter(n => n.id !== id));
+    renderCoaches();
+    renderWorkspaceDashboard();
+  }
+  window.deleteCoachNote = deleteCoachNote;
+
   function buildFictionalDemoData(){
     const now = new Date();
     const iso = now.toISOString();
@@ -3991,12 +4424,13 @@ Return only valid JSON with this shape:
       summary:'Demo PRF-22 baseline: strongest recognized pulls are Care/Harm and Fairness/Reciprocity, with evidence-seeking reasoning, moderate stress resilience, and cautious institutional trust. Treat this as a starting map, not a verdict.',
       raw:null
     };
+    const coachNotes = [{ id:'demo_coach_note_1', coachId:'ethical-reasoning', coachTitle:'Ethical Reasoning Coach', title:'Ethical Reasoning Demo Note', input:'Should the fictional student use AI to finish quickly under deadline pressure?', mode:'quick', contextUsed:{ journal:true, prf22:true, fields:true, context:true }, summary:'Maps the issue as a PRF-sensitive conflict between survival pressure, authorship, and OS2 coordination with the course requirements.', structuredText:'Ethical Reasoning Coach Note\n\nSituation / Ethical Issue:\nThe fictional student feels pressure to use AI as the fastest route under deadline stress.\n\nMy PRF Perspective:\nMeaning, authorship, care, and fairness are highly salient.\n\nReasoning Lenses:\nDeduction asks what academic integrity requires. Induction asks what deadline pressure usually produces. Abduction asks whether the behavior is best explained as dishonesty or survival pressure. Analogy compares this to other institutional environments where performance theater crowds out learning.\n\nFallacy Watch:\nAvoid false dilemma: either pure original work or total cheating. Avoid hasty generalization about student character.\n\nOS1 / OS2:\nOS1 disagreement may concern what counts as authentic authorship. OS2 bridge may be a transparent AI-use plan that preserves learning while meeting course tasks.\n\nAgency-Preserving Next Move:\nAsk one clarifying question and create a plan for what AI may and may not do.', source:'demo', createdAt:iso, updatedAt:iso }];
     const currentMovePlan = { id:'demo_plan_1', moveId:move1, moveTitle:'Clarify assignment scope before acting', field:'Course Deadline Pressure', whyNow:'This move is worth considering now because school pressure is high and ambiguity is pushing the user toward the fastest acceptable output. Clarification may preserve authorship without requiring a major confrontation.', firstSmallAction:'Draft a two-sentence clarification message asking what counts as original contribution and what must be completed first.', supportNeeded:'A study partner or trusted reviewer can check that the message is concise and not over-explained.', riskToWatch:'Watch for pressure to apologize excessively or accept unclear expectations without question.', whatNotToSacrifice:'Do not sacrifice authorship, dignity, or the right to understand the demand before responding.', pauseOrReviseIf:'Pause if the reply creates new risk, if stress spikes, or if a simpler stabilizing action becomes necessary first.', checkBack:'Check back within 24 hours.', status:'draft', createdAt:iso, updatedAt:iso };
-    return { chat, journal, coverage, questions:extractQuestionsFromChat(chat), mode:'twin_asks', documentCapsules:capsules, fieldScans, contextAssembly, moveCards, pendingMoveCards:[], currentMoveId:move1, moveCompareSelection:[move1,move2,move3], moveComparisonLens:'balanced', currentMovePlan, prf22Profile };
+    return { chat, journal, coverage, questions:extractQuestionsFromChat(chat), mode:'twin_asks', documentCapsules:capsules, fieldScans, contextAssembly, moveCards, pendingMoveCards:[], currentMoveId:move1, moveCompareSelection:[move1,move2,move3], moveComparisonLens:'balanced', currentMovePlan, prf22Profile, coachNotes };
   }
 
   function loadDemoData(){
-    const existing = getChat().length + getJournal().length + getCapsules().length + getFieldScans().length + getMoveCards().length;
+    const existing = getChat().length + getJournal().length + getCapsules().length + getFieldScans().length + getMoveCards().length + getCoachNotes().length;
     const warning = existing ? 'Load fictional demo data? This will replace the current local Navigator memory in this browser. Export JSON first if you want to keep your current work.' : 'Load fictional demo data into this browser?';
     if(!confirm(warning)) return;
     const demo = buildFictionalDemoData();
@@ -4014,6 +4448,7 @@ Return only valid JSON with this shape:
     setMoveComparisonLens(demo.moveComparisonLens);
     setCurrentMovePlan(demo.currentMovePlan);
     setPrf22Profile(demo.prf22Profile || null);
+    setCoachNotes(demo.coachNotes || []);
     clearPendingCapsule();
     try { localStorage.setItem(KEYS.mode, demo.mode); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
     showWorkspace('home');
@@ -4023,8 +4458,8 @@ Return only valid JSON with this shape:
   window.loadDemoData = loadDemoData;
 
   function clearTwinMemory(){
-    if(!confirm('Clear the Twin conversation, journal, PRF-22 profile, capsules, field scans, context assembly, move cards, and comparison selections from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.prf22Profile, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    if(!confirm('Clear the Twin conversation, journal, PRF-22 profile, capsules, field scans, context assembly, move cards, coach notes, and comparison selections from this browser?')) return;
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.prf22Profile, KEYS.coachNotes, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
