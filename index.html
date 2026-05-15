@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.7 Cross-Field Move Comparison</title>
-  <meta name="description" content="Navigator Twin v2.7 Cross-Field Move Comparison — no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.7.1 Stable Guided Workflow</title>
+  <meta name="description" content="Navigator Twin v2.7.1 Stable Guided Workflow — stabilization, usability guidance, and current move visibility; no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -131,6 +131,46 @@
     .home-flow-step strong { display: block; color: var(--gold); font: 900 .68rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
     .quick-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
     .workspace-note { border-left: 3px solid rgba(96,163,111,.55); background: rgba(96,163,111,.06); color: var(--muted); border-radius: 0 14px 14px 0; padding: 12px; line-height: 1.55; }
+
+    .guided-card {
+      margin-top: 14px;
+      border: 1px solid rgba(201,168,76,.24);
+      background:
+        radial-gradient(520px 210px at 0% 0%, rgba(201,168,76,.09), transparent 70%),
+        rgba(255,255,255,.035);
+      border-radius: 16px;
+      padding: 13px;
+    }
+    .guided-card-title { font-family: var(--serif); font-size: 1.18rem; line-height: 1.15; margin: 0 0 7px; color: var(--text); }
+    .guided-card-text { color: var(--muted); font-size: .9rem; line-height: 1.55; margin-bottom: 10px; }
+    .workflow-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 8px; }
+    .workflow-step {
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(6,11,24,.22);
+      border-radius: 13px;
+      padding: 9px;
+      color: var(--muted);
+      font-size: .79rem;
+      line-height: 1.33;
+    }
+    .workflow-step strong { display: block; color: var(--gold); font: 900 .66rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+    .current-move-banner {
+      margin-top: 14px;
+      border: 1px solid rgba(13,94,87,.46);
+      background:
+        radial-gradient(560px 210px at 0% 0%, rgba(13,94,87,.16), transparent 70%),
+        rgba(13,94,87,.07);
+      border-radius: 16px;
+      padding: 13px;
+    }
+    .current-move-title { font-weight: 900; color: var(--text); margin-bottom: 5px; }
+    .current-move-text { color: var(--muted); font-size: .9rem; line-height: 1.5; }
+    .readiness-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-top: 14px; }
+    .readiness-item { border: 1px solid var(--line); background: rgba(255,255,255,.035); border-radius: 13px; padding: 10px; color: var(--muted); font-size: .82rem; line-height: 1.35; }
+    .readiness-item.ready { border-color: rgba(96,163,111,.36); background: rgba(96,163,111,.06); }
+    .readiness-item.waiting { border-color: rgba(201,168,76,.22); background: rgba(201,168,76,.045); }
+    .readiness-item strong { display:block; color: var(--text); font: 900 .66rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+    .help-list { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: .9rem; line-height: 1.55; }
 
     .card {
       background: rgba(17,28,51,.84);
@@ -503,6 +543,8 @@
 
       .home-dashboard { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .home-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .workflow-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .readiness-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
 
     }
 
@@ -527,6 +569,8 @@
       }
       .home-dashboard { grid-template-columns: 1fr; }
       .home-flow { grid-template-columns: 1fr; }
+      .workflow-grid { grid-template-columns: 1fr; }
+      .readiness-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -534,9 +578,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.7 · Cross-Field Moves</div>
+        <div class="eyebrow">Navigator Twin v2.7.1 Stable · Guided Workflow</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build adds Cross-Field Move Comparison so users can compare possible moves across life fields using simple decision lenses while keeping the Twin, memory, Field Map, Context Assembly, and Move Card logic intact.</div>
+        <div class="subtitle">This stabilization build preserves the full agency-navigation loop and adds clearer guidance, readiness checks, and Current Move visibility so users can understand what to do next without being overwhelmed.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -593,6 +637,21 @@
         <div class="card-body">
           <div class="workspace-note"><strong>Current design principle:</strong> Navigator should always show where you are in the cycle: understanding self, remembering evidence, mapping fields, assembling context, or choosing a move.</div>
           <div id="home-dashboard" class="home-dashboard"></div>
+          <div id="home-current-move" class="current-move-banner"></div>
+          <div id="home-readiness" class="readiness-grid"></div>
+          <div class="guided-card">
+            <div class="guided-card-title">Guided workflow: from reflection to action</div>
+            <div class="guided-card-text">Navigator works best when you build enough of the map for the Twin to deliberate with you. You do not need to complete everything at once, but the loop becomes stronger as each step is filled in.</div>
+            <div class="workflow-grid">
+              <div class="workflow-step"><strong>1 · Talk</strong>Let the Twin learn enough about your values and patterns to be useful.</div>
+              <div class="workflow-step"><strong>2 · Remember</strong>Review Journal entries and Document Capsules so the Twin has grounding.</div>
+              <div class="workflow-step"><strong>3 · Map</strong>Create Field Scans for the environments shaping your agency.</div>
+              <div class="workflow-step"><strong>4 · Assemble</strong>Name what all the fields create together in your current situation.</div>
+              <div class="workflow-step"><strong>5 · Generate</strong>Create Move Cards from relevant Field Scans.</div>
+              <div class="workflow-step"><strong>6 · Compare</strong>Use decision lenses to compare possible moves across fields.</div>
+              <div class="workflow-step"><strong>7 · Deliberate</strong>Set a Current Move and ask the Twin to think it through with you.</div>
+            </div>
+          </div>
           <div class="home-flow">
             <div class="home-flow-step"><strong>Talk</strong>Begin or continue the Twin conversation.</div>
             <div class="home-flow-step"><strong>Remember</strong>Review Journal entries and Document Capsules.</div>
@@ -846,6 +905,16 @@
           <div class="card-desc">Generate Move Cards from saved Field Scans, then compare possible moves across fields without letting the app decide for you.</div>
         </div>
         <div class="card-body">
+          <div class="workspace-note"><strong>Move comparison is a map, not a command.</strong> Use this workspace after you have at least two saved Move Cards. The decision lenses help you notice different kinds of reasons: urgency, future agency, suppression relief, support readiness, and low-risk first steps. You remain the chooser.</div>
+          <div class="guided-card">
+            <div class="guided-card-title">How to use Moves without getting lost</div>
+            <div class="guided-card-text">Start with one Field Scan and generate a few Move Cards. Save only the cards that feel plausible. When you have moves from more than one field, compare two to four at a time, set one Current Move, then ask the Twin to deliberate with you.</div>
+            <ul class="help-list">
+              <li><strong>Move Cards</strong> show possible agency-preserving actions inside one field.</li>
+              <li><strong>Cross-Field Comparison</strong> helps you see which saved moves may matter now across your larger context.</li>
+              <li><strong>Current Move</strong> means “the move I am presently considering,” not “the app has chosen for me.”</li>
+            </ul>
+          </div>
 
             <div class="subpanel-shell" id="move-comparison-shell">
               <div class="subpanel-header">
@@ -934,6 +1003,7 @@
                 <li>Upload a document if you want the Twin to understand a project or research style.</li>
                 <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
                 <li>Generate Move Cards from saved Field Scans, then use <strong>Cross-Field Move Comparison</strong> to compare two to four possible moves.</li>
+                <li>Set one <strong>Current Move</strong> when you are ready to deliberate. Current does not mean final; it means “the move I am now considering.”</li>
                 <li>Export JSON before changing browsers, devices, or clearing memory.</li>
               </ol>
             </div>
@@ -979,7 +1049,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.7 Cross-Field Move Comparison Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.7.1 Stable Guided Workflow Build.</div>
           </div>
         </div>
         </aside>
@@ -995,7 +1065,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.7 Cross-Field Move Comparison';
+  const APP_VERSION = 'Navigator Twin v2.7.1 Stable Guided Workflow';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1437,6 +1507,7 @@
     const capsules = getCapsules();
     const scans = getFieldScans();
     const moves = getMoveCards();
+    const activeMoves = moves.filter(m => !m.notNow);
     const ctx = getContextAssembly();
     const summary = buildFieldMapSummary(scans);
     const stage = getStage(journal.length);
@@ -1447,13 +1518,34 @@
       ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
       ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
       ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
-      ['Moves', moves.length + ' saved', currentMove ? 'Current: ' + truncateText(currentMove.title || 'Current move', 88) : nextHint],
+      ['Move Cards', moves.length + ' saved', activeMoves.length + ' active · ' + (moves.length - activeMoves.length) + ' not now'],
       ['Context Assembly', ctx.text ? 'saved' : 'not yet saved', ctx.text ? truncateText(ctx.text, 96) : 'Use Field Map to name the combined situation.'],
       ['Largest gap', largest ? largest.suppressionGap : 'none', largest ? truncateText(largest.title || largest.environment || 'Field Scan', 96) : 'No suppression gap mapped yet.'],
       ['Next workspace', moves.length ? 'Moves' : scans.length ? 'Moves / Field' : 'Field Map', nextHint],
       ['Privacy posture', 'local-first', 'Memory remains in this browser unless you export or ask the Twin.']
     ];
     box.innerHTML = cards.map(([label,value,note]) => '<div class="home-metric"><div class="home-metric-label">' + escapeHtml(label) + '</div><div class="home-metric-value">' + escapeHtml(String(value)) + '</div><div class="home-metric-note">' + escapeHtml(String(note)) + '</div></div>').join('');
+
+    const currentBox = document.getElementById('home-current-move');
+    if(currentBox){
+      if(currentMove){
+        const field = currentMove.fieldTitle || currentMove.scanTitle || currentMove.fieldType || 'selected field';
+        currentBox.innerHTML = '<div class="current-move-title">Current Move: ' + escapeHtml(currentMove.title || 'Untitled move') + '</div><div class="current-move-text">Field: ' + escapeHtml(field) + '. This is the move currently being considered, not a command. Use the Moves workspace to deliberate, revise, clear it, or ask the Twin about it.</div><div class="quick-actions"><button class="btn small primary" type="button" onclick="showWorkspace(\'moves\')">Review Current Move</button><button class="btn small ghost" type="button" onclick="askTwinAboutMoveCard(\'' + escapeHtml(currentMove.id) + '\', false)">Ask Twin About Current Move</button></div>';
+      } else {
+        currentBox.innerHTML = '<div class="current-move-title">No Current Move selected yet.</div><div class="current-move-text">When you compare moves, you can mark one as the move you are presently considering. Navigator will keep it visible here so you do not have to hunt for it.</div>';
+      }
+    }
+
+    const readiness = document.getElementById('home-readiness');
+    if(readiness){
+      const items = [
+        { label:'2+ Field Scans', ready: scans.length >= 2, note: scans.length >= 2 ? scans.length + ' mapped' : 'Map at least two life fields for comparison.' },
+        { label:'2+ Move Cards', ready: moves.length >= 2, note: moves.length >= 2 ? moves.length + ' saved' : 'Generate moves from saved scans.' },
+        { label:'Context Assembly', ready: !!ctx.text, note: ctx.text ? 'Combined context saved' : 'Name what the fields create together.' },
+        { label:'Current Move', ready: !!currentMove, note: currentMove ? truncateText(currentMove.title || 'selected', 60) : 'Set one move as current when ready.' }
+      ];
+      readiness.innerHTML = items.map(item => '<div class="readiness-item ' + (item.ready ? 'ready' : 'waiting') + '"><strong>' + (item.ready ? '✓ ' : '○ ') + escapeHtml(item.label) + '</strong>' + escapeHtml(item.note) + '</div>').join('');
+    }
   }
 
   function isWelcomeDismissed(){
