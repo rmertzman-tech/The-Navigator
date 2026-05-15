@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>The Navigator — Twin v3.1 Daily Coherence Pulse</title>
-  <meta name="description" content="Navigator Twin v3.1 — Daily Coherence Pulse adds a seven-signal daily check-in with Beauty/Awe/Meaning, trend memory, ABCD thought, and Twin integration; no service worker in this stable fallback build." />
+  <meta name="description" content="Navigator Twin v3.1.1.1 — Daily Coherence Pulse Patch adds a seven-signal daily check-in with Beauty/Awe/Meaning, trend memory, ABCD thought, and Twin integration; no service worker in this stable fallback build." />
   <style>
     :root {
       --void: #060b18;
@@ -744,7 +744,7 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v3.1 · Daily Coherence Pulse</div>
+        <div class="eyebrow">Navigator Twin v3.1.1 · Daily Coherence Pulse</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
         <div class="subtitle">This build adds the Daily Coherence Pulse: seven quick signals, including Beauty/Awe/Meaning, to help the Twin notice the conditions of agency over time while keeping the Twin Conversation as the central coherence engine.</div>
       </div>
@@ -1380,7 +1380,7 @@
         <div id="release-notes-card" class="card" style="margin-top:18px;">
           <div class="card-header">
             <div class="eyebrow">Stable feature build package</div>
-            <div class="card-title">Navigator Twin v3.1 — Daily Coherence Pulse</div>
+            <div class="card-title">Navigator Twin v3.1.1.1 — Daily Coherence Pulse Patch</div>
             <div class="card-desc">This build preserves the complete agency-navigation loop and adds the Daily Coherence Pulse: seven quick local check-ins, including Beauty/Awe/Meaning, with trend memory, ABCD thought, and Twin integration. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
           </div>
           <div class="card-body">
@@ -1516,7 +1516,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.1 — Daily Coherence Pulse Shell.</div>
+            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v3.1.1.1 — Daily Coherence Pulse Patch Shell.</div>
           </div>
         </div>
         </aside>
@@ -1532,7 +1532,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v3.1 — Daily Coherence Pulse Build';
+  const APP_VERSION = 'Navigator Twin v3.1.1.1 — Daily Coherence Pulse Patch Build';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -2538,7 +2538,7 @@
     const relational = document.getElementById('pulse-relational-question');
     if(relational) relational.style.display = pulseShouldShowRelationalQuestion() ? 'block' : 'none';
     const summary = buildCoherencePulseSummary();
-    setText('summary-coherencePulse', summary.summary);
+    setPanelSummary('summary-coherencePulse', summary.summary);
     const latestBox = document.getElementById('pulse-latest-summary');
     if(latestBox){
       if(!summary.latest){
