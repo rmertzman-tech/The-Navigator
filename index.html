@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.8 Current Move Deliberation</title>
-  <meta name="description" content="Navigator Twin v2.8 Current Move Deliberation — adds a Current Move Plan layer while preserving the full agency-navigation loop; no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.9 PRF-22 Profile Import</title>
+  <meta name="description" content="Navigator Twin v2.9 — PRF-22 Profile Import adds local PRF-22 / E-Twin profile import to the stable agency-navigation loop; no service worker in this stable fallback build." />
   <style>
     :root {
       --void: #060b18;
@@ -282,6 +282,25 @@
       padding: 4px 7px;
       font-size: .72rem;
     }
+
+    .profile-card {
+      margin-top: 12px;
+      border: 1px solid rgba(124,58,237,.35);
+      background:
+        radial-gradient(420px 180px at 0% 0%, rgba(124,58,237,.12), transparent 70%),
+        rgba(255,255,255,.035);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .profile-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom: 8px; }
+    .profile-title { color: var(--text); font-weight: 800; line-height: 1.3; }
+    .profile-subtitle { color: var(--dim); font: 700 .62rem/1.4 var(--mono); letter-spacing:.08em; text-transform:uppercase; margin-top:4px; }
+    .profile-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 10px; }
+    .profile-metric { border:1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 8px; background: rgba(6,11,24,.35); }
+    .profile-metric-label { font: 800 .6rem/1.2 var(--mono); color: var(--dim); text-transform: uppercase; letter-spacing:.08em; margin-bottom: 4px; }
+    .profile-metric-value { color: var(--text); font-weight: 750; font-size:.88rem; line-height:1.35; }
+    .profile-summary { color: var(--muted); font-size: .9rem; line-height:1.6; margin-top: 10px; }
+    .profile-warning { color: #ead79a; font-size: .82rem; line-height:1.55; margin-top: 9px; border-left: 3px solid rgba(201,168,76,.45); padding-left: 10px; }
     .status-line { color: var(--muted); font-size: .84rem; margin-top: 9px; }
     .select-row { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
     select {
@@ -572,6 +591,7 @@
       .two-col { grid-template-columns: 1fr; }
       .welcome-grid { grid-template-columns: 1fr; }
       .glossary-item { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
 
       .home-dashboard { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .home-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
@@ -611,14 +631,15 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.8 · Current Move Deliberation</div>
+        <div class="eyebrow">Navigator Twin v2.9 · PRF-22 Profile Import Build</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This build preserves the full agency-navigation loop and adds a Current Move Deliberation layer so the user can turn a selected Current Move into a small, revisable, agency-preserving action plan.</div>
+        <div class="subtitle">This build preserves the stable agency-navigation loop and adds PRF-22 / E-Twin profile import as a local-first memory source for the Twin, Field Scans, Move Cards, and future Coaches.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
         <button class="btn small ghost" type="button" onclick="testBackendConnection()">Test connection</button>
         <button class="btn small ghost" type="button" onclick="openHelpPanel()">Help / Quick Start</button>
+        <button class="btn small purple" type="button" onclick="openReleaseNotes()">About / Release</button>
         <span class="pill"><span class="dot ok"></span><span id="save-label">Saved locally</span></span>
       </div>
     </div>
@@ -699,6 +720,7 @@
             <button class="btn small ghost" type="button" onclick="showWorkspace('field')">Build Field Map</button>
             <button class="btn small purple" type="button" onclick="showWorkspace('moves')">Review Moves</button>
             <button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export JSON Backup</button>
+            <button class="btn small purple" type="button" onclick="loadDemoData()">Load Fictional Demo</button>
           </div>
         </div>
       </div>
@@ -787,6 +809,28 @@
         </div>
         </div>
         <aside class="side-panel">
+
+        <div class="card" style="margin-top:18px;">
+          <div class="card-header">
+            <div class="card-title">PRF-22 / E-Twin Profile</div>
+            <div class="card-desc">Import a PRF-22 JSON profile as a local-first ethical-perception baseline. The profile is treated as a hypothesis, not a verdict.</div>
+            <details class="help-note"><summary>What is this?</summary><div class="help-note-body"><p>The PRF-22 profile can seed the Twin with a starting map of moral foundations, reasoning style, ATCF/coherence indicators, trust orientation, and growth questions. Navigator stores it locally and sends only a brief summary to the backend when you allow it to be included in Twin context.</p></div></details>
+          </div>
+          <div class="card-body">
+            <div class="toolbar">
+              <button class="btn small primary" type="button" onclick="triggerImportPrf22Profile()">Import PRF-22 JSON</button>
+              <input id="import-prf22-file" type="file" accept="application/json,.json" style="display:none" onchange="handleImportPrf22File(event)" />
+              <button class="btn small ghost" type="button" onclick="createPrfJournalSeed()">Create Journal Seed</button>
+              <button class="btn small ghost" type="button" onclick="createPrfCapsule()">Create PRF Capsule</button>
+              <button class="btn small purple" type="button" onclick="togglePrfTwinContext()">Toggle Twin Context</button>
+              <button class="btn small ghost" type="button" onclick="askTwinAboutPrfProfile()">Ask Twin About Profile</button>
+              <button class="btn small danger" type="button" onclick="clearPrfProfile()">Clear PRF Profile</button>
+            </div>
+            <div id="prf22-import-status" class="status-line">No PRF-22 profile imported yet. Import is optional; it does not replace conversation, Journal entries, or Field Scans.</div>
+            <div id="prf22-profile-card"></div>
+            <div class="privacy-note">Privacy rule: the raw PRF-22 JSON stays local. The Twin receives only a short profile summary when PRF Twin Context is turned on.</div>
+          </div>
+        </div>
         <div class="card collapsible-card" style="margin-top:18px;" data-panel="capsules">
           <div class="card-header">
             <div class="card-title-row">
@@ -1034,6 +1078,76 @@
     <div id="workspace-help" class="workspace-pane">
       <section class="grid workspace-grid">
         <div class="workspace-stack">
+        <div id="release-notes-card" class="card" style="margin-top:18px;">
+          <div class="card-header">
+            <div class="eyebrow">Stable feature build package</div>
+            <div class="card-title">Navigator Twin v2.9 — PRF-22 Profile Import</div>
+            <div class="card-desc">This build preserves the complete stable agency-navigation loop and adds PRF-22 / E-Twin profile import as a local-first baseline memory source. It remains a non-PWA fallback build for safe testing without service-worker caching.</div>
+          </div>
+          <div class="card-body">
+            <div class="help-section">
+              <h3>Reviewer Start Here</h3>
+              <ol>
+                <li>Open <strong>Home</strong> and read the guided workflow card.</li>
+                <li>Click <strong>Load Fictional Demo</strong> if you want to see the full system without creating your own scans first.</li>
+                <li>Visit <strong>Field Map</strong> to see how life-fields, Field Scans, and Context Assembly work together.</li>
+                <li>Visit <strong>Moves</strong> to see Move Cards, Cross-Field Move Comparison, Current Move selection, and Current Move Deliberation.</li>
+                <li>Return to <strong>Twin</strong> and ask the Twin what it sees in the demo case.</li>
+                <li>Use <strong>Memory</strong> to inspect Journal entries, import a PRF-22 profile, review Document Capsules, and use export/import controls.</li>
+              </ol>
+              <p>This demo is designed to show the complete agency-navigation loop quickly. It is not meant to replace the user's own reflective process.</p>
+            </div>
+
+            <div class="help-section">
+              <h3>What Navigator does</h3>
+              <p>Navigator helps a user talk with a Digital Twin, preserve memory through Journal entries and Document Capsules, map life-fields through Field Scans, assemble the combined context, generate possible Move Cards, compare moves across fields, and create a small Current Move Plan for deliberation.</p>
+            </div>
+            <div class="help-section">
+              <h3>What Navigator does not do</h3>
+              <ul>
+                <li>It does not diagnose, treat, grade, command, or replace professional advice.</li>
+                <li>It does not decide who the user is or what the user must do.</li>
+                <li>It does not store raw uploaded documents after a Document Capsule is created.</li>
+                <li>It does not register a service worker in this stable fallback build.</li>
+              </ul>
+            </div>
+            <div class="help-section">
+              <h3>Privacy and security posture</h3>
+              <p><strong>Local-first by design:</strong> conversation, Journal entries, PRF-22 profile summaries, Document Capsules, Field Scans, Context Assembly, Move Cards, comparison state, and Current Move Plans are stored in this browser unless the user exports or restores them.</p>
+              <p><strong>Backend transparency:</strong> backend AI calls occur only when the user asks the Twin to interpret, summarize, deliberate, create a capsule, or generate an AI-assisted response. Those requests require sending selected prompt context to the configured backend service for processing. PRF-22 import stores the raw JSON locally and sends only a short profile summary when Twin Context is turned on. Users should avoid uploading highly sensitive material unless they understand that selected content may be sent for AI processing.</p>
+              <p><strong>User control:</strong> users can export JSON, export TXT, import/restore JSON, delete saved items, and clear local memory. Document uploads create reviewable capsules; the app saves only the capsule the user approves, not the raw uploaded document text.</p>
+            </div>
+            <div class="help-section">
+              <h3>Sample / demo data mode</h3>
+              <p>Use the fictional demo to show the full workflow quickly. It creates a sample Twin conversation, Journal, PRF-22 profile, Document Capsule, three Field Scans, Context Assembly, Move Cards, a Current Move, and a Current Move Plan. It will replace local memory only after confirmation.</p>
+              <div class="toolbar"><button class="btn small purple" type="button" onclick="loadDemoData()">Load Fictional Demo Data</button><button class="btn small ghost" type="button" onclick="exportTwinJournal('json')">Export Current JSON Backup</button></div>
+            </div>
+            <div class="help-section">
+              <h3>Near-term roadmap after this stable demo</h3>
+              <ul>
+                <li><strong>PWA conversion:</strong> installable app shell with careful service-worker caching.</li>
+                <li><strong>Navigator Private API specification:</strong> dedicated privacy-minimizing endpoints for Twin, Capsules, Field Maps, Move Cards, and Coaches.</li>
+                <li><strong>PRF-22 profile integration:</strong> next refinements can make Field Scans and Move Cards more explicitly PRF-aware without turning the profile into a deterministic verdict.</li>
+                <li><strong>Applications & Coaches:</strong> optional guided modules such as AAC&amp;U Critical Thinking Coach, Ethical Reasoning Coach, EBB Chapter Coaches, and Research Project Coach.</li>
+                <li><strong>Timeline and simulation layer:</strong> longer-term trajectory mapping, UCP-based scenario simulation, and agency-preserving planning over time.</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>PWA readiness checklist</h3>
+              <ul>
+                <li>Cache the app shell only after the stable fallback file is confirmed.</li>
+                <li>Do not cache backend AI calls or API responses.</li>
+                <li>Do not cache raw uploaded document text.</li>
+                <li>Keep JSON export/import visible and working before and after PWA conversion.</li>
+                <li>Version the service worker carefully so old code does not trap users during active development.</li>
+                <li>Test phone and laptop layouts separately: phone for capture/continuity, laptop for deep review and planning.</li>
+                <li>Keep optional encrypted sync as a later goal, not part of this stable local-first build.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <div class="card collapsible-card" style="margin-top:18px;" data-panel="help">
           <div class="card-header">
             <div class="card-title-row">
@@ -1055,8 +1169,8 @@
                 <li>Upload a document if you want the Twin to understand a project or research style.</li>
                 <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
                 <li>Generate Move Cards from saved Field Scans, then use <strong>Cross-Field Move Comparison</strong> to compare two to four possible moves.</li>
-                <li>Set one <strong>Current Move</strong>, then create a <strong>Current Move Plan</strong> that names the smallest first action, support needed, risk to watch, and check-back point.</li>
                 <li>Set one <strong>Current Move</strong> when you are ready to deliberate. Current does not mean final; it means “the move I am now considering.”</li>
+                <li>Create a <strong>Current Move Plan</strong> that names the smallest first action, support needed, risk to watch, non-sacrifice point, and check-back moment.</li>
                 <li>Export JSON before changing browsers, devices, or clearing memory.</li>
               </ol>
             </div>
@@ -1103,7 +1217,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.8 Current Move Deliberation Build.</div>
+            <div class="privacy-note">Stable fallback build: this version does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.9 — PRF-22 Profile Import Build.</div>
           </div>
         </div>
         </aside>
@@ -1119,7 +1233,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.8 Current Move Deliberation';
+  const APP_VERSION = 'Navigator Twin v2.9 — PRF-22 Profile Import Build';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1139,6 +1253,7 @@
     moveCompareSelection: 'navigator_twin_v2_move_compare_selection',
     moveComparisonLens: 'navigator_twin_v2_move_comparison_lens',
     currentMovePlan: 'navigator_twin_v2_current_move_plan',
+    prf22Profile: 'navigator_twin_v2_prf22_profile',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
     workspace: 'navigator_twin_v2_active_workspace'
@@ -1305,6 +1420,9 @@
   function setMoveComparisonLens(value){ try { localStorage.setItem(KEYS.moveComparisonLens, value || 'balanced'); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} }
   function getCurrentMovePlan(){ return getStored(KEYS.currentMovePlan, null); }
   function setCurrentMovePlan(plan){ if(plan) setStored(KEYS.currentMovePlan, plan); else { try { localStorage.removeItem(KEYS.currentMovePlan); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} } }
+
+  function getPrf22Profile(){ return getStored(KEYS.prf22Profile, null); }
+  function setPrf22Profile(profile){ if(profile) setStored(KEYS.prf22Profile, profile); else { try { localStorage.removeItem(KEYS.prf22Profile); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} } }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -1441,6 +1559,315 @@
     return String(s || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]));
   }
 
+
+
+  function normalizePathKey(value){
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  }
+
+  function flattenPrfObject(obj, prefix, out, depth){
+    out = out || [];
+    if(depth > 7 || obj === null || obj === undefined) return out;
+    if(Array.isArray(obj)){
+      obj.forEach((v,i) => flattenPrfObject(v, prefix ? prefix + '.' + i : String(i), out, depth + 1));
+      return out;
+    }
+    if(typeof obj === 'object'){
+      Object.keys(obj).forEach(k => flattenPrfObject(obj[k], prefix ? prefix + '.' + k : k, out, depth + 1));
+      return out;
+    }
+    out.push({ path: prefix || '', key: normalizePathKey(prefix || ''), value: obj });
+    return out;
+  }
+
+  function normalizePrfScore(value){
+    if(value === null || value === undefined || value === '') return null;
+    let n = Number(value);
+    if(!isFinite(n)) return null;
+    if(n >= 0 && n <= 1) n = n * 100;
+    if(n < 0) n = 0;
+    if(n > 100) n = 100;
+    return Math.round(n);
+  }
+
+  function findPrfNumeric(flat, candidates){
+    const keys = candidates.map(normalizePathKey).filter(Boolean);
+    const numeric = flat.filter(e => typeof e.value === 'number' || (typeof e.value === 'string' && e.value.trim() !== '' && isFinite(Number(e.value))));
+    for(const k of keys){
+      const exact = numeric.find(e => e.key === k || e.key.endsWith(k));
+      if(exact) return normalizePrfScore(exact.value);
+    }
+    for(const k of keys){
+      const contained = numeric.find(e => e.key.includes(k));
+      if(contained) return normalizePrfScore(contained.value);
+    }
+    return null;
+  }
+
+  function findPrfString(flat, candidates){
+    const keys = candidates.map(normalizePathKey).filter(Boolean);
+    const strings = flat.filter(e => typeof e.value === 'string' && e.value.trim());
+    for(const k of keys){
+      const exact = strings.find(e => e.key === k || e.key.endsWith(k));
+      if(exact) return String(exact.value).trim().slice(0, 500);
+    }
+    for(const k of keys){
+      const contained = strings.find(e => e.key.includes(k));
+      if(contained) return String(contained.value).trim().slice(0, 500);
+    }
+    return '';
+  }
+
+  function compactPrfRaw(raw){
+    try {
+      const txt = JSON.stringify(raw);
+      if(txt.length > 60000) return { note:'Raw PRF-22 JSON was larger than 60 KB and was not stored in full.', sample: txt.slice(0, 4000) };
+      return raw;
+    } catch(e) { return null; }
+  }
+
+  function normalizeImportedPrf22Profile(data, opts){
+    if(!data || typeof data !== 'object') return null;
+    if(data.source === 'PRF-22' && data.profileType === 'E-Twin Profile'){
+      const profile = Object.assign({}, data);
+      profile.id = profile.id || uid('prf22');
+      profile.importedAt = profile.importedAt || new Date().toISOString();
+      profile.includeInTwin = profile.includeInTwin !== false;
+      profile.foundations = profile.foundations || {};
+      profile.foundationsRanked = Array.isArray(profile.foundationsRanked) ? profile.foundationsRanked : rankPrfFoundations(profile.foundations);
+      profile.summary = String(profile.summary || buildPrfSummary(profile)).slice(0, 1600);
+      return profile;
+    }
+    const flat = flattenPrfObject(data, '', [], 0);
+    const foundations = {
+      care: findPrfNumeric(flat, ['care','harmCare','careHarm','care_foundation','moralCare','care_harm']),
+      fairness: findPrfNumeric(flat, ['fairness','reciprocityFairness','fairnessReciprocity','fairness_foundation','moralFairness']),
+      loyalty: findPrfNumeric(flat, ['loyalty','ingroupLoyalty','loyaltyIngroup','loyalty_foundation','moralLoyalty']),
+      authority: findPrfNumeric(flat, ['authority','respectAuthority','authorityRespect','authority_foundation','moralAuthority']),
+      purity: findPrfNumeric(flat, ['purity','sanctityPurity','puritySanctity','purity_foundation','moralPurity'])
+    };
+    const reasoningStyle = {
+      logicalIntuitiveRatio: findPrfNumeric(flat, ['logicalIntuitiveRatio','logicIntuition','logical','analytic','reasoningLogic','reflectiveReasoning']),
+      idealismRelativism: findPrfNumeric(flat, ['idealismRelativism','idealism','relativism','ethicalIdealism','ethicalRelativism']),
+      styleLabel: findPrfString(flat, ['reasoningStyle','ethicalReasoningStyle','styleLabel','type','moralType'])
+    };
+    const atcf = {
+      identityStability: findPrfNumeric(flat, ['identityStability','identityCoherence','kernelStability','identityKernel','atcfIdentity']),
+      metacognitiveFlexibility: findPrfNumeric(flat, ['metacognitiveFlexibility','metacognition','flexibility','reflection','adaptiveFlexibility']),
+      stressResilience: findPrfNumeric(flat, ['stressResilience','resilience','atcfResilience','coherenceUnderStress','temporalCoherence'])
+    };
+    const trust = {
+      trustBaseline: findPrfNumeric(flat, ['trustBaseline','baselineTrust','trust']),
+      institutionalTrust: findPrfNumeric(flat, ['institutionalTrust','trustInstitutions','authorityTrust'])
+    };
+    const orientation = {
+      selfExpressionSurvival: findPrfNumeric(flat, ['selfExpressionSurvival','expressionSurvival','selfExpression','survivalOrientation','survival'])
+    };
+    const growthTarget = findPrfString(flat, ['growthTarget','developmentTarget','growth','recommendation','nextGrowth']) || '';
+    const version = findPrfString(flat, ['version','schemaVersion','prfVersion']) || (opts && opts.fromNavigatorBackup ? 'navigator-import' : 'unknown');
+    const profile = {
+      id: uid('prf22'),
+      source: 'PRF-22',
+      profileType: 'E-Twin Profile',
+      importedAt: new Date().toISOString(),
+      fileName: (opts && opts.fileName) || '',
+      version,
+      includeInTwin: true,
+      foundations,
+      foundationsRanked: rankPrfFoundations(foundations),
+      reasoningStyle,
+      atcf,
+      trust,
+      orientation,
+      growthTarget,
+      questionsForTwin: buildPrfQuestions({ foundations, reasoningStyle, atcf, trust, orientation, growthTarget }),
+      summary: '',
+      raw: compactPrfRaw(data)
+    };
+    profile.summary = buildPrfSummary(profile);
+    return profile;
+  }
+
+  function rankPrfFoundations(foundations){
+    const labels = { care:'Care / Harm', fairness:'Fairness / Reciprocity', loyalty:'Loyalty / Belonging', authority:'Authority / Legitimacy', purity:'Purity / Boundary' };
+    return Object.keys(labels).map(k => ({ key:k, label:labels[k], value: normalizePrfScore(foundations && foundations[k]) }))
+      .filter(x => x.value !== null)
+      .sort((a,b) => b.value - a.value);
+  }
+
+  function prfScoreText(v){ return v === null || v === undefined ? 'not detected' : String(v); }
+
+  function buildPrfQuestions(profile){
+    const ranked = rankPrfFoundations(profile.foundations || {});
+    const top = ranked[0] ? ranked[0].label : 'your strongest ethical pull';
+    const low = ranked.length ? ranked[ranked.length - 1].label : 'a less-emphasized foundation';
+    const qs = [
+      'Where did ' + top + ' become important in your life?',
+      'When does ' + top + ' help you stay coherent, and when might it over-focus your attention?',
+      'What should I be careful not to assume about ' + low + ' in your PRF?'
+    ];
+    if(profile.trust && profile.trust.institutionalTrust !== null && profile.trust.institutionalTrust !== undefined) qs.push('What kinds of institutions have earned trust for you, and which require verification?');
+    if(profile.atcf && profile.atcf.stressResilience !== null && profile.atcf.stressResilience !== undefined) qs.push('What kinds of pressure make it harder for you to remain yourself?');
+    return qs.slice(0, 5);
+  }
+
+  function buildPrfSummary(profile){
+    const ranked = profile.foundationsRanked || rankPrfFoundations(profile.foundations || {});
+    const top = ranked.slice(0, 2).map(x => x.label + ' (' + x.value + ')').join(' and ') || 'no foundation scores detected';
+    const low = ranked.length ? ranked[ranked.length - 1].label + ' (' + ranked[ranked.length - 1].value + ')' : 'no low foundation detected';
+    const style = profile.reasoningStyle && profile.reasoningStyle.styleLabel ? profile.reasoningStyle.styleLabel : 'reasoning style not explicitly labeled';
+    const trust = profile.trust ? 'baseline trust ' + prfScoreText(profile.trust.trustBaseline) + ', institutional trust ' + prfScoreText(profile.trust.institutionalTrust) : 'trust not detected';
+    const resilience = profile.atcf ? 'identity stability ' + prfScoreText(profile.atcf.identityStability) + ', metacognitive flexibility ' + prfScoreText(profile.atcf.metacognitiveFlexibility) + ', stress resilience ' + prfScoreText(profile.atcf.stressResilience) : 'ATCF indicators not detected';
+    const growth = profile.growthTarget ? ' Growth target: ' + profile.growthTarget : '';
+    return 'PRF-22 baseline: strongest recognized pulls are ' + top + '; lowest recognized foundation is ' + low + '. Reasoning style: ' + style + '. ATCF/coherence indicators: ' + resilience + '. Trust orientation: ' + trust + '.' + growth + ' Treat this as a starting map, not a verdict.';
+  }
+
+  function getTwinSafePrf22Summary(){
+    const p = getPrf22Profile();
+    if(!p) return { active:false, note:'No PRF-22 profile imported.' };
+    if(p.includeInTwin === false) return { active:false, note:'PRF-22 profile exists locally but is not included in Twin backend context.' };
+    return {
+      active:true,
+      source:'PRF-22 summary only; raw JSON excluded',
+      importedAt:p.importedAt,
+      summary:p.summary,
+      foundationsRanked:(p.foundationsRanked || []).slice(0,5),
+      reasoningStyle:p.reasoningStyle || {},
+      atcf:p.atcf || {},
+      trust:p.trust || {},
+      orientation:p.orientation || {},
+      growthTarget:p.growthTarget || '',
+      questionsForTwin:(p.questionsForTwin || []).slice(0,5)
+    };
+  }
+
+  function formatPrf22ProfileForText(profile){
+    if(!profile) return '[no PRF-22 profile imported]';
+    return 'Imported: ' + (profile.importedAt || '') + '\nInclude in Twin context: ' + (profile.includeInTwin === false ? 'no' : 'yes') + '\nSummary: ' + (profile.summary || '') + '\nFoundations: ' + (profile.foundationsRanked || []).map(x => x.label + '=' + x.value).join(', ') + '\nGrowth target: ' + (profile.growthTarget || '');
+  }
+
+  function renderPrf22Profile(){
+    const box = document.getElementById('prf22-profile-card');
+    const status = document.getElementById('prf22-import-status');
+    if(!box) return;
+    const p = getPrf22Profile();
+    if(!p){
+      box.innerHTML = '<div class="empty">No PRF-22 / E-Twin profile imported yet. This is optional. Conversation, documents, and Field Scans still work without it.</div>';
+      if(status) status.textContent = 'No PRF-22 profile imported yet.';
+      return;
+    }
+    if(status) status.textContent = 'PRF-22 profile imported · ' + (p.includeInTwin === false ? 'not included in Twin context' : 'summary included in Twin context') + '.';
+    const ranked = p.foundationsRanked || [];
+    const top = ranked.slice(0,3).map(x => '<span class="tag">' + escapeHtml(x.label) + ': ' + escapeHtml(String(x.value)) + '</span>').join('') || '<span class="tag">No foundation scores detected</span>';
+    const metrics = [
+      ['Reasoning style', (p.reasoningStyle && (p.reasoningStyle.styleLabel || ('Logic/intuition ' + prfScoreText(p.reasoningStyle.logicalIntuitiveRatio)))) || 'not detected'],
+      ['ATCF / resilience', p.atcf ? 'Identity ' + prfScoreText(p.atcf.identityStability) + ' · Flex ' + prfScoreText(p.atcf.metacognitiveFlexibility) + ' · Stress ' + prfScoreText(p.atcf.stressResilience) : 'not detected'],
+      ['Trust orientation', p.trust ? 'Baseline ' + prfScoreText(p.trust.trustBaseline) + ' · Institutional ' + prfScoreText(p.trust.institutionalTrust) : 'not detected'],
+      ['Twin context', p.includeInTwin === false ? 'off' : 'summary on']
+    ];
+    box.innerHTML = '<div class="profile-card"><div class="profile-head"><div><div class="profile-title">Imported PRF-22 Profile</div><div class="profile-subtitle">' + escapeHtml(p.fileName || p.version || 'local profile') + '</div></div><span class="pill"><span class="dot ' + (p.includeInTwin === false ? 'wait' : 'ok') + '"></span>' + (p.includeInTwin === false ? 'Local only' : 'Twin summary on') + '</span></div><div class="capsule-tags">' + top + '</div><div class="profile-grid">' + metrics.map(m => '<div class="profile-metric"><div class="profile-metric-label">' + escapeHtml(m[0]) + '</div><div class="profile-metric-value">' + escapeHtml(String(m[1])) + '</div></div>').join('') + '</div><div class="profile-summary">' + escapeHtml(p.summary || '') + '</div><div class="profile-warning">Use this as a starting moral topology, not a fixed identity. The Twin should ask whether the profile fits lived experience before relying on it.</div></div>';
+  }
+
+  function triggerImportPrf22Profile(){
+    const input = document.getElementById('import-prf22-file');
+    if(input) input.click();
+  }
+  window.triggerImportPrf22Profile = triggerImportPrf22Profile;
+
+  async function handleImportPrf22File(event){
+    const input = event && event.target;
+    const file = input && input.files && input.files[0];
+    if(!file) return;
+    try {
+      if(file.size > 300 * 1024) throw new Error('This PRF-22 JSON file is larger than 300 KB. Use the exported profile JSON, not a large document.');
+      const data = JSON.parse(await file.text());
+      const profile = normalizeImportedPrf22Profile(data, { fileName:file.name });
+      if(!profile) throw new Error('This JSON could not be read as a PRF-22 / E-Twin profile.');
+      const ranked = profile.foundationsRanked || [];
+      const preview = ranked.length ? ranked.slice(0,3).map(x => x.label + ' ' + x.value).join(', ') : 'limited recognized PRF fields';
+      if(!confirm('Import this PRF-22 profile into local Navigator memory? Preview: ' + preview + '.')) return;
+      setPrf22Profile(profile);
+      renderAll();
+      alert('PRF-22 profile imported. It is stored locally. The Twin will receive only a short summary, not the raw JSON, while Twin Context is on.');
+    } catch(e) {
+      alert('Could not import PRF-22 profile: ' + e.message);
+      showDebug('PRF-22 IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
+    } finally {
+      if(input) input.value = '';
+    }
+  }
+  window.handleImportPrf22File = handleImportPrf22File;
+
+  function togglePrfTwinContext(){
+    const p = getPrf22Profile();
+    if(!p){ alert('Import a PRF-22 profile first.'); return; }
+    p.includeInTwin = p.includeInTwin === false;
+    setPrf22Profile(p);
+    renderAll();
+  }
+  window.togglePrfTwinContext = togglePrfTwinContext;
+
+  function clearPrfProfile(){
+    if(!getPrf22Profile()){ alert('No PRF-22 profile is imported.'); return; }
+    if(!confirm('Clear the local PRF-22 profile from this browser? This will not clear the Twin Journal, documents, Field Scans, or Move Cards.')) return;
+    setPrf22Profile(null);
+    renderAll();
+  }
+  window.clearPrfProfile = clearPrfProfile;
+
+  function createPrfJournalSeed(){
+    const p = getPrf22Profile();
+    if(!p){ alert('Import a PRF-22 profile first.'); return; }
+    const ranked = p.foundationsRanked || [];
+    const top = ranked[0] ? ranked[0].label : 'a recognizable ethical pull';
+    const text = sanitizeJournalText('seems to begin with a PRF-22 profile in which ' + top + ' may be an important ethical signal, while treating the profile as a hypothesis to test against lived experience');
+    const journal = getJournal();
+    journal.push({ id:uid('journal'), text, category:'ethics', confidence:.6, sourceTurnIds:[], timestamp:new Date().toISOString(), source:'prf22' });
+    setJournal(journal);
+    recalculateCoverageFromJournal();
+    renderAll();
+    alert('PRF-22 Journal seed added. You can edit or delete it in the Twin Journal.');
+  }
+  window.createPrfJournalSeed = createPrfJournalSeed;
+
+  function createPrfCapsule(){
+    const p = getPrf22Profile();
+    if(!p){ alert('Import a PRF-22 profile first.'); return; }
+    const capsules = getCapsules();
+    const ranked = p.foundationsRanked || [];
+    const capsule = {
+      id: uid('doc'),
+      title:'PRF-22 / E-Twin Profile Capsule',
+      mode:'quick_context',
+      fileName:p.fileName || 'prf22-profile.json',
+      fileSize:0,
+      summary:p.summary || buildPrfSummary(p),
+      themes:['PRF-22','ethical perception','moral foundations','ATCF','profile baseline'].concat(ranked.slice(0,2).map(x => x.label)).slice(0,8),
+      styleNotes:['profile import','starting map','not a verdict','local-first'],
+      projectPurpose:'Seed Navigator with a user-controlled PRF-22 ethical-perception baseline while preserving the Twin’s need to learn from lived conversation.',
+      suggestedJournalEntry:'seems to be using a PRF-22 profile as a starting moral topology rather than a fixed identity',
+      followUpQuestion:(p.questionsForTwin && p.questionsForTwin[0]) || 'Which part of this profile feels most true, and which part needs correction?',
+      createdAt:new Date().toISOString()
+    };
+    capsules.push(capsule);
+    setCapsules(capsules);
+    renderAll();
+    alert('PRF Profile Capsule saved in Document Capsules.');
+  }
+  window.createPrfCapsule = createPrfCapsule;
+
+  function askTwinAboutPrfProfile(){
+    const p = getPrf22Profile();
+    if(!p){ alert('Import a PRF-22 profile first.'); return; }
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = 'Please help me interpret my PRF-22 profile as a starting map, not a verdict. Ask me one question that would help test whether this profile fits my lived experience.';
+      input.focus();
+    }
+  }
+  window.askTwinAboutPrfProfile = askTwinAboutPrfProfile;
+
   function renderChat(){
     const log = document.getElementById('chat-log');
     const chat = getChat();
@@ -1571,11 +1998,13 @@
     const largest = summary.largestGap;
     const currentMove = moves.find(m => m.id === getCurrentMoveId());
     const currentMovePlan = getCurrentMovePlan();
+    const prfProfile = getPrf22Profile();
     const planMatchesCurrent = !!(currentMove && currentMovePlan && currentMovePlan.moveId === currentMove.id);
     const nextHint = planMatchesCurrent ? 'Review current move plan' : currentMove ? 'Create current move plan' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
     const cards = [
       ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
       ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
+      ['PRF-22 Profile', prfProfile ? 'imported' : 'optional', prfProfile ? truncateText(prfProfile.summary || 'Profile baseline available', 96) : 'Import an E-Twin JSON baseline when available.'],
       ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
       ['Move Cards', moves.length + ' saved', activeMoves.length + ' active · ' + (moves.length - activeMoves.length) + ' not now'],
       ['Current Move Plan', planMatchesCurrent ? 'saved' : currentMove ? 'needed' : 'not ready', planMatchesCurrent ? truncateText(currentMovePlan.firstSmallAction || currentMovePlan.whyNow || 'Plan saved', 96) : currentMove ? 'Create a plan from the selected Current Move.' : 'Select a Current Move before planning.'],
@@ -1648,6 +2077,13 @@
   }
   window.openHelpPanel = openHelpPanel;
 
+  function openReleaseNotes(){
+    showWorkspace('help');
+    const card = document.getElementById('release-notes-card');
+    if(card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  window.openReleaseNotes = openReleaseNotes;
+
   function welcomeStartTwin(){
     dismissWelcome();
     showWorkspace('twin');
@@ -1687,6 +2123,7 @@
     renderJournal();
     renderPendingCapsule();
     renderCapsules();
+    renderPrf22Profile();
     updateFieldSliderLabels();
     renderFieldScans();
     renderFieldMapDashboard();
@@ -1784,6 +2221,7 @@ Essential design principle: The Twin is not asking the student to confess a self
     const moveCards = getMoveCards().slice(-10).map(m => ({ title:m.title, fieldTitle:m.fieldTitle, fieldType:m.fieldType, pattern:m.pattern, firstAction:m.firstAction, whatPreserves:m.whatPreserves, whatRisks:m.whatRisks, supportNeeded:m.supportNeeded, urgency:m.urgency, reversibility:m.reversibility, suppressionRelief:m.suppressionRelief, futureAgencyValue:m.futureAgencyValue, status:m.status }));
     const currentMove = getMoveById(getCurrentMoveId()) || null;
     const currentMovePlan = getCurrentMovePlan();
+    const prf22Profile = getTwinSafePrf22Summary();
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -1804,6 +2242,7 @@ Essential design principle: The Twin is not asking the student to confess a self
       moveCards: moveCards,
       currentMove: currentMove,
       currentMovePlan: currentMovePlan,
+      prf22Profile: prf22Profile,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -2103,6 +2542,7 @@ Return only valid JSON with this exact shape:
         moveCompareSelection: getMoveCompareSelection(),
         moveComparisonLens: getMoveComparisonLens(),
         currentMovePlan: getCurrentMovePlan(),
+        prf22Profile: getPrf22Profile(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -2110,6 +2550,8 @@ Return only valid JSON with this exact shape:
     } else {
       content = 'Navigator Twin Journal\nExported: ' + new Date().toLocaleString() + '\n\n'
         + journal.map((e,i) => (i+1) + '. ' + e.text + ' [' + (e.category || 'uncategorized') + ']').join('\n')
+        + '\n\n--- PRF-22 Profile ---\n'
+        + formatPrf22ProfileForText(getPrf22Profile())
         + '\n\n--- Context Assembly ---\n'
         + (getContextAssembly().text || '[no context assembly saved]')
         + '\n\n--- Field Scans ---\n'
@@ -2253,7 +2695,8 @@ Return only valid JSON with this exact shape:
     const allowedLens = ['balanced','urgent','future_agency','suppression_relief','support_ready','low_risk'];
     const moveComparisonLens = allowedLens.includes(data.moveComparisonLens) ? data.moveComparisonLens : 'balanced';
     const currentMovePlan = normalizeImportedCurrentMovePlan(data.currentMovePlan);
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan }; 
+    const prf22Profile = normalizeImportedPrf22Profile(data.prf22Profile || data.prfProfile || null, { fromNavigatorBackup:true });
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan, prf22Profile }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -2282,11 +2725,12 @@ Return only valid JSON with this exact shape:
       setMoveCompareSelection((restored.moveCompareSelection || []).filter(id => (restored.moveCards || []).some(m => m.id === id)));
       setMoveComparisonLens(restored.moveComparisonLens || 'balanced');
       setCurrentMovePlan(restored.currentMovePlan && (restored.moveCards || []).some(m => m.id === restored.currentMovePlan.moveId) ? restored.currentMovePlan : null);
+      setPrf22Profile(restored.prf22Profile || null);
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '. PRF-22 profile: ' + (restored.prf22Profile ? 'yes' : 'no') + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -3500,9 +3944,87 @@ Return only valid JSON with this shape:
   }
   window.askTwinAboutMoveCard = askTwinAboutMoveCard;
 
-function clearTwinMemory(){
-    if(!confirm('Clear the Twin conversation, journal, capsules, field scans, context assembly, move cards, and comparison selections from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+
+  function buildFictionalDemoData(){
+    const now = new Date();
+    const iso = now.toISOString();
+    const t1 = 'demo_turn_1', t2 = 'demo_turn_2', t3 = 'demo_turn_3', t4 = 'demo_turn_4';
+    const schoolId = 'demo_field_school', workId = 'demo_field_work', researchId = 'demo_field_research';
+    const move1 = 'demo_move_clarify_school', move2 = 'demo_move_biobond_work', move3 = 'demo_move_stabilize_research';
+    const chat = [
+      { id:t1, role:'assistant', content:'Hello. I am the fictional demo Twin. I begin incomplete and become clearer by learning what the user chooses to share. What field of life feels most demanding right now?', timestamp:iso },
+      { id:t2, role:'user', content:'School pressure is intense, but the deeper issue is that I care about meaningful work and not just finishing tasks.', timestamp:iso },
+      { id:t3, role:'assistant', content:'I may be learning that meaning matters more than performance alone. Where does effort currently feel like it routes, and where does it disappear?', timestamp:iso },
+      { id:t4, role:'user', content:'My research and teaching feel alive, but bureaucracy absorbs time and makes me question whether my effort is getting anywhere.', timestamp:iso }
+    ];
+    const journal = [
+      { id:'demo_journal_1', text:'seems to value meaningful work over performance theater', category:'meaning', confidence:.82, sourceTurnIds:[t2], timestamp:iso },
+      { id:'demo_journal_2', text:'appears to feel most coherent when effort routes into teaching or research', category:'agency', confidence:.78, sourceTurnIds:[t4], timestamp:iso },
+      { id:'demo_journal_3', text:'may need systems that preserve authorship rather than merely demand compliance', category:'ethics', confidence:.74, sourceTurnIds:[t4], timestamp:iso }
+    ];
+    const coverage = { agency:3, beauty:1, context:2, dynamism:2, information:2, evidence:1, meaning:4, ethics:3 };
+    const capsules = [
+      { id:'demo_capsule_1', title:'Research Style Capsule: Ethical Navigation Essay', mode:'research_style', fileName:'fictional-essay.txt', fileSize:4200, summary:'A fictional sample document developing the idea that ethical agency requires seeing the fields acting on the person, then choosing moves that preserve future agency.', themes:['agency','field mapping','ethical action','systems pressure','future possibility'], styleNotes:['synthetic','framework-building','pedagogical','cautiously formal'], projectPurpose:'Demonstrate how reflection, field mapping, and move deliberation can work together inside Navigator.', suggestedJournalEntry:'seems to build research by connecting lived pressure with formal maps of agency', followUpQuestion:'Which part of this research feels most connected to your own life project?', createdAt:iso }
+    ];
+    const fieldScans = [
+      { id:schoolId, title:'Course Deadline Pressure', scanType:'school_learning', fieldType:'School / Learning Field', environment:'A demanding course environment with clustered deadlines and AI shortcuts nearby.', rewards:'Fast submission, compliance with format, appearing competent.', punishes:'Slow original thinking, uncertainty, asking for more time, visible struggle.', routes:'Clear small tasks and direct instructor feedback route well.', lost:'Deep reflection disappears when deadlines compress.', bioBond:'A study partner and one faculty conversation can restore orientation.', nextMove:'Ask one clarifying question about the assignment scope before using AI as a shortcut.', rawCapacity:82, perceivedCapacity:49, stressLoad:76, suppressionGap:33, riskLevel:'high', riskLabel:'High suppression risk', summary:'High stress and a large gap between capacity and perceived expression.', createdAt:iso, savedAt:iso },
+      { id:workId, title:'Institutional Administration Field', scanType:'work_institution', fieldType:'Work / Institution Field', environment:'A workplace/institutional setting where paperwork and compliance absorb attention from core work.', rewards:'Responsiveness, procedural compliance, rapid adaptation to shifting expectations.', punishes:'Boundary setting, public critique, time spent on non-measurable care.', routes:'Direct teaching and relationship-based support still route.', lost:'Strategic and creative work gets fragmented by administrative demands.', bioBond:'Trusted colleagues and written boundaries preserve coherence.', nextMove:'Protect one block of time for high-value work and make the boundary explicit.', rawCapacity:88, perceivedCapacity:54, stressLoad:68, suppressionGap:34, riskLevel:'high', riskLabel:'High suppression risk', summary:'The field preserves some direct-value channels but suppresses deep work.', createdAt:iso, savedAt:iso },
+      { id:researchId, title:'Research / Creative Work Field', scanType:'research_creative', fieldType:'Research / Creative Field', environment:'A creative research environment where the user can connect ideas, build frameworks, and generate long-term projects.', rewards:'Synthesis, originality, careful naming, long-form development.', punishes:'Fragmentation, interruption, lack of protected time.', routes:'Writing, diagrams, app prototypes, and teaching integration route strongly.', lost:'Momentum disappears when survival fields consume the week.', bioBond:'The Twin, exported notes, and regular writing blocks serve as supports.', nextMove:'Schedule one protected writing session and use the Twin to name the next section before beginning.', rawCapacity:92, perceivedCapacity:84, stressLoad:38, suppressionGap:8, riskLevel:'low', riskLabel:'Agency still routing', summary:'Strong routing and low suppression when protected from other fields.', createdAt:iso, savedAt:iso }
+    ];
+    const contextAssembly = { text:'The fictional user is not simply deciding between school, work, and research. These fields combine into a context where deadline pressure and institutional demands threaten to consume the time needed for meaningful research. The central problem is how to stabilize immediate obligations without sacrificing the life-giving research field.', updatedAt:iso };
+    const moveCards = [
+      { id:move1, fieldScanId:schoolId, fieldTitle:'Course Deadline Pressure', fieldType:'School / Learning Field', pattern:'clarify', title:'Clarify assignment scope before acting', firstAction:'Send one short clarification request about scope, deadline expectations, and what counts as original contribution.', whatPreserves:'Preserves evidence, authorship, and decision space before defaulting to fastest output.', whatRisks:'May feel vulnerable because it reveals uncertainty in a field that rewards visible competence.', supportNeeded:'Ask a study partner to review the clarification message before sending.', timeScale:'next 24 hours', urgency:82, reversibility:90, suppressionRelief:68, futureAgencyValue:74, status:'saved', notes:'Demo move from school field.', createdAt:iso, savedAt:iso },
+      { id:move2, fieldScanId:workId, fieldTitle:'Institutional Administration Field', fieldType:'Work / Institution Field', pattern:'biobond', title:'Strengthen colleague BioBond before setting boundary', firstAction:'Ask a trusted colleague to help identify one defensible boundary around administrative overload.', whatPreserves:'Preserves relational support and reduces isolation before a harder institutional move.', whatRisks:'Requires revealing pressure and may depend on support that is imperfect.', supportNeeded:'Trusted colleague, written notes, and a clear boundary phrase.', timeScale:'this week', urgency:64, reversibility:76, suppressionRelief:72, futureAgencyValue:78, status:'saved', notes:'Demo move from work field.', createdAt:iso, savedAt:iso },
+      { id:move3, fieldScanId:researchId, fieldTitle:'Research / Creative Work Field', fieldType:'Research / Creative Field', pattern:'stabilize', title:'Protect one research block', firstAction:'Block one 60-minute session and begin by asking the Twin to name the next smallest research section.', whatPreserves:'Preserves future-pull, authorship, and the user’s most life-giving field.', whatRisks:'May be interrupted by more urgent fields unless protected explicitly.', supportNeeded:'Calendar block, exported notes, and a short opening prompt.', timeScale:'next 1–3 days', urgency:54, reversibility:86, suppressionRelief:42, futureAgencyValue:92, status:'saved', notes:'Demo move from research field.', createdAt:iso, savedAt:iso }
+    ];
+
+    const prf22Profile = {
+      id:'demo_prf22_1', source:'PRF-22', profileType:'E-Twin Profile', importedAt:iso, fileName:'fictional-prf22-profile.json', version:'demo', includeInTwin:true,
+      foundations:{ care:88, fairness:84, loyalty:52, authority:38, purity:31 },
+      foundationsRanked:[{key:'care', label:'Care / Harm', value:88},{key:'fairness', label:'Fairness / Reciprocity', value:84},{key:'loyalty', label:'Loyalty / Belonging', value:52},{key:'authority', label:'Authority / Legitimacy', value:38},{key:'purity', label:'Purity / Boundary', value:31}],
+      reasoningStyle:{ logicalIntuitiveRatio:68, idealismRelativism:42, styleLabel:'evidence-seeking with strong care/fairness pull' },
+      atcf:{ identityStability:74, metacognitiveFlexibility:82, stressResilience:61 },
+      trust:{ trustBaseline:54, institutionalTrust:39 },
+      orientation:{ selfExpressionSurvival:66 },
+      growthTarget:'Practice preserving care and fairness while setting clearer boundaries under institutional pressure.',
+      questionsForTwin:['When does care become over-responsibility?','What kinds of fairness violations activate stress fastest?','Which institutions deserve more trust, and which require verification?'],
+      summary:'Demo PRF-22 baseline: strongest recognized pulls are Care/Harm and Fairness/Reciprocity, with evidence-seeking reasoning, moderate stress resilience, and cautious institutional trust. Treat this as a starting map, not a verdict.',
+      raw:null
+    };
+    const currentMovePlan = { id:'demo_plan_1', moveId:move1, moveTitle:'Clarify assignment scope before acting', field:'Course Deadline Pressure', whyNow:'This move is worth considering now because school pressure is high and ambiguity is pushing the user toward the fastest acceptable output. Clarification may preserve authorship without requiring a major confrontation.', firstSmallAction:'Draft a two-sentence clarification message asking what counts as original contribution and what must be completed first.', supportNeeded:'A study partner or trusted reviewer can check that the message is concise and not over-explained.', riskToWatch:'Watch for pressure to apologize excessively or accept unclear expectations without question.', whatNotToSacrifice:'Do not sacrifice authorship, dignity, or the right to understand the demand before responding.', pauseOrReviseIf:'Pause if the reply creates new risk, if stress spikes, or if a simpler stabilizing action becomes necessary first.', checkBack:'Check back within 24 hours.', status:'draft', createdAt:iso, updatedAt:iso };
+    return { chat, journal, coverage, questions:extractQuestionsFromChat(chat), mode:'twin_asks', documentCapsules:capsules, fieldScans, contextAssembly, moveCards, pendingMoveCards:[], currentMoveId:move1, moveCompareSelection:[move1,move2,move3], moveComparisonLens:'balanced', currentMovePlan, prf22Profile };
+  }
+
+  function loadDemoData(){
+    const existing = getChat().length + getJournal().length + getCapsules().length + getFieldScans().length + getMoveCards().length;
+    const warning = existing ? 'Load fictional demo data? This will replace the current local Navigator memory in this browser. Export JSON first if you want to keep your current work.' : 'Load fictional demo data into this browser?';
+    if(!confirm(warning)) return;
+    const demo = buildFictionalDemoData();
+    setChat(demo.chat);
+    setJournal(demo.journal);
+    setCoverage(demo.coverage);
+    setQuestions(demo.questions);
+    setCapsules(demo.documentCapsules);
+    setFieldScans(demo.fieldScans);
+    setContextAssembly(demo.contextAssembly);
+    setMoveCards(demo.moveCards);
+    setPendingMoveCards([]);
+    setCurrentMoveId(demo.currentMoveId);
+    setMoveCompareSelection(demo.moveCompareSelection);
+    setMoveComparisonLens(demo.moveComparisonLens);
+    setCurrentMovePlan(demo.currentMovePlan);
+    setPrf22Profile(demo.prf22Profile || null);
+    clearPendingCapsule();
+    try { localStorage.setItem(KEYS.mode, demo.mode); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
+    showWorkspace('home');
+    renderAll();
+    alert('Fictional demo data loaded. Explore Home, Field Map, Moves, and Help to see the complete workflow.');
+  }
+  window.loadDemoData = loadDemoData;
+
+  function clearTwinMemory(){
+    if(!confirm('Clear the Twin conversation, journal, PRF-22 profile, capsules, field scans, context assembly, move cards, and comparison selections from this browser?')) return;
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.prf22Profile, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
