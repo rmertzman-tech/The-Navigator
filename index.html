@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>The Navigator — Twin v2.7.1 Stable Guided Workflow</title>
-  <meta name="description" content="Navigator Twin v2.7.1 Stable Guided Workflow — stabilization, usability guidance, and current move visibility; no PWA service worker in this development build." />
+  <title>The Navigator — Twin v2.8 Current Move Deliberation</title>
+  <meta name="description" content="Navigator Twin v2.8 Current Move Deliberation — adds a Current Move Plan layer while preserving the full agency-navigation loop; no PWA service worker in this development build." />
   <style>
     :root {
       --void: #060b18;
@@ -451,6 +451,38 @@
       text-transform: uppercase;
       margin-left: 6px;
     }
+
+    .current-move-plan-card {
+      border: 1px solid rgba(96,163,111,.34);
+      background:
+        radial-gradient(460px 220px at 0% 0%, rgba(96,163,111,.10), transparent 70%),
+        rgba(255,255,255,.032);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .current-move-plan-title { font-family: var(--serif); font-size: 1.08rem; color: var(--text); margin-bottom: 6px; }
+    .current-move-plan-note { color: var(--muted); line-height: 1.55; font-size: .88rem; margin-bottom: 10px; }
+    .plan-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 10px; }
+    .plan-item {
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(6,11,24,.30);
+      border-radius: 12px;
+      padding: 9px;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.48;
+    }
+    .plan-item strong { display:block; color: var(--gold); font: 900 .66rem/1.2 var(--mono); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+    .plan-empty {
+      border: 1px dashed rgba(255,255,255,.16);
+      background: rgba(255,255,255,.025);
+      border-radius: 14px;
+      padding: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-top: 10px;
+    }
     @media (max-width: 900px){ .comparison-grid { grid-template-columns: 1fr; } }
     .move-score {
       border: 1px solid rgba(255,255,255,.12);
@@ -545,6 +577,7 @@
       .home-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .workflow-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .readiness-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .plan-grid { grid-template-columns: 1fr; }
 
     }
 
@@ -578,9 +611,9 @@
   <main class="app-shell">
     <div class="topbar">
       <div>
-        <div class="eyebrow">Navigator Twin v2.7.1 Stable · Guided Workflow</div>
+        <div class="eyebrow">Navigator Twin v2.8 · Current Move Deliberation</div>
         <h1>The Twin that becomes coherent by learning from you.</h1>
-        <div class="subtitle">This stabilization build preserves the full agency-navigation loop and adds clearer guidance, readiness checks, and Current Move visibility so users can understand what to do next without being overwhelmed.</div>
+        <div class="subtitle">This build preserves the full agency-navigation loop and adds a Current Move Deliberation layer so the user can turn a selected Current Move into a small, revisable, agency-preserving action plan.</div>
       </div>
       <div class="status-cluster">
         <span class="pill"><span id="backend-dot" class="dot wait"></span><span id="backend-label">Backend not tested</span></span>
@@ -916,6 +949,25 @@
             </ul>
           </div>
 
+            <div class="subpanel-shell" id="current-move-plan-shell">
+              <div class="subpanel-header">
+                <div>
+                  <div class="subpanel-title">Current Move Deliberation</div>
+                  <div id="current-move-plan-status" class="subpanel-summary">Select a Current Move, then create a small, revisable action plan.</div>
+                </div>
+              </div>
+              <div class="subpanel-body">
+                <p class="move-studio-intro"><strong>Turn “I might do this” into “here is the smallest coherent first step.”</strong> This plan does not decide for you. It helps you slow the move down, name what it preserves, identify support, and set a check-back point before acting.</p>
+                <div id="current-move-plan-output"></div>
+                <div class="toolbar">
+                  <button class="btn small primary" type="button" onclick="generateCurrentMovePlan()">Create / Update Plan</button>
+                  <button class="btn small ghost" type="button" onclick="askTwinAboutCurrentMovePlan()">Ask Twin to Deliberate Plan</button>
+                  <button class="btn small ghost" type="button" onclick="editCurrentMovePlan()">Edit Plan</button>
+                  <button class="btn small danger" type="button" onclick="clearCurrentMovePlan()">Clear Plan</button>
+                </div>
+              </div>
+            </div>
+
             <div class="subpanel-shell" id="move-comparison-shell">
               <div class="subpanel-header">
                 <div>
@@ -1003,6 +1055,7 @@
                 <li>Upload a document if you want the Twin to understand a project or research style.</li>
                 <li>Run a Field Scan if you want to map an environment such as school, work, family, finances, or research.</li>
                 <li>Generate Move Cards from saved Field Scans, then use <strong>Cross-Field Move Comparison</strong> to compare two to four possible moves.</li>
+                <li>Set one <strong>Current Move</strong>, then create a <strong>Current Move Plan</strong> that names the smallest first action, support needed, risk to watch, and check-back point.</li>
                 <li>Set one <strong>Current Move</strong> when you are ready to deliberate. Current does not mean final; it means “the move I am now considering.”</li>
                 <li>Export JSON before changing browsers, devices, or clearing memory.</li>
               </ol>
@@ -1030,6 +1083,7 @@
                 <div class="glossary-item"><strong>BioBond</strong><span>A person, practice, place, or structure that helps your agency stay alive under pressure.</span></div>
                 <div class="glossary-item"><strong>Agency-preserving next move</strong><span>The next survivable, coherent action that keeps authorship and possibility open.</span></div>
                 <div class="glossary-item"><strong>Decision lens</strong><span>A temporary way of viewing moves, such as urgency, future agency, support-readiness, or reversibility. It is a perspective, not an order.</span></div>
+                <div class="glossary-item"><strong>Current Move Plan</strong><span>A small, revisable action plan for the move the user is presently considering. It names why now, first action, support, risk, non-sacrifice, and check-back.</span></div>
               </div>
             </div>
             <div class="toolbar">
@@ -1049,7 +1103,7 @@
               <label for="backend-url">Backend proxy endpoint</label>
               <input id="backend-url" type="text" value="https://ucp-backend-4dig.onrender.com/api/claude-proxy" onchange="saveBackendUrl(this.value)" />
             </div>
-            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.7.1 Stable Guided Workflow Build.</div>
+            <div class="privacy-note">During development, this core build does not register a service worker and does not include PWA caching. Version: Navigator Twin v2.8 Current Move Deliberation Build.</div>
           </div>
         </div>
         </aside>
@@ -1065,7 +1119,7 @@
 
   const ENABLE_PWA = false; // Core development build: keep false until Twin v2 is stable.
   const DEFAULT_BACKEND = 'https://ucp-backend-4dig.onrender.com/api/claude-proxy';
-  const APP_VERSION = 'Navigator Twin v2.7.1 Stable Guided Workflow';
+  const APP_VERSION = 'Navigator Twin v2.8 Current Move Deliberation';
 
   const KEYS = {
     chat: 'navigator_twin_v2_chat',
@@ -1084,6 +1138,7 @@
     currentMoveId: 'navigator_twin_v2_current_move_id',
     moveCompareSelection: 'navigator_twin_v2_move_compare_selection',
     moveComparisonLens: 'navigator_twin_v2_move_comparison_lens',
+    currentMovePlan: 'navigator_twin_v2_current_move_plan',
     uiPanels: 'navigator_twin_v2_ui_panels',
     welcomeDismissed: 'navigator_twin_v2_welcome_dismissed',
     workspace: 'navigator_twin_v2_active_workspace'
@@ -1248,6 +1303,8 @@
   function setMoveCompareSelection(ids){ setStored(KEYS.moveCompareSelection, Array.isArray(ids) ? ids.slice(0, 4) : []); }
   function getMoveComparisonLens(){ try { return localStorage.getItem(KEYS.moveComparisonLens) || 'balanced'; } catch(e) { return 'balanced'; } }
   function setMoveComparisonLens(value){ try { localStorage.setItem(KEYS.moveComparisonLens, value || 'balanced'); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} }
+  function getCurrentMovePlan(){ return getStored(KEYS.currentMovePlan, null); }
+  function setCurrentMovePlan(plan){ if(plan) setStored(KEYS.currentMovePlan, plan); else { try { localStorage.removeItem(KEYS.currentMovePlan); localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); updateSaveStatus(); } catch(e) {} } }
   function setPendingCapsule(capsule){ setStored(KEYS.pendingCapsule, capsule); }
   function clearPendingCapsule(){ try { localStorage.removeItem(KEYS.pendingCapsule); } catch(e) {} }
   function getCoverage(){
@@ -1507,18 +1564,21 @@
     const capsules = getCapsules();
     const scans = getFieldScans();
     const moves = getMoveCards();
-    const activeMoves = moves.filter(m => !m.notNow);
+    const activeMoves = moves.filter(m => m.status !== 'not_now');
     const ctx = getContextAssembly();
     const summary = buildFieldMapSummary(scans);
     const stage = getStage(journal.length);
     const largest = summary.largestGap;
     const currentMove = moves.find(m => m.id === getCurrentMoveId());
-    const nextHint = currentMove ? 'Review current move' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
+    const currentMovePlan = getCurrentMovePlan();
+    const planMatchesCurrent = !!(currentMove && currentMovePlan && currentMovePlan.moveId === currentMove.id);
+    const nextHint = planMatchesCurrent ? 'Review current move plan' : currentMove ? 'Create current move plan' : moves.length ? 'Compare saved moves' : scans.length ? 'Generate first Move Cards' : 'Create a first Field Scan';
     const cards = [
       ['Twin stage', stage.name, journal.length + ' journal entries · ' + Math.min(100, Math.round((journal.length/14)*100)) + '% coherence path'],
       ['Memory', capsules.length + ' capsules', 'Export JSON before changing devices or browsers.'],
       ['Field Map', scans.length + ' scans', scans.length ? (summary.highRisk + ' high risk · ' + summary.moderateRisk + ' moderate risk') : 'Map one active environment first.'],
       ['Move Cards', moves.length + ' saved', activeMoves.length + ' active · ' + (moves.length - activeMoves.length) + ' not now'],
+      ['Current Move Plan', planMatchesCurrent ? 'saved' : currentMove ? 'needed' : 'not ready', planMatchesCurrent ? truncateText(currentMovePlan.firstSmallAction || currentMovePlan.whyNow || 'Plan saved', 96) : currentMove ? 'Create a plan from the selected Current Move.' : 'Select a Current Move before planning.'],
       ['Context Assembly', ctx.text ? 'saved' : 'not yet saved', ctx.text ? truncateText(ctx.text, 96) : 'Use Field Map to name the combined situation.'],
       ['Largest gap', largest ? largest.suppressionGap : 'none', largest ? truncateText(largest.title || largest.environment || 'Field Scan', 96) : 'No suppression gap mapped yet.'],
       ['Next workspace', moves.length ? 'Moves' : scans.length ? 'Moves / Field' : 'Field Map', nextHint],
@@ -1530,7 +1590,8 @@
     if(currentBox){
       if(currentMove){
         const field = currentMove.fieldTitle || currentMove.scanTitle || currentMove.fieldType || 'selected field';
-        currentBox.innerHTML = '<div class="current-move-title">Current Move: ' + escapeHtml(currentMove.title || 'Untitled move') + '</div><div class="current-move-text">Field: ' + escapeHtml(field) + '. This is the move currently being considered, not a command. Use the Moves workspace to deliberate, revise, clear it, or ask the Twin about it.</div><div class="quick-actions"><button class="btn small primary" type="button" onclick="showWorkspace(\'moves\')">Review Current Move</button><button class="btn small ghost" type="button" onclick="askTwinAboutMoveCard(\'' + escapeHtml(currentMove.id) + '\', false)">Ask Twin About Current Move</button></div>';
+        const planText = planMatchesCurrent ? '<div class="current-move-text"><strong>Plan:</strong> ' + escapeHtml(truncateText(currentMovePlan.firstSmallAction || currentMovePlan.whyNow || 'Plan saved', 160)) + '</div>' : '<div class="current-move-text"><strong>No plan yet:</strong> Open Moves to create a small, revisable Current Move Plan.</div>';
+        currentBox.innerHTML = '<div class="current-move-title">Current Move: ' + escapeHtml(currentMove.title || 'Untitled move') + '</div><div class="current-move-text">Field: ' + escapeHtml(field) + '. This is the move currently being considered, not a command.</div>' + planText + '<div class="quick-actions"><button class="btn small primary" type="button" onclick="showWorkspace(\'moves\')">Review / Plan Current Move</button><button class="btn small ghost" type="button" onclick="askTwinAboutCurrentMovePlan()">Ask Twin About Plan</button></div>';
       } else {
         currentBox.innerHTML = '<div class="current-move-title">No Current Move selected yet.</div><div class="current-move-text">When you compare moves, you can mark one as the move you are presently considering. Navigator will keep it visible here so you do not have to hunt for it.</div>';
       }
@@ -1542,7 +1603,8 @@
         { label:'2+ Field Scans', ready: scans.length >= 2, note: scans.length >= 2 ? scans.length + ' mapped' : 'Map at least two life fields for comparison.' },
         { label:'2+ Move Cards', ready: moves.length >= 2, note: moves.length >= 2 ? moves.length + ' saved' : 'Generate moves from saved scans.' },
         { label:'Context Assembly', ready: !!ctx.text, note: ctx.text ? 'Combined context saved' : 'Name what the fields create together.' },
-        { label:'Current Move', ready: !!currentMove, note: currentMove ? truncateText(currentMove.title || 'selected', 60) : 'Set one move as current when ready.' }
+        { label:'Current Move', ready: !!currentMove, note: currentMove ? truncateText(currentMove.title || 'selected', 60) : 'Set one move as current when ready.' },
+        { label:'Current Move Plan', ready: planMatchesCurrent, note: planMatchesCurrent ? 'Plan saved for current move' : currentMove ? 'Create a deliberation plan next.' : 'Requires a Current Move first.' }
       ];
       readiness.innerHTML = items.map(item => '<div class="readiness-item ' + (item.ready ? 'ready' : 'waiting') + '"><strong>' + (item.ready ? '✓ ' : '○ ') + escapeHtml(item.label) + '</strong>' + escapeHtml(item.note) + '</div>').join('');
     }
@@ -1629,6 +1691,7 @@
     renderFieldScans();
     renderFieldMapDashboard();
     renderMoveStudio();
+    renderCurrentMovePlan();
     renderWorkspaceDashboard();
     updateSaveStatus();
     applyPanelStates();
@@ -1719,6 +1782,8 @@ Essential design principle: The Twin is not asking the student to confess a self
     const fieldMapSummary = buildFieldMapSummary(getFieldScans());
     const contextAssembly = getContextAssembly();
     const moveCards = getMoveCards().slice(-10).map(m => ({ title:m.title, fieldTitle:m.fieldTitle, fieldType:m.fieldType, pattern:m.pattern, firstAction:m.firstAction, whatPreserves:m.whatPreserves, whatRisks:m.whatRisks, supportNeeded:m.supportNeeded, urgency:m.urgency, reversibility:m.reversibility, suppressionRelief:m.suppressionRelief, futureAgencyValue:m.futureAgencyValue, status:m.status }));
+    const currentMove = getMoveById(getCurrentMoveId()) || null;
+    const currentMovePlan = getCurrentMovePlan();
     const least = leastCoveredKeys(3);
     const stage = getStage(journal.length);
     const mode = getMode();
@@ -1737,6 +1802,8 @@ Essential design principle: The Twin is not asking the student to confess a self
       fieldMapSummary: fieldMapSummary,
       contextAssembly: contextAssembly,
       moveCards: moveCards,
+      currentMove: currentMove,
+      currentMovePlan: currentMovePlan,
       instruction: 'Respond as the developing Twin. Do not repeat any previous question. Ask exactly one question. Do not return JSON; return conversational prose.'
     }, null, 2);
   }
@@ -2035,6 +2102,7 @@ Return only valid JSON with this exact shape:
         currentMoveId: getCurrentMoveId(),
         moveCompareSelection: getMoveCompareSelection(),
         moveComparisonLens: getMoveComparisonLens(),
+        currentMovePlan: getCurrentMovePlan(),
         mode: getMode(),
         settings: getSettings()
       }, null, 2);
@@ -2048,6 +2116,8 @@ Return only valid JSON with this exact shape:
         + getFieldScans().map((s,i) => (i+1) + '. ' + (s.title || s.environment || 'Field Scan') + ' | Gap: ' + (s.suppressionGap || 0) + ' | Risk: ' + (s.riskLevel || 'unknown') + '\n' + (s.summary || '')).join('\n\n')
         + '\n\n--- Current Move ---\n'
         + ((getMoveCards().find(m => m.id === getCurrentMoveId()) || {}).title || '[no current move selected]')
+        + '\n\n--- Current Move Plan ---\n'
+        + formatCurrentMovePlanForText(getCurrentMovePlan())
         + '\n\n--- Move Cards ---\n'
         + getMoveCards().map((m,i) => (i+1) + '. ' + (m.title || 'Move Card') + ' | Field: ' + (m.fieldTitle || 'unknown') + ' | Status: ' + (m.status || 'saved') + '\nFirst action: ' + (m.firstAction || '') + '\nPreserves: ' + (m.whatPreserves || '') + '\nRisks: ' + (m.whatRisks || '')).join('\n\n')
         + '\n\n--- Conversation ---\n'
@@ -2132,6 +2202,28 @@ Return only valid JSON with this exact shape:
     };
   }
 
+
+  function normalizeImportedCurrentMovePlan(p){
+    if(!p || typeof p !== 'object') return null;
+    const plan = {
+      id: (p.id) || uid('plan'),
+      moveId: String(p.moveId || '').slice(0, 80),
+      moveTitle: String(p.moveTitle || '').slice(0, 160),
+      field: String(p.field || '').slice(0, 160),
+      whyNow: String(p.whyNow || '').slice(0, 1600),
+      firstSmallAction: String(p.firstSmallAction || '').slice(0, 1600),
+      supportNeeded: String(p.supportNeeded || '').slice(0, 1600),
+      riskToWatch: String(p.riskToWatch || '').slice(0, 1600),
+      whatNotToSacrifice: String(p.whatNotToSacrifice || '').slice(0, 1600),
+      pauseOrReviseIf: String(p.pauseOrReviseIf || '').slice(0, 1600),
+      checkBack: String(p.checkBack || '').slice(0, 500),
+      status: ['draft','active','completed'].includes(p.status) ? p.status : 'draft',
+      createdAt: p.createdAt || new Date().toISOString(),
+      updatedAt: p.updatedAt || new Date().toISOString()
+    };
+    return plan.moveId || plan.firstSmallAction || plan.whyNow ? plan : null;
+  }
+
   function validateImportPayload(data){
     if(!data || typeof data !== 'object') throw new Error('The selected file is not a valid Navigator Twin JSON object.');
     const chat = Array.isArray(data.chat) ? data.chat.map(normalizeImportedMessage).filter(m => m.content.trim()) : [];
@@ -2160,7 +2252,8 @@ Return only valid JSON with this exact shape:
     const moveCompareSelection = Array.isArray(data.moveCompareSelection) ? data.moveCompareSelection.map(x => String(x).slice(0,80)).slice(0,4) : [];
     const allowedLens = ['balanced','urgent','future_agency','suppression_relief','support_ready','low_risk'];
     const moveComparisonLens = allowedLens.includes(data.moveComparisonLens) ? data.moveComparisonLens : 'balanced';
-    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens }; 
+    const currentMovePlan = normalizeImportedCurrentMovePlan(data.currentMovePlan);
+    return { chat, journal, coverage, questions, mode, documentCapsules, fieldScans, contextAssembly, moveCards, pendingMoveCards, currentMoveId, moveCompareSelection, moveComparisonLens, currentMovePlan }; 
   }
 
   async function handleImportTwinMemoryFile(event){
@@ -2188,11 +2281,12 @@ Return only valid JSON with this exact shape:
       setCurrentMoveId(restored.currentMoveId && (restored.moveCards || []).some(m => m.id === restored.currentMoveId) ? restored.currentMoveId : '');
       setMoveCompareSelection((restored.moveCompareSelection || []).filter(id => (restored.moveCards || []).some(m => m.id === id)));
       setMoveComparisonLens(restored.moveComparisonLens || 'balanced');
+      setCurrentMovePlan(restored.currentMovePlan && (restored.moveCards || []).some(m => m.id === restored.currentMovePlan.moveId) ? restored.currentMovePlan : null);
       clearPendingCapsule();
       try { localStorage.setItem(KEYS.mode, restored.mode); } catch(e) {}
       try { localStorage.setItem(KEYS.lastSaved, new Date().toISOString()); } catch(e) {}
       renderAll();
-      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '.');
+      alert('Twin memory restored. Conversation turns: ' + restored.chat.length + '. Journal entries: ' + restored.journal.length + '. Document capsules: ' + (restored.documentCapsules || []).length + '. Field scans: ' + (restored.fieldScans || []).length + '. Move cards: ' + (restored.moveCards || []).length + '. Current move plan: ' + (restored.currentMovePlan ? 'yes' : 'no') + '.');
     } catch(e) {
       alert('Could not import this JSON file: ' + e.message);
       showDebug('IMPORT ERROR: ' + (e && e.stack ? e.stack : e.message));
@@ -2758,11 +2852,16 @@ Return only valid JSON with this shape:
   function deleteFieldScan(id){
     if(!confirm('Delete this Navigator Field Scan?')) return;
     setFieldScans(getFieldScans().filter(s => s.id !== id));
+    const removedMoveIds = getMoveCards().filter(m => m.fieldScanId === id).map(m => m.id);
     setMoveCards(getMoveCards().filter(m => m.fieldScanId !== id));
     setPendingMoveCards(getPendingMoveCards().filter(m => m.fieldScanId !== id));
+    if(removedMoveIds.includes(getCurrentMoveId())) setCurrentMoveId('');
+    const plan = getCurrentMovePlan();
+    if(plan && removedMoveIds.includes(plan.moveId)) setCurrentMovePlan(null);
     renderFieldScans();
     renderFieldMapDashboard();
     renderMoveStudio();
+    renderWorkspaceDashboard();
     applyPanelStates();
   }
   window.deleteFieldScan = deleteFieldScan;
@@ -2880,6 +2979,143 @@ Return only valid JSON with this shape:
     ];
   }
 
+
+  function checkBackForMove(card){
+    const urgency = Number(card && card.urgency) || 0;
+    const scale = String((card && card.timeScale) || '').toLowerCase();
+    if(urgency >= 78 || scale.includes('today') || scale.includes('24')) return 'Check back within 24 hours.';
+    if(urgency >= 55 || scale.includes('1–3') || scale.includes('1-3')) return 'Check back in 48 hours.';
+    return 'Check back within one week, or sooner if pressure changes.';
+  }
+
+  function buildCurrentMovePlan(card){
+    const field = card.fieldTitle || card.fieldType || 'selected field';
+    const urgency = Number(card.urgency) || 0;
+    const relief = Number(card.suppressionRelief) || 0;
+    const future = Number(card.futureAgencyValue) || 0;
+    const why = 'This move is worth considering now because it may preserve agency in ' + field + ' while balancing urgency (' + urgency + '), suppression relief (' + relief + '), and future agency value (' + future + '). This is a reason to deliberate, not a command to act.';
+    return {
+      id: uid('plan'),
+      moveId: card.id,
+      moveTitle: card.title || 'Current Move',
+      field: field,
+      whyNow: why,
+      firstSmallAction: card.firstAction || 'Name the smallest first step that can be taken without making an irreversible commitment.',
+      supportNeeded: card.supportNeeded || 'Name one person, practice, document, tool, or community support that can help this move remain coherent.',
+      riskToWatch: card.whatRisks || 'Watch for pressure to move faster than the available evidence, support, or capacity permits.',
+      whatNotToSacrifice: card.whatPreserves ? 'Do not sacrifice the thing this move is meant to preserve: ' + card.whatPreserves : 'Do not sacrifice dignity, health, evidence, time, or the right to revise the plan when the field changes.',
+      pauseOrReviseIf: 'Pause or revise if the move requires an irreversible commitment, support becomes unavailable, stress spikes, or new evidence changes the map.',
+      checkBack: checkBackForMove(card),
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function formatCurrentMovePlanForText(plan){
+    if(!plan) return '[no current move plan saved]';
+    return 'Move: ' + (plan.moveTitle || '') + '\nField: ' + (plan.field || '') + '\nWhy now: ' + (plan.whyNow || '') + '\nFirst small action: ' + (plan.firstSmallAction || '') + '\nSupport/BioBond: ' + (plan.supportNeeded || '') + '\nRisk to watch: ' + (plan.riskToWatch || '') + '\nDo not sacrifice: ' + (plan.whatNotToSacrifice || '') + '\nPause or revise if: ' + (plan.pauseOrReviseIf || '') + '\nCheck-back: ' + (plan.checkBack || '');
+  }
+
+  function renderCurrentMovePlan(){
+    const box = document.getElementById('current-move-plan-output');
+    const status = document.getElementById('current-move-plan-status');
+    if(!box) return;
+    const current = getMoveById(getCurrentMoveId());
+    const plan = getCurrentMovePlan();
+    if(!current){
+      if(status) status.textContent = 'No Current Move selected yet.';
+      box.innerHTML = '<div class="plan-empty"><strong>No Current Move yet.</strong><br>Use Cross-Field Move Comparison or a saved Move Card to set one move as Current. Then return here to create a small, revisable plan.</div>';
+      return;
+    }
+    const field = current.fieldTitle || current.fieldType || 'selected field';
+    if(status) status.textContent = plan && plan.moveId === current.id ? 'Plan saved for current move · ' + (plan.updatedAt ? new Date(plan.updatedAt).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : 'saved') : 'Current Move selected · plan not yet created.';
+    if(!plan || plan.moveId !== current.id){
+      box.innerHTML = '<div class="plan-empty"><strong>Current Move:</strong> ' + escapeHtml(current.title || 'Untitled move') + '<br><strong>Field:</strong> ' + escapeHtml(field) + '<br><br>Create a plan when you are ready. The plan will name why this move now, the smallest first action, needed support, risk to watch, what not to sacrifice, and when to check back.</div>';
+      return;
+    }
+    box.innerHTML = '<div class="current-move-plan-card">'
+      + '<div class="current-move-plan-title">Plan for: ' + escapeHtml(plan.moveTitle || current.title || 'Current Move') + '</div>'
+      + '<div class="current-move-plan-note"><strong>Field:</strong> ' + escapeHtml(plan.field || field) + ' · <strong>Status:</strong> ' + escapeHtml(plan.status || 'draft') + '</div>'
+      + '<div class="plan-grid">'
+      + '<div class="plan-item"><strong>Why this move now</strong>' + escapeHtml(plan.whyNow || '') + '</div>'
+      + '<div class="plan-item"><strong>First small action</strong>' + escapeHtml(plan.firstSmallAction || '') + '</div>'
+      + '<div class="plan-item"><strong>Support / BioBond</strong>' + escapeHtml(plan.supportNeeded || '') + '</div>'
+      + '<div class="plan-item"><strong>Risk to watch</strong>' + escapeHtml(plan.riskToWatch || '') + '</div>'
+      + '<div class="plan-item"><strong>Do not sacrifice</strong>' + escapeHtml(plan.whatNotToSacrifice || '') + '</div>'
+      + '<div class="plan-item"><strong>Pause or revise if</strong>' + escapeHtml(plan.pauseOrReviseIf || '') + '</div>'
+      + '<div class="plan-item"><strong>Check-back</strong>' + escapeHtml(plan.checkBack || '') + '</div>'
+      + '<div class="plan-item"><strong>Reminder</strong>This is a deliberation plan, not a command. You remain the author of the action.</div>'
+      + '</div></div>';
+  }
+  window.renderCurrentMovePlan = renderCurrentMovePlan;
+
+  function generateCurrentMovePlan(){
+    const current = getMoveById(getCurrentMoveId());
+    if(!current){ alert('Set one saved Move Card as the Current Move first.'); return; }
+    const existing = getCurrentMovePlan();
+    if(existing && existing.moveId === current.id && !confirm('Replace the saved plan for this Current Move with a new draft based on the Move Card?')) return;
+    setCurrentMovePlan(buildCurrentMovePlan(current));
+    renderCurrentMovePlan();
+    renderWorkspaceDashboard();
+  }
+  window.generateCurrentMovePlan = generateCurrentMovePlan;
+
+  function editCurrentMovePlan(){
+    const current = getMoveById(getCurrentMoveId());
+    const plan = getCurrentMovePlan();
+    if(!current){ alert('Set a Current Move first.'); return; }
+    if(!plan || plan.moveId !== current.id){ alert('Create a Current Move Plan first.'); return; }
+    const fields = [
+      ['whyNow','Why this move now'], ['firstSmallAction','First small action'], ['supportNeeded','Support / BioBond'],
+      ['riskToWatch','Risk to watch'], ['whatNotToSacrifice','What not to sacrifice'], ['pauseOrReviseIf','Pause or revise if'], ['checkBack','Check-back']
+    ];
+    const updated = Object.assign({}, plan);
+    for(const pair of fields){
+      const key = pair[0], label = pair[1];
+      const val = prompt(label + ':', updated[key] || '');
+      if(val === null) return;
+      updated[key] = String(val).slice(0, 1600);
+    }
+    updated.updatedAt = new Date().toISOString();
+    setCurrentMovePlan(updated);
+    renderCurrentMovePlan();
+    renderWorkspaceDashboard();
+  }
+  window.editCurrentMovePlan = editCurrentMovePlan;
+
+  function clearCurrentMovePlan(){
+    const plan = getCurrentMovePlan();
+    if(!plan){ renderCurrentMovePlan(); return; }
+    if(!confirm('Clear the saved Current Move Plan? The Move Card itself will remain.')) return;
+    setCurrentMovePlan(null);
+    renderCurrentMovePlan();
+    renderWorkspaceDashboard();
+  }
+  window.clearCurrentMovePlan = clearCurrentMovePlan;
+
+  function buildCurrentMovePlanPrompt(){
+    const current = getMoveById(getCurrentMoveId());
+    const plan = getCurrentMovePlan();
+    if(!current) return '';
+    const planText = plan && plan.moveId === current.id ? formatCurrentMovePlanForText(plan) : '[no plan created yet]';
+    return 'I have selected a Current Move and I want help deliberating about the plan without having the app decide for me. Please help me test whether the plan is small enough, agency-preserving, supported, reversible where possible, and aligned with my larger Field Map and Context Assembly. Identify one strength, one risk, one support/BioBond to activate, one possible revision, and one final question I should answer before acting.\n\nCURRENT MOVE:\nTitle: ' + (current.title || '') + '\nField: ' + (current.fieldTitle || '') + ' — ' + (current.fieldType || '') + '\nFirst action from Move Card: ' + (current.firstAction || '') + '\nPreserves: ' + (current.whatPreserves || '') + '\nRisks: ' + (current.whatRisks || '') + '\nSupport: ' + (current.supportNeeded || '') + '\nScores: urgency ' + (current.urgency || 0) + ', reversibility ' + (current.reversibility || 0) + ', suppression relief ' + (current.suppressionRelief || 0) + ', future agency ' + (current.futureAgencyValue || 0) + '\n\nCURRENT MOVE PLAN:\n' + planText + '\n\nFIELD MAP AND CONTEXT:\n' + fieldMapPromptBase();
+  }
+
+  function askTwinAboutCurrentMovePlan(){
+    const current = getMoveById(getCurrentMoveId());
+    if(!current){ alert('Set a Current Move first.'); return; }
+    showWorkspace('twin');
+    const input = document.getElementById('chat-input');
+    if(input){
+      input.value = buildCurrentMovePlanPrompt();
+      input.focus();
+      input.scrollIntoView({ behavior:'smooth', block:'center' });
+      setTimeout(() => sendToTwin(), 50);
+    }
+  }
+  window.askTwinAboutCurrentMovePlan = askTwinAboutCurrentMovePlan;
+
   function renderMoveStudio(){
     const select = document.getElementById('move-scan-select');
     const scans = getFieldScans();
@@ -2895,6 +3131,7 @@ Return only valid JSON with this shape:
     renderPendingMoveCards();
     renderSavedMoveCards();
     renderMoveComparison();
+    renderCurrentMovePlan();
   }
 
   function renderMoveCard(card, pending){
@@ -3060,8 +3297,11 @@ Return only valid JSON with this shape:
     if(!confirm('Delete this Move Card?')) return;
     setMoveCards(getMoveCards().filter(c => c.id !== id));
     if(getCurrentMoveId() === id) setCurrentMoveId('');
+    const plan = getCurrentMovePlan();
+    if(plan && plan.moveId === id) setCurrentMovePlan(null);
     setMoveCompareSelection(getMoveCompareSelection().filter(x => x !== id));
     renderMoveStudio();
+    renderWorkspaceDashboard();
     applyPanelStates();
   }
   window.deleteMoveCard = deleteMoveCard;
@@ -3151,6 +3391,7 @@ Return only valid JSON with this shape:
     if(getCurrentMoveId() === id) setCurrentMoveId('');
     else setCurrentMoveId(id);
     renderMoveStudio();
+    renderCurrentMovePlan();
     renderWorkspaceDashboard();
   }
   window.setCurrentMove = setCurrentMove;
@@ -3261,7 +3502,7 @@ Return only valid JSON with this shape:
 
 function clearTwinMemory(){
     if(!confirm('Clear the Twin conversation, journal, capsules, field scans, context assembly, move cards, and comparison selections from this browser?')) return;
-    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
+    [KEYS.chat, KEYS.journal, KEYS.coverage, KEYS.questions, KEYS.capsules, KEYS.pendingCapsule, KEYS.fieldScans, KEYS.contextAssembly, KEYS.moveCards, KEYS.pendingMoveCards, KEYS.currentMoveId, KEYS.moveCompareSelection, KEYS.moveComparisonLens, KEYS.currentMovePlan, KEYS.lastSaved].forEach(k => { try { localStorage.removeItem(k); } catch(e) {} });
     renderAll();
   }
   window.clearTwinMemory = clearTwinMemory;
